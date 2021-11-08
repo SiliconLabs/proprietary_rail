@@ -1,8 +1,9 @@
 /***************************************************************************//**
 * @file sl_custom_token_header.h
+* @brief define custom tokens
 *******************************************************************************
 * # License
-* <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib
@@ -32,6 +33,7 @@
 * maintained and there may be no bug maintenance planned for these resources.
 * Silicon Labs may update projects from time to time.
 ******************************************************************************/
+
 
 /***************************************************************************//**
  * Custom Tokens Usage Examples

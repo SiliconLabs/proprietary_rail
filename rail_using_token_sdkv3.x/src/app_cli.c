@@ -66,7 +66,8 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-/// Flag, indicating transmit request (button has pressed / CLI transmit request has occured)
+/// Flag, indicating transmit request (button has pressed / CLI transmit 
+/// request has occured)
 extern volatile bool tx_requested;
 /// Flag, indicating received packet is forwarded on CLI or not
 extern volatile bool rx_requested;
@@ -121,67 +122,77 @@ void cli_receive_packet(sl_cli_command_arg_t *arguments)
   app_log_info("Received packets: %s\n", str_rx_fw);
 }
 
+/******************************************************************************
+ * CLI - token: Get basic/counter/index token
+ *****************************************************************************/
 void cmd_get_token_handler(sl_cli_command_arg_t *arguments)
 {
   if (0 == strcmp("basic", sl_cli_get_command_string(arguments, 1))) {
-      uint16_t value;
-      halCommonGetToken(&value, TOKEN_BASIC_DEMO);
-      printf("The value of TOKEN_BASIC_DEMO is: 0x%04X \n", value);
+    uint16_t value;
+    halCommonGetToken(&value, TOKEN_BASIC_DEMO);
+    printf("The value of TOKEN_BASIC_DEMO is: 0x%04X \n", value);
   } else if (0 == strcmp("counter", sl_cli_get_command_string(arguments, 1))) {
-      uint32_t value;
-      halCommonGetToken(&value, TOKEN_COUNTER_DEMO);
-      printf("The value of TOKEN_COUNTER_DEMO is: 0x%08lX \n", value);
+    uint32_t value;
+    halCommonGetToken(&value, TOKEN_COUNTER_DEMO);
+    printf("The value of TOKEN_COUNTER_DEMO is: 0x%08lX \n", value);
   } else if (0 == strcmp("index", sl_cli_get_command_string(arguments, 1))) {
-      uint8_t  index;
-      uint32_t value;
+    uint8_t index;
+    uint32_t value;
 
-      if (sl_cli_get_argument_count(arguments) < 1) {
-          printf("please input the index. \n");
-          return;
-      }
+    if (sl_cli_get_argument_count(arguments) < 1) {
+      printf("please input the index. \n");
+      return;
+    }
 
-      index = sl_cli_get_argument_uint8(arguments, 0);
-      halCommonGetIndexedToken(&value, TOKEN_INDEX_DEMO, index);
-      printf("The value of TOKEN_INDEX_DEMO[%d] is: 0x%08lX \n", index, value);
+    index = sl_cli_get_argument_uint8(arguments, 0);
+    halCommonGetIndexedToken(&value, TOKEN_INDEX_DEMO, index);
+    printf("The value of TOKEN_INDEX_DEMO[%d] is: 0x%08lX \n", index, value);
   } else {
-      //impossible branch
+    //impossible branch
   }
 }
 
+/******************************************************************************
+ * CLI - token: Set basic/counter/index token
+ *****************************************************************************/
 void cmd_set_token_handler(sl_cli_command_arg_t *arguments)
 {
   if (0 == strcmp("basic", sl_cli_get_command_string(arguments, 1))) {
-      uint16_t value;
+    uint16_t value;
 
-      if (sl_cli_get_argument_count(arguments) < 1) {
-          printf("please input the value. \n");
-          return;
-      }
+    if (sl_cli_get_argument_count(arguments) < 1) {
+      printf("please input the value. \n");
+      return;
+    }
 
-      value = sl_cli_get_argument_uint16(arguments, 0);
-      halCommonSetToken(TOKEN_BASIC_DEMO, &value);
-      printf("Set the value of TOKEN_BASIC_DEMO to: 0x%04X \n", value);
+    value = sl_cli_get_argument_uint16(arguments, 0);
+    halCommonSetToken(TOKEN_BASIC_DEMO, &value);
+    printf("Set the value of TOKEN_BASIC_DEMO to: 0x%04X \n", value);
   } else if (0 == strcmp("counter", sl_cli_get_command_string(arguments, 1))) {
-      halCommonIncrementCounterToken(TOKEN_COUNTER_DEMO);
-      printf("Increase the counter TOKEN_COUNTER_DEMO \n");
+    halCommonIncrementCounterToken(TOKEN_COUNTER_DEMO);
+    printf("Increase the counter TOKEN_COUNTER_DEMO \n");
   } else if (0 == strcmp("index", sl_cli_get_command_string(arguments, 1))) {
-      uint8_t index;
-      uint32_t value;
+    uint8_t index;
+    uint32_t value;
 
-      if (sl_cli_get_argument_count(arguments) < 2) {
-          printf("please input the index and value. \n");
-          return;
-      }
+    if (sl_cli_get_argument_count(arguments) < 2) {
+        printf("please input the index and value. \n");
+        return;
+    }
 
-      index = (uint8_t)sl_cli_get_argument_uint32(arguments, 0);
-      value = sl_cli_get_argument_uint32(arguments, 1);
-      halCommonSetIndexedToken(TOKEN_INDEX_DEMO, index, &value);
-      printf("Set the value of TOKEN_INDEX_DEMO[%d] to: 0x%08lX \n", index, value);
+    index = (uint8_t)sl_cli_get_argument_uint32(arguments, 0);
+    value = sl_cli_get_argument_uint32(arguments, 1);
+    halCommonSetIndexedToken(TOKEN_INDEX_DEMO, index, &value);
+    printf("Set the value of TOKEN_INDEX_DEMO[%d] to: 0x%08lX \n", index, 
+                                                                   value);
   } else {
-      //impossible branch
+    //impossible branch
   }
 }
 
+/******************************************************************************
+ * CLI - eui64: get the mfg token eui64
+ *****************************************************************************/
 void cmd_get_eui64_handler(sl_cli_command_arg_t *arguments)
 {
   uint8_t eui64[8] = {0};
@@ -189,38 +200,47 @@ void cmd_get_eui64_handler(sl_cli_command_arg_t *arguments)
   (void)arguments;
 
   halCommonGetMfgToken(eui64, TOKEN_MFG_CUSTOM_EUI_64);
-  printf("TOKEN_MFG_CUSTOM_EUI_64:%02X%02X%02X%02X%02X%02X%02X%02X \n", eui64[7], eui64[6], eui64[5], eui64[4],
-                                                                       eui64[3], eui64[2], eui64[1], eui64[0]);
+  printf("TOKEN_MFG_CUSTOM_EUI_64:%02X%02X%02X%02X%02X%02X%02X%02X \n", 
+         eui64[7], 
+         eui64[6], 
+         eui64[5], 
+         eui64[4],
+         eui64[3], 
+         eui64[2], 
+         eui64[1], 
+         eui64[0]);
 }
 
+/******************************************************************************
+ * CLI - eui64: set the mfg token eui64
+ *****************************************************************************/
 void cmd_set_eui64_handler(sl_cli_command_arg_t *arguments)
 {
-  uint8_t  eui64[8] = {0};
-  size_t   len = 0;
+  uint8_t eui64[8] = {0};
+  size_t len = 0;
   uint8_t *pdata;
 
-
   if (sl_cli_get_argument_count(arguments) < 1) {
-      printf("please input the eui64. \n");
-      return;
+    printf("please input the eui64. \n");
+    return;
   }
 
   pdata = sl_cli_get_argument_hex(arguments, 0, &len);
   if (NULL != pdata && sizeof(eui64) == len) {
-      eui64[7] = pdata[0];
-      eui64[6] = pdata[1];
-      eui64[5] = pdata[2];
-      eui64[4] = pdata[3];
-      eui64[3] = pdata[4];
-      eui64[2] = pdata[5];
-      eui64[1] = pdata[6];
-      eui64[0] = pdata[7];
+    eui64[7] = pdata[0];
+    eui64[6] = pdata[1];
+    eui64[5] = pdata[2];
+    eui64[4] = pdata[3];
+    eui64[3] = pdata[4];
+    eui64[2] = pdata[5];
+    eui64[1] = pdata[6];
+    eui64[0] = pdata[7];
 
-      //mfg token can be set only once
-      int ret = halCommonSetMfgToken(TOKEN_MFG_CUSTOM_EUI_64, eui64);
-      printf("set TOKEN_MFG_CUSTOM_EUI_64 ret=%d \n", ret);
+    //mfg token can be set only once
+    int ret = halCommonSetMfgToken(TOKEN_MFG_CUSTOM_EUI_64, eui64);
+    printf("set TOKEN_MFG_CUSTOM_EUI_64 ret=%d \n", ret);
   } else {
-      printf("Input invalid \n");
+    printf("Input invalid \n");
   }
 }
 
@@ -233,7 +253,8 @@ static const sl_cli_command_info_t cmd_token_get = \
 static const sl_cli_command_info_t cmd_token_set = \
   SL_CLI_COMMAND(cmd_set_token_handler,
                  "Set token value",
-                 "for basic token, please input the value. No need for counter token",
+                 "for basic token, please input the value. \
+                 No need for counter token",
                  { SL_CLI_ARG_UINT32OPT, SL_CLI_ARG_END, });
 
 static const sl_cli_command_info_t cmd_indextoken_set = \

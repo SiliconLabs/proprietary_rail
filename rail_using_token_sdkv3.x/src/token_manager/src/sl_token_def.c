@@ -1,8 +1,9 @@
 /***************************************************************************//**
 * @file sl_token_def.c
+* @brief define custom tokens without stack
 *******************************************************************************
 * # License
-* <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib

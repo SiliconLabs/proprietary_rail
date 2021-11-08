@@ -108,11 +108,6 @@ RAIL_Handle_t app_init(void)
 #if defined(SL_CATALOG_LED1_PRESENT)
   sl_led_turn_off(&sl_led_led1);
 #endif
-  // Start reception
-//  RAIL_Status_t status = RAIL_StartRx(rail_handle, CHANNEL, NULL);
-//  if (status != RAIL_STATUS_NO_ERROR) {
-//    app_log_warning("After initialization RAIL_StartRx() result:%d ", status);
-//  }
 
   // CLI info message
   print_sample_app_name("Simple TRX");

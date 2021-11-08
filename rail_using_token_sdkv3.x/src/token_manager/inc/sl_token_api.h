@@ -1,8 +1,9 @@
 /***************************************************************************//**
- * @file sl_token_api.h
- *******************************************************************************
+* @file sl_token_api.h
+* @brief header file for token api
+*******************************************************************************
 * # License
-* <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+* <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
 *******************************************************************************
 *
 * SPDX-License-Identifier: Zlib

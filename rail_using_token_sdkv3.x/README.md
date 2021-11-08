@@ -16,10 +16,20 @@ Gecko SDK Suite v3.2
 NA
 
 ## Setup ##
-1. Backup the folder **platform\service\token_manager** of your v3.x SDK, then replace it with the one in **src/token_manager** of this example.
-2. Create a RAIL project based on **Simple_TRX**.
-3. Install the component **Token Manager** and **Token Manager Test**.
-4. Modify the source file **app_cli.c**, add the following source code to it. In this file, we added some CLI commands to demonstrate how we read/write the basic, counter and indexed tokens.
+1. Create a RAIL project based on **Simple_TRX**.
+2. Install the component **Token Manager** and **Token Manager Test**.
+3. Open the component **Token Manager**, turn on the option `Enable Custom Tokens`, for the field `File containing custom tokens`, leave it as the default value `sl_custom_token_header.h`.
+4. Replace the header file **config/sl_custom_token_header.h** of your project with the one in this example [src/config/sl_custom_token_header.h](src/config/sl_custom_token_header.h).
+5. Replace the folder **gecko_sdk_3.2.3/platform/service/token_manager** with the folder [src/token_manager](src/token_manager) in this example.
+6. Modify the project properties to remove some linked source files, so that the local copy can be used. 
+   ![linked-file](doc/linked-file.png)
+   Please remove the following items:
+   - sl_token_def.c
+   - sl_token_manager.c
+7. Add an include item.
+   ![include-item](doc/include-item.png)
+   Please add `"${workspace_loc:/${ProjName}/gecko_sdk_3.2.3/platform/service/token_manager/inc}"`
+8. Modify the source file **app_cli.c**, add the following source code to it. In this file, we added some CLI commands to demonstrate how we read/write the basic, counter and indexed tokens.
    ```C
     #include "sl_cli_handles.h"
     #include "sl_token_manager.h"
@@ -227,11 +237,11 @@ NA
       sl_cli_command_add_command_group(sl_cli_example_handle, &custom_cmd_group);
     }
    ```
-5. Modify the source file **app_init.c**, in the function **app_init**, call the API **sl_token_init** to initialize the tokens. Then call the function **cli_custom_cmd_init** to initialize the custom CLI.
-6. Build and test. 
+9.  Modify the source file **app_init.c**, in the function **app_init**, call the API **sl_token_init** to initialize the tokens. Then call the function **cli_custom_cmd_init** to initialize the custom CLI.
+10. Build and test. 
 
 ## How It Works ##
-1. In this example, there are instances defined for each token types (basic, counter and indexed). If more custom tokens need to be defined, just add them in the config file **cnofig/sl_custom_token_header.h**. 
+1. In this example, there are instances defined for each token types (basic, counter and indexed). If more custom tokens need to be defined, just add them in the config file **config/sl_custom_token_header.h**. 
 2. Run command **token basic get** to show the current value of the basic demo token and then use command **token basic set 1** to change it and verify the result.
    ```
     > Init token manager ret=0x0 
