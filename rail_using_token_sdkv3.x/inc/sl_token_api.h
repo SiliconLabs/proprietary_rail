@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * @file sl_token_api.h
-* @brief header file for token api
+* @brief Header file for token api.
 *******************************************************************************
 * # License
 * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
@@ -87,8 +87,9 @@ extern void token_manager_assert_handler(const char *filename, int linenumber);
  * be referenced from anywhere in the code base.
  */
 #define DEFINETYPES
-// Multiple inclusion of unguarded token-related header files is by design; suppress violation.
-//cstat !MISRAC2012-Dir-4.10
+// Multiple inclusion of unguarded token-related header files is by design; 
+// suppress violation.
+// cstat !MISRAC2012-Dir-4.10
   #include SL_TOKEN_MANAGER_CUSTOM_TOKEN_HEADER
 #undef DEFINETYPES
 
@@ -111,8 +112,9 @@ extern void token_manager_assert_handler(const char *filename, int linenumber);
 #define TOKEN_DEF(name, creator, iscnt, isidx, type, arraysize, ...) \
   TOKEN_##name,
 enum {
-  // Multiple inclusion of unguarded token-related header files is by design; suppress violation.
-  //cstat !MISRAC2012-Dir-4.10
+  // Multiple inclusion of unguarded token-related header files is by design; 
+  // suppress violation.
+  // cstat !MISRAC2012-Dir-4.10
     #include SL_TOKEN_MANAGER_CUSTOM_TOKEN_HEADER
   TOKEN_COUNT
 };
@@ -130,8 +132,9 @@ enum {
 #define TOKEN_DEF(name, creator, iscnt, isidx, type, arraysize, ...) \
   TOKEN_##name##_SIZE = sizeof(type),
 enum {
-  // Multiple inclusion of unguarded token-related header files is by design; suppress violation.
-  //cstat !MISRAC2012-Dir-4.10
+  // Multiple inclusion of unguarded token-related header files is by design; 
+  // suppress violation.
+  // cstat !MISRAC2012-Dir-4.10
     #include SL_TOKEN_MANAGER_CUSTOM_TOKEN_HEADER
 };
 
@@ -237,8 +240,9 @@ extern const void * const tokenDefaults[];
  */
 #define TOKEN_DEF(name, creator, iscnt, isidx, type, arraysize, ...) \
   typedef type TOKEN_##name##_TYPE;
-// Multiple inclusion of unguarded token-related header files is by design; suppress violation.
-//cstat !MISRAC2012-Dir-4.10
+// Multiple inclusion of unguarded token-related header files is by design; 
+// suppress violation.
+// cstat !MISRAC2012-Dir-4.10
   #include SL_TOKEN_MANAGER_CUSTOM_TOKEN_HEADER
 #undef TOKEN_DEF
 

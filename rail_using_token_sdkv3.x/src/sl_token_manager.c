@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * @file sl_token_manager.c
-* @brief adapt to token api
+* @brief Adapt to token api.
 *******************************************************************************
 * # License
 * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
@@ -356,7 +356,6 @@ Ecode_t sl_token_get_data(uint32_t token,
     #ifdef EMBER_TEST
     assert(false);
     #else //EMBER_TEST
-    // halInternalGetMfgTokenData(data, token, index, length);
     sl_token_get_manufacturing_data(token, index, data, length);
     #endif // EMBER_TEST
   } else {
@@ -465,7 +464,6 @@ Ecode_t sl_token_set_data(uint32_t token,
     #ifdef EMBER_TEST
     assert(false);
     #else //EMBER_TEST
-    // halInternalSetMfgTokenData(token, data, length);
     sl_token_set_manufacturing_data(token, data, length);
     #endif //EMBER_TEST
   } else {

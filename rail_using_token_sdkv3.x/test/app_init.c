@@ -1,5 +1,6 @@
 /***************************************************************************//**
 * @file app_init.c
+* @brief Implement initialization related functions.
 *******************************************************************************
 * # License
 * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
@@ -65,7 +66,7 @@
 * Checks phy setting to avoid errors at packet sending
 *****************************************************************************/
 static void validation_check(void);
-
+extern void cli_custom_cmd_init();
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
@@ -84,8 +85,6 @@ SL_WEAK void print_sample_app_name(const char* app_name)
 {
   app_log_info("%s\n", app_name);
 }
-
-extern void cli_custom_cmd_init();
 
 /******************************************************************************
  * The function is used for some basic initialization related to the app.

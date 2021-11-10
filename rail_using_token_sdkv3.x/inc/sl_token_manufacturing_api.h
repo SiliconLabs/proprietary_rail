@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * @file sl_token_manufacturing_api.h
-* @brief manufacturing token api
+* @brief Declare the APIs of the manufacturing token.
 *******************************************************************************
 * # License
 * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>
@@ -217,11 +217,11 @@ void halInternalGetMfgTokenData(void *data, uint16_t token, uint8_t index, uint3
  */
 void halInternalSetMfgTokenData(uint16_t token, void *data, uint32_t len);
 
-//Link the public API to the private internal instance.
+// Link the public API to the private internal instance.
 #define halCommonGetMfgToken(data, token) \
   sl_token_get_manufacturing_data(token, 0x7F, data, token##_SIZE)
 
-//Link the public API to the private internal instance.
+// Link the public API to the private internal instance.
 #define halCommonGetIndexedMfgToken(data, token, index) \
   sl_token_get_manufacturing_data(token, index, data, token##_SIZE)
 
@@ -229,10 +229,11 @@ void halInternalSetMfgTokenData(uint16_t token, void *data, uint32_t len);
 #define halCommonGetMfgTokenData(data, token, offset, size) \
   sl_token_get_manufacturing_data(token, offset, data, size)
 
-//Link the public API to the private internal instance.
+// Link the public API to the private internal instance.
 #define halCommonSetMfgToken(token, data) \
   sl_token_set_manufacturing_data(token, data, token##_SIZE)
 
+// Link the public API to the private internal instance.
 #define halCommonSetMfgTokenData(token, data, size) \
   sl_token_set_manufacturing_data(token, data, size)
 

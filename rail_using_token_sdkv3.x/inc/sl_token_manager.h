@@ -1,6 +1,6 @@
 /***************************************************************************//**
 * @file sl_token_manager.h
-* @brief token manager api
+* @brief Declare the APIs of the token manager.
 *******************************************************************************
 * # License
 * <b>Copyright 2020 Silicon Laboratories Inc. www.silabs.com</b>

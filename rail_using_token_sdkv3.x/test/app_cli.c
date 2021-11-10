@@ -1,5 +1,6 @@
 /***************************************************************************//**
 * @file app_cli.c
+* @brief Implement test cli commands of the application.
 *******************************************************************************
 * # License
 * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
@@ -176,8 +177,8 @@ void cmd_set_token_handler(sl_cli_command_arg_t *arguments)
     uint32_t value;
 
     if (sl_cli_get_argument_count(arguments) < 2) {
-        printf("please input the index and value. \n");
-        return;
+      printf("please input the index and value. \n");
+      return;
     }
 
     index = (uint8_t)sl_cli_get_argument_uint32(arguments, 0);

@@ -28,7 +28,7 @@ NA
    - sl_token_manager.c
 7. Add an include item.
    ![include-item](doc/include-item.png)
-   Please add `"${workspace_loc:/${ProjName}/gecko_sdk_3.2.3/platform/service/token_manager/inc}"`
+   Please add `"${workspace_loc:/${ProjName}/gecko_sdk_3.2.3/platform/service/token_manager/inc}"`, make sure it's before the item `"${StudioSdkPath}/platform/service/token_manager/inc"`.
 8. Modify the source file **app_cli.c**, add the following source code to it. In this file, we added some CLI commands to demonstrate how we read/write the basic, counter and indexed tokens.
    ```C
     #include "sl_cli_handles.h"
