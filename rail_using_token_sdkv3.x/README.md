@@ -19,17 +19,21 @@ NA
 1. Create a RAIL project based on **Simple_TRX**.
 2. Install the component **Token Manager** and **Token Manager Test**.
 3. Open the component **Token Manager**, turn on the option `Enable Custom Tokens`, for the field `File containing custom tokens`, leave it as the default value `sl_custom_token_header.h`.
-4. Replace the header file **config/sl_custom_token_header.h** of your project with the one in this example [src/config/sl_custom_token_header.h](src/config/sl_custom_token_header.h).
-5. Replace the folder **gecko_sdk_3.2.3/platform/service/token_manager** with the folder [src/token_manager](src/token_manager) in this example.
-6. Modify the project properties to remove some linked source files, so that the local copy can be used. 
-   ![linked-file](doc/linked-file.png)
+4. Replace the header file **config/sl_custom_token_header.h** of your project with the one in this example [config/sl_custom_token_header.h](config/sl_custom_token_header.h).
+5. Copy the source files in the folder [src](src) of this example to **gecko_sdk_3.2.3/platform/service/token_manager**, replace the files with the same name.
+6. Modify the project properties to remove some linked source files, so that the local copy can be used. Select the project, right click, then select the menu `Properties`, select `Resources`->`Linked Resources`.
+   ![linked-file](doc/linked-file.png)  
+
    Please remove the following items:
    - sl_token_def.c
    - sl_token_manager.c
-7. Add an include item.
-   ![include-item](doc/include-item.png)
+  
+7. Add an include item. Select the project, right click, then select the menu `Properties`, select `C/C++ Build`-->`Settings`-->`Tool settings`-->`GNU ARM C Compiler`-->`Includes`.
+   ![include-item](doc/include-item.png)  
+
    Please add `"${workspace_loc:/${ProjName}/gecko_sdk_3.2.3/platform/service/token_manager/inc}"`, make sure it's before the item `"${StudioSdkPath}/platform/service/token_manager/inc"`.
 8. Modify the source file **app_cli.c**, add the following source code to it. In this file, we added some CLI commands to demonstrate how we read/write the basic, counter and indexed tokens.
+
    ```C
     #include "sl_cli_handles.h"
     #include "sl_token_manager.h"
@@ -314,7 +318,7 @@ NA
 
 ## How to Port to Another Part ##
 - Import the .sls file into Simplicity Studio
-- Open the .isc file of each project, turn to "General" tab, hit button "Edit Architecture", then select the board and part.
+- Open the .slcp file of each project, turn to "Overview" tab, hit button "Change Target/SDK", then select the board and part.
 
 ## Special Notes ##
 NA
