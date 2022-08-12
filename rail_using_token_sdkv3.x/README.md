@@ -1,4 +1,9 @@
 # RAIL Using Token on SDKv3.x #
+![Type badge](https://img.shields.io/badge/Type-Application%20Examples-green)
+![Technology badge](https://img.shields.io/badge/Technology-Rail-green)
+![License badge](https://img.shields.io/badge/License-Zlib-green)
+![SDK badge](https://img.shields.io/badge/SDK-v3.2.3-green)
+![GCC badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/SiliconLabs/application_examples_ci/master/proprietary_rail/rail_using_token_sdkv3.x_gcc.json)
 
 ## Summary ##
 Sometimes, we need to store non-volatile data in RAIL applications, but unfortunately, there isn't a convenient way to achieve that just as we have the token system for Zigbee, Connect, etc. (For more details about the token, refer to [AN1154](https://www.silabs.com/documents/public/application-notes/an1154-tokens-for-non-volatile-storage.pdf)
