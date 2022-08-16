@@ -1,4 +1,9 @@
 # How to optimize the current consumption of Long Preamble Duty Cycle application on FG14
+![Type badge](https://img.shields.io/badge/Type-Application%20Examples-green)
+![Technology badge](https://img.shields.io/badge/Technology-Rail-green)
+![License badge](https://img.shields.io/badge/License-Zlib-green)
+![SDK badge](https://img.shields.io/badge/SDK-v3.2.3-green)
+![GCC badge](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/SiliconLabs/application_examples_ci/master/proprietary_rail/rail_dsss_ldc_optimization_gcc.json)
 
 ## Overview
 
