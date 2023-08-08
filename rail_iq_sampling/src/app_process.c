@@ -178,7 +178,9 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     if (rxFifoIndex + availableBytes >= RX_FIFO_SIZE) {
       availableBytes = RX_FIFO_SIZE - rxFifoIndex;
     }
-    RAIL_ReadRxFifo(rail_handle, (uint8_t*)rxAppFifo + rxFifoIndex, availableBytes);
+    RAIL_ReadRxFifo(rail_handle,
+                    (uint8_t *)rxAppFifo + rxFifoIndex,
+                    availableBytes);
     rxFifoIndex += availableBytes;
     if (rxFifoIndex >= RX_FIFO_SIZE) {
       state = S_END_OF_RECEPTION;
@@ -203,7 +205,7 @@ void sl_button_on_change(const sl_button_t *handle)
 
 static void printf_rx_buffer()
 {
-  iq_data_t *iq_data = (iq_data_t*)rxAppFifo;
+  iq_data_t *iq_data = (iq_data_t *)rxAppFifo;
   for (uint16_t i = 0; i < RX_FIFO_SIZE / 4; ++i) {
     if (RX_DATA_SOURCE == RX_IQDATA_FILTLSB) {
       printf("%6d %6d\n", iq_data[i].I, iq_data[i].Q);
