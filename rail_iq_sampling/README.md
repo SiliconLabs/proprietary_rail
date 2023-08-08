@@ -7,7 +7,7 @@ In-phase (I) and Quadrature-phase (Q) components, typically used in
 software-defined radios and digital signal processing. This example application
 serves as a demonstration of collecting IQ samples with RAIL.
 
-## Gecko SDK Suite version ##
+## Gecko SDK version ##
 
 GSDK v4.3.0
 
@@ -22,7 +22,7 @@ GSDK v4.3.0
 
 - Connect the WSTK mainboard to the PC through a USB cable.
 
-## Set up ##
+## Setup ##
 
 To set up the application, import the .sls project file to Simplicity Studio 5.
 Compile the project and download the application to your radio board. This
