@@ -205,9 +205,10 @@ static void printf_rx_buffer()
 {
   iq_data_t *iq_data = rxAppFifo;
   for (uint16_t i = 0; i < RX_FIFO_SIZE / 4; ++i) {
-    if(RX_DATA_SOURCE == RX_IQDATA_FILTLSB)
+    if (RX_DATA_SOURCE == RX_IQDATA_FILTLSB) {
       printf("%6d %6d\n", iq_data[i].I, iq_data[i].Q);
-    else
+    } else {
       printf("%6d %6d\n", iq_data[i].Q, iq_data[i].I);
   }
+}
 }

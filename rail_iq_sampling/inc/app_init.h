@@ -52,7 +52,7 @@
 #define RX_FIFO_SIZE   2048
 // RX_IQDATA_FILTLSB or RX_IQDATA_FILTMSB
 #define RX_DATA_SOURCE RX_IQDATA_FILTMSB
-#define CHANNEL 0
+#define CHANNEL        0
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
