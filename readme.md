@@ -16,7 +16,6 @@
 Silicon Labs RAIL provides an intuitive, easily-customizable radio interface layer designed to support proprietary or standards-based wireless protocols. RAIL is delivered as a library that you can link to your applications. RAIL implements commonly-used radio functionality so that it does not have to be written in the application or stack, eliminating the need for developers to become experts in RF register details of complex wireless SoCs. This functionality includes radio configuration, transmit, receive, clear channel assessment, automatic states transitions, auto-ACK, system timing, and channel hopping. All these features can be used to build fully customized network stacks on top of the RAIL API.
 
 ## Examples ##
-- [Adding Custom CLI](rail_adding_custom_cli/README.md)
 
 ## Documentation ##
 
