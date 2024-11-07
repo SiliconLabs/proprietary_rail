@@ -17,6 +17,10 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 
 ## Examples ##
 
+| Example name | Link to example |
+|:-------------|:---------------:|
+| RAIL Proprietary - Time Synchronization | [Click Here](./rail_time_synchronization) |
+
 ## Documentation ##
 
 Official documentation can be found at our [Developer Documentation](https://docs.silabs.com/rail/latest/) page.

@@ -1,0 +1,64 @@
+[D] Local time: 1000013 us
+[D] Local time: 2000011 us
+[D] Local time: 3000012 us
+[D] Local time: 4000011 us
+[D] Local time: 5000011 us
+[D] Local time: 6000011 us
+[D] Local time: 7000011 us
+[D] Local time: 8000011 us
+[D] Local time: 9000011 us
+[D] Local time: 10000011 us
+[I] Synchronization finished successfully.
+[D] Local time: 11000012 us, Remote time 15762542 us
+[D] Local time: 11237481 us, Remote time 16000011 us
+[D] Local time: 12000011 us, Remote time 16762541 us
+[D] Local time: 12237481 us, Remote time 17000011 us
+[D] Local time: 13000011 us, Remote time 17762541 us
+[D] Local time: 13237481 us, Remote time 18000011 us
+[D] Local time: 14000011 us, Remote time 18762541 us
+[D] Local time: 14237481 us, Remote time 19000011 us
+[D] Local time: 15000011 us, Remote time 19762541 us
+[D] Local time: 15237481 us, Remote time 20000011 us
+[D] Local time: 16000011 us, Remote time 20762541 us
+[D] Local time: 16237481 us, Remote time 21000011 us
+[I] Synchronization started.
+[I] Synchronization packet was sent.
+[D] Local time: 17000012 us, Remote time 21762542 us
+[D] Local time: 17237481 us, Remote time 22000011 us
+[D] Local time: 18000011 us, Remote time 22762541 us
+[D] Local time: 18237481 us, Remote time 23000011 us
+[D] Local time: 19000011 us, Remote time 23762541 us
+[D] Local time: 19237481 us, Remote time 24000011 us
+[D] Local time: 20000011 us, Remote time 24762541 us
+[D] Local time: 20237481 us, Remote time 25000011 us
+[D] Local time: 21000011 us, Remote time 25762541 us
+[D] Local time: 21237481 us, Remote time 26000011 us
+[D] Local time: 22000011 us, Remote time 26762541 us
+[D] Local time: 22237481 us, Remote time 27000011 us
+[D] Local time: 23000011 us, Remote time 27762541 us
+[D] Local time: 23237481 us, Remote time 28000011 us
+[D] Local time: 24000011 us, Remote time 28762541 us
+[D] Local time: 24237481 us, Remote time 29000011 us
+[D] Local time: 25000011 us, Remote time 29762541 us
+[D] Local time: 25237481 us, Remote time 30000011 us
+[D] Local time: 26000011 us, Remote time 30762541 us
+[D] Local time: 26237481 us, Remote time 31000011 us
+[D] Local time: 27000011 us, Remote time 31762541 us
+[D] Local time: 27237481 us, Remote time 32000011 us
+[D] Local time: 28000011 us, Remote time 32762541 us
+[D] Local time: 28237481 us, Remote time 33000011 us
+[D] Local time: 29000011 us, Remote time 33762541 us
+[D] Local time: 29237481 us, Remote time 34000011 us
+[D] Local time: 30000011 us, Remote time 34762541 us
+[D] Local time: 30237481 us, Remote time 35000011 us
+[D] Local time: 31000011 us, Remote time 35762541 us
+[D] Local time: 31237482 us, Remote time 36000012 us
+[D] Local time: 32000011 us, Remote time 36762541 us
+[D] Local time: 32237481 us, Remote time 37000011 us
+[D] Local time: 33000011 us, Remote time 37762541 us
+[D] Local time: 33237481 us, Remote time 38000011 us
+[D] Local time: 34000011 us, Remote time 38762541 us
+[D] Local time: 34237481 us, Remote time 39000011 us
+[D] Local time: 35000011 us, Remote time 39762541 us
+[D] Local time: 35237481 us, Remote time 40000011 us
+[D] Local time: 36000012 us, Remote time 40762542 us

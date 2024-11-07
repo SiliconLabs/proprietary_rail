@@ -1,0 +1,59 @@
+[D] Local time: 1000013 us
+[D] Local time: 2000011 us
+[D] Local time: 3000011 us
+[D] Local time: 4000011 us
+[D] Local time: 5000011 us
+[D] Local time: 6000011 us
+[D] Local time: 7000011 us
+[D] Local time: 8000011 us
+[D] Local time: 9000011 us
+[D] Local time: 10000011 us
+[D] Local time: 11000011 us
+[D] Local time: 12000011 us
+[D] Local time: 13000011 us
+[D] Local time: 14000011 us
+[D] Local time: 15000011 us
+[I] Synchronization started.
+[I] Synchronization packet was sent.
+[D] Local time: 16000012 us
+[D] Local time: 17000011 us
+[D] Local time: 18000011 us
+[D] Local time: 19000011 us
+[D] Local time: 20000011 us
+[D] Local time: 21000011 us
+[I] Synchronization finished successfully.
+[D] Local time: 22000012 us, Remote time 17237446 us
+[D] Local time: 22762555 us, Remote time 17999989 us
+[D] Local time: 23000011 us, Remote time 18237445 us
+[D] Local time: 23762555 us, Remote time 18999989 us
+[D] Local time: 24000011 us, Remote time 19237445 us
+[D] Local time: 24762555 us, Remote time 19999989 us
+[D] Local time: 25000011 us, Remote time 20237445 us
+[D] Local time: 25762555 us, Remote time 20999989 us
+[D] Local time: 26000011 us, Remote time 21237445 us
+[D] Local time: 26762556 us, Remote time 21999990 us
+[D] Local time: 27000011 us, Remote time 22237445 us
+[D] Local time: 27762555 us, Remote time 22999989 us
+[D] Local time: 28000011 us, Remote time 23237445 us
+[D] Local time: 28762555 us, Remote time 23999989 us
+[D] Local time: 29000011 us, Remote time 24237445 us
+[D] Local time: 29762555 us, Remote time 24999989 us
+[D] Local time: 30000011 us, Remote time 25237445 us
+[D] Local time: 30762555 us, Remote time 25999989 us
+[D] Local time: 31000011 us, Remote time 26237445 us
+[D] Local time: 31762555 us, Remote time 26999989 us
+[D] Local time: 32000011 us, Remote time 27237445 us
+[D] Local time: 32762555 us, Remote time 27999989 us
+[D] Local time: 33000011 us, Remote time 28237445 us
+[D] Local time: 33762555 us, Remote time 28999989 us
+[D] Local time: 34000011 us, Remote time 29237445 us
+[D] Local time: 34762555 us, Remote time 29999989 us
+[D] Local time: 35000011 us, Remote time 30237445 us
+[D] Local time: 35762556 us, Remote time 30999990 us
+[D] Local time: 36000011 us, Remote time 31237445 us
+[D] Local time: 36762555 us, Remote time 31999989 us
+[D] Local time: 37000011 us, Remote time 32237445 us
+[D] Local time: 37762555 us, Remote time 32999989 us
+[D] Local time: 38000011 us, Remote time 33237445 us
+[D] Local time: 38762555 us, Remote time 33999989 us
+[D] Local time: 39000011 us, Remote time 34237445 us
