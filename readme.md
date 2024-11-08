@@ -23,6 +23,7 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 | RAIL Proprietary - Tutorial Transmit | [Click Here](./rail_tutorial_transmit) |
 | RAIL Proprietary - Tutorial Event Handling | [Click Here](./rail_tutorial_event_handling) |
 | RAIL Proprietary - Tutorial Downloading Messages | [Click Here](./rail_tutorial_downloading_messages) |
+| RAIL Proprietary - Direct Mode Packet Detector | [Click Here](./rail_direct_mode_detector) |
 
 ## Documentation ##
 

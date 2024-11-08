@@ -1,0 +1,163 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: rail_direct_mode_detector
+label: RAIL Proprietary - Direct Mode Packet Detector
+description: >
+  This example application showcases how the radio detects and decode standard 
+  packets by monitoring the stream of asynchronously demodulated signals.
+
+category: RAIL Examples
+quality: experimental
+
+filter:
+- name: Device Type
+  value: [SoC]
+- name: Project Difficulty
+  value: [Beginner]
+- name: Wireless Technology
+  value: [RAIL]
+
+readme:
+- {path: ../README.md}
+
+source:
+- {path: ../src/main.c}
+- {path: ../src/app_init.c}
+- {path: ../src/app_process.c}
+
+include:
+- path: '../inc'
+  file_list:
+  - {path: app_init.h}
+  - {path: app_process.h}
+
+toolchain_settings:
+- {value: debug, option: optimize}
+
+component:
+- {id: app_log}
+- {id: board_control}
+- {id: device_init}
+- {id: mpu}
+- instance: [btn0]
+  id: simple_button
+- instance: [inst0]
+  id: rail_util_init
+- instance: [async_dout, sync_dout]
+  id: sl_radioprs
+- {id: rail_util_recommended}
+- {id: sl_system}
+- {id: printf}
+- {id: iostream_recommended_stream}
+- {id: emlib_ldma}
+- {id: emlib_prs}
+- {id: emlib_timer}
+- {id: iostream_eusart_core}
+- instance: [vcom]
+  id: iostream_eusart
+- instance: [algorithm_active, async_detect]
+  id: emlib_gpio_simple_init
+
+config_file:
+- path: ../config/efr32xg23/radio_settings.radioconf
+  file_id: radio_configuration_settings
+  directory: rail
+  condition: [device_sdid_210]
+- path: ../config/efr32xg25/radio_settings.radioconf
+  file_id: radio_configuration_settings
+  directory: rail
+  condition: [device_sdid_220]
+- path: ../config/efr32xg28/radio_settings.radioconf
+  file_id: radio_configuration_settings
+  directory: rail
+  condition: [device_sdid_235]
+- path: ../config/sl_rail_direct_mode_detector_config.h
+- override:
+    component: emlib_gpio_simple_init
+    file_id: emlib_gpio_simple_init_config_file_id
+    instance: algorithm_active
+  path: "../config/sl_emlib_gpio_init_algorithm_active_config.h" 
+- override:
+    component: emlib_gpio_simple_init
+    file_id: emlib_gpio_simple_init_config_file_id
+    instance: async_detect
+  path: "../config/sl_emlib_gpio_init_async_detect_config.h"
+
+configuration:
+- {name: SL_STACK_SIZE, value: '2048'}
+- {name: configMINIMAL_STACK_SIZE, value: '1024'}
+- {name: CPU_CFG_TS_32_EN, value: '1'}
+- {name: OS_CFG_DBG_EN, value: '1'}
+- {name: OS_CFG_TS_EN, value: '1'}
+- {name: OS_CFG_SCHED_ROUND_ROBIN_EN, value: '1'}
+- {name: OS_CFG_STAT_TASK_EN, value: '1'}
+- {name: OS_CFG_TASK_PROFILE_EN, value: '1'}
+- {name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE, value: usartHwFlowControlNone}
+- {name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE, value: eusartHwFlowControlNone}
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+# Config default - proprietary config
+- {name: SL_RAIL_UTIL_INIT_INIT_COMPLETE_CALLBACK_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_RADIO_CONFIG_SUPPORT_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_PROTOCOLS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_PROTOCOL_INST0_DEFAULT, value: SL_RAIL_UTIL_PROTOCOL_PROPRIETARY}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATIONS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_DATA_FORMATS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_PROTOCOL_PROPRIETARY_INST0_INDEX, value: '0'}
+# Config required events
+- {name: SL_RAIL_UTIL_INIT_EVENTS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_TX_PACKET_SENT_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_TX_ABORTED_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_TX_BLOCKED_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_CAL_NEEDED_INST0_ENABLE, value: '1'}
+# Config required auto state transitions
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_TX_SUCCESS, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_TX_ERROR, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_RX_SUCCESS, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_RX_ERROR, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITIONS_INST0_ENABLE, value: '1'}
+# Config PRS for most Series 2 test devices
+- {name: RADIOPRS_ASYNC_DOUT_SOURCESEL, value: 'PRS_MODEM_LRDSALIVE'}
+- {name: RADIOPRS_ASYNC_DOUT_CHANNEL, value: '6'}
+- {name: RADIOPRS_ASYNC_DOUT_PORT, value: 'gpioPortC'}
+- {name: RADIOPRS_ASYNC_DOUT_PIN, value: '5'}
+- {name: RADIOPRS_SYNC_DOUT_SOURCESEL, value: 'PRS_MODEML_DOUT'}
+- {name: RADIOPRS_SYNC_DOUT_CHANNEL, value: '7'}
+- {name: RADIOPRS_SYNC_DOUT_PORT, value: 'gpioPortC'}
+- {name: RADIOPRS_SYNC_DOUT_PIN, value: '7'}
+# Config PRS for particulart test boards
+- {name: RADIOPRS_ASYNC_DOUT_CHANNEL, value: '0', condition: [device_sdid_220]}
+- {name: RADIOPRS_ASYNC_DOUT_PORT, value: 'gpioPortB', condition: [device_sdid_220]}
+- {name: RADIOPRS_ASYNC_DOUT_PIN, value: '2', condition: [device_sdid_220]}
+- {name: RADIOPRS_SYNC_DOUT_CHANNEL, value: '1', condition: [device_sdid_220]}
+- {name: RADIOPRS_SYNC_DOUT_PORT, value: 'gpioPortB', condition: [device_sdid_220]}
+- {name: RADIOPRS_SYNC_DOUT_PIN, value: '3', condition: [device_sdid_220]}
+# Config GPIO for particulart test boards
+- {name: SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PORT, value: gpioPortC, condition: [device_sdid_220]}
+- {name: SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PIN, value: '0', condition: [device_sdid_220]}
+- {name: SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, value: gpioPortC, condition: [device_sdid_220]}
+- {name: SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN, value: '1', condition: [device_sdid_220]}
+- {name: SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PORT, value: gpioPortD, condition: [brd4400c]}
+- {name: SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PIN, value: '7', condition: [brd4400c]}
+- {name: SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, value: gpioPortD, condition: [brd4400c]}
+- {name: SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN, value: '8', condition: [brd4400c]}
+# Misc. config
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_SELECTION_SUBGHZ
+  value: RAIL_TX_POWER_MODE_SUBGIG_EFF_25DBM
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_SELECTION_OFDM
+  value: RAIL_TX_POWER_MODE_OFDM_PA_EFF_25DBM
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_CALIBRATION_ENABLE
+  value: '1'
+- condition: [device_sdid_220, hardware_board_default_rf_band_470]
+  name: SL_CLOCK_MANAGER_RFFPLL_BAND
+  value: '1'
+- condition: [device_sdid_220, hardware_board_default_rf_band_450]
+  name: SL_CLOCK_MANAGER_RFFPLL_BAND
+  value: '0'
+
+ui_hints:
+  highlight:
+  - {path: config/rail/radio_settings.radioconf}
