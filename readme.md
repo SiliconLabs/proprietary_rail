@@ -21,6 +21,7 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 |:-------------|:---------------:|
 | RAIL Proprietary - Time Synchronization | [Click Here](./rail_time_synchronization) |
 | RAIL Proprietary - Tutorial Transmit | [Click Here](./rail_tutorial_transmit) |
+| RAIL Proprietary - Tutorial Event Handling | [Click Here](./rail_tutorial_event_handling) |
 
 ## Documentation ##
 

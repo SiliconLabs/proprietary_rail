@@ -29,4 +29,19 @@
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
   </descriptors>
+  <descriptors name="rail_tutorial_event_handling" label="Proprietary RAIL Examples - Tutorial Event Handling"
+               description="This example application demonstrates event handling and automatic state transitions in RAIL.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="rail_tutorial_event_handling/SimplicityStudio/rail_tutorial_event_handling.slcp"/>
+    <properties key="readmeFiles" value="rail_tutorial_event_handling/README.md"/>
+    <properties key="boardCompatibility" value=".* com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*"/>
+    <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Proprietary Examples"/>
+    <properties key="quality" value="experimental"/>
+    <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Beginner Wireless\ Technology|RAIL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
 </model:MDescriptors>  
