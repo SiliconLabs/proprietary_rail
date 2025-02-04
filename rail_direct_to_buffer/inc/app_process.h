@@ -1,17 +1,16 @@
 /***************************************************************************//**
- * @file app_init.h
- * @brief Header file containing the configurable parameters
- * @version 1.0.0
+ * @file
+ * @brief app_process.h
  *******************************************************************************
  * # License
- * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
  *
  * The licensor of this software is Silicon Laboratories Inc.
  *
- * This software is provided \'as-is\', without any express or implied
+ * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
  * arising from the use of this software.
  *
@@ -20,39 +19,33 @@
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- * claim that you wrote the original software. If you use this software
- * in a product, an acknowledgment in the product documentation would be
- * appreciated but is not required.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- * misrepresented as being the original software.
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
  *******************************************************************************
- *
- * EXPERIMENTAL QUALITY
- * This code has been minimally tested to ensure that it builds with the
- * specified dependency versions and is suitable as a demonstration for
- * evaluation purposes only.
- * This code will be maintained at the sole discretion of Silicon Labs.
- *
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
-#ifndef APP_INIT_H
-#define APP_INIT_H
+
+#ifndef APP_PROCESS_H
+#define APP_PROCESS_H
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "rail.h"
-#include "app_assert.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-// Must be power of 2 between 64 and 4096 bytes
-#define RX_FIFO_SIZE   2048
-// RX_IQDATA_FILTLSB or RX_IQDATA_FILTMSB
-#define RX_DATA_SOURCE RX_IQDATA_FILTMSB
-#define CHANNEL        0
+
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
@@ -62,11 +55,14 @@
 // -----------------------------------------------------------------------------
 
 /**************************************************************************//**
- * The function is used for application initialization.
+ * The function is used for Application logic.
  *
- * @param None
- * @returns RAIL_Handle_t RAIL handle
+ * @param rail_handle RAIL handle
+ * @returns None
+ *
+ * The function is used for Application logic.
+ * It is called infinitely.
  *****************************************************************************/
-RAIL_Handle_t app_init(void);
+void app_process_action(RAIL_Handle_t rail_handle);
 
-#endif // APP_INIT_H
+#endif // APP_PROCESS_H

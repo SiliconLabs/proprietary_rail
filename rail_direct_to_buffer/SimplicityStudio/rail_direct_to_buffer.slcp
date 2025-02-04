@@ -1,0 +1,262 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: rail_direct_to_buffer
+label: RAIL Proprietary - Direct to Buffer
+package: Rail
+
+description: >
+ This project demonstrates working with Direct-to-Buffer mode.
+
+category: Proprietary RAIL Examples
+quality: experimental
+
+filter:
+- name: Device Type
+  value: [SoC]
+- name: Project Difficulty
+  value: [Beginner]
+- name: Wireless Technology
+  value: [RAIL]
+
+readme:
+- {path: ../README.md}
+
+source:
+- {path: ../src/main.c}
+- {path: ../src/app_init.c}
+- {path: ../src/app_process.c}
+
+include:
+- path: '../inc'
+  file_list:
+  - {path: app_init.h}
+  - {path: app_process.h}
+
+toolchain_settings:
+- {value: debug, option: optimize}
+
+component:
+- {id: radio_config_simple_rail_singlephy}
+- {id: app_log}
+- {id: sl_system}
+- {id: iostream_retarget_stdio}
+- instance: [btn0]
+  id: simple_button
+- instance: [inst]
+  id: cli
+- {id: mpu}
+- instance: [inst0]
+  id: rail_util_init
+- {id: device_init}
+- {id: iostream_eusart_core}
+- instance: [vcom]
+  id: iostream_eusart
+- {id: rail_util_recommended}
+- instance: [almost_full]
+  id: sl_radioprs
+- instance: [async_dout, sync_dout]
+  id: sl_radioprs
+  condition: [extended_features]
+- {id: device_init_dpll}
+
+provides:
+# primary PRS
+- name: primary_prs_group_2
+  condition: [device_generic_family_efr32xg21]
+- name: primary_prs_group_1
+  condition: [device_generic_family_efr32xg22]
+- name: primary_prs_group_0
+  condition: [device_generic_family_efr32xg23]
+- name: primary_prs_group_0
+  condition: [device_generic_family_efr32xg24]
+- name: primary_prs_group_1
+  condition: [device_generic_family_efr32xg25]
+- name: primary_prs_group_0
+  condition: [device_generic_family_efr32xg26]
+- name: primary_prs_group_2
+  condition: [device_generic_family_efr32xg27]
+- name: primary_prs_group_0
+  condition: [device_generic_family_efr32xg28]
+# xG22 exception list
+- name: primary_prs_group_2_ov
+  condition: [brd4183b]
+- name: primary_prs_group_2_ov
+  condition: [brd4183c]
+- name: primary_prs_group_2_ov
+  condition: [brd4185a]
+- name: primary_prs_group_2_ov
+  condition: [brd4183a]
+- name: primary_prs_group_2_ov
+  condition: [brd4403b]
+- name: primary_prs_group_2_ov
+  condition: [brd4191A]
+# xG27 exception list
+- name: primary_prs_group_1_ov
+  condition: [brd4194a]
+# secondary PRS
+- name: secondary_prs_group_1
+  condition: [device_generic_family_efr32xg21]
+- name: secondary_prs_group_1
+  condition: [device_generic_family_efr32xg22]
+- name: secondary_prs_group_0
+  condition: [device_generic_family_efr32xg23]
+- name: secondary_prs_group_0
+  condition: [device_generic_family_efr32xg24]
+- name: secondary_prs_group_0
+  condition: [device_generic_family_efr32xg25]
+- name: secondary_prs_group_0
+  condition: [device_generic_family_efr32xg26]
+- name: secondary_prs_group_2
+  condition: [device_generic_family_efr32xg27]
+- name: secondary_prs_group_3
+  condition: [device_generic_family_efr32xg28]
+# extended function support
+- name: extended_features
+  condition: [device_generic_family_efr32xg23]
+- name: extended_features
+  condition: [device_generic_family_efr32xg25]
+- name: extended_features
+  condition: [device_generic_family_efr32xg28]
+
+# example from rail_soc_mode_switch.slcp
+config_file:
+# Use direct mode config where available
+- path: ../config/efr32xg23/radio_settings.radioconf
+  directory: rail
+  condition: [device_generic_family_efr32xg23]
+  override:
+    component: radio_config_simple_rail_singlephy
+    file_id: radio_configuration_settings
+- path: ../config/efr32xg24/radio_settings.radioconf
+  directory: rail
+  condition: [device_generic_family_efr32xg24]
+  override:
+    component: radio_config_simple_rail_singlephy
+    file_id: radio_configuration_settings
+- path: ../config/efr32xg25/radio_settings.radioconf
+  directory: rail
+  condition: [device_generic_family_efr32xg25]
+  override:
+    component: radio_config_simple_rail_singlephy
+    file_id: radio_configuration_settings
+- path: ../config/efr32xg28/radio_settings.radioconf
+  directory: rail
+  condition: [device_generic_family_efr32xg28]
+  override:
+    component: radio_config_simple_rail_singlephy
+    file_id: radio_configuration_settings
+# Application config files
+- path: ../config/ext/sl_rail_direct_to_buffer_config.h
+  condition: [extended_features]
+- path: ../config/default/sl_rail_direct_to_buffer_config.h
+  unless: [extended_features]
+
+requires:
+- {name: a_radio_config}
+- {name: simple_button}
+- condition: [kernel]
+  name: sl_simple_rail_os
+- condition: [hardware_board_has_eff]
+  name: rail_util_eff
+- condition: [device_family_fgm23]
+  name: radio_config_singlephy_device_family_fgm23
+
+configuration:
+- {name: SL_STACK_SIZE, value: '2048'}
+- {name: SL_HEAP_SIZE, value: '2048'}
+- {name: configMINIMAL_STACK_SIZE, value: '1024'}
+- {name: CPU_CFG_TS_32_EN, value: '1'}
+- {name: OS_CFG_DBG_EN, value: '1'}
+- {name: OS_CFG_TS_EN, value: '1'}
+- {name: OS_CFG_SCHED_ROUND_ROBIN_EN, value: '1'}
+- {name: OS_CFG_STAT_TASK_EN, value: '1'}
+- {name: OS_CFG_TASK_PROFILE_EN, value: '1'}
+- {name: SL_IOSTREAM_USART_VCOM_FLOW_CONTROL_TYPE, value: usartHwFlowControlNone}
+- {name: SL_IOSTREAM_EUSART_VCOM_FLOW_CONTROL_TYPE, value: eusartHwFlowControlNone}
+# Config default - proprietary config
+- {name: SL_RAIL_UTIL_INIT_INIT_COMPLETE_CALLBACK_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_BLE_SUPPORT_INST0_ENABLE, value: '0'}
+- {name: SL_RAIL_UTIL_INIT_RADIO_CONFIG_SUPPORT_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_PROTOCOLS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_PROTOCOL_INST0_DEFAULT, value: SL_RAIL_UTIL_PROTOCOL_PROPRIETARY}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATIONS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATION_TEMPERATURE_NOTIFY_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_CALIBRATION_ONETIME_NOTIFY_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_DATA_FORMATS_INST0_ENABLE, value: '1'}
+# Config required events
+- {name: SL_RAIL_UTIL_INIT_EVENTS_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_ALMOST_FULL_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_FULL_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_RX_FIFO_OVERFLOW_INST0_ENABLE, value: '1'}
+- {name: SL_RAIL_UTIL_INIT_EVENT_CAL_NEEDED_INST0_ENABLE, value: '1'}
+# Config required auto state transitions
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_TX_SUCCESS, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_TX_ERROR, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_RX_SUCCESS, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITION_INST0_RX_ERROR, value: RAIL_RF_STATE_RX}
+- {name: SL_RAIL_UTIL_INIT_TRANSITIONS_INST0_ENABLE, value: '1'}
+- {name: SL_BOARD_ENABLE_VCOM, value: '1'}
+# Config PRS for most Series 2 test devices - EXP_HEADER_15/16
+- {name: RADIOPRS_ALMOST_FULL_SOURCESEL, value: 'PRS_BUFC_THR1', unless: [device_generic_family_efr32xg25]}
+- {name: RADIOPRS_ALMOST_FULL_SOURCESEL, value: 'PRS_RACL_RX', condition: [device_generic_family_efr32xg25]}
+- {name: RADIOPRS_ASYNC_DOUT_SOURCESEL, value: 'PRS_MODEM_LRDSALIVE', condition: [extended_features]}
+- {name: RADIOPRS_SYNC_DOUT_SOURCESEL, value: 'PRS_MODEML_DOUT', condition: [extended_features]}
+# p group 0
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '6', condition: [primary_prs_group_0]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortC', condition: [primary_prs_group_0]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '5', condition: [primary_prs_group_0]}
+# p group 1
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '0', condition: [primary_prs_group_1]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortB', condition: [primary_prs_group_1]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '2', condition: [primary_prs_group_1]}
+# p group 2
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '0', condition: [primary_prs_group_2]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortB', condition: [primary_prs_group_2]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '15', condition: [primary_prs_group_2]}
+# p group 0 - override
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '6', condition: [primary_prs_group_0_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortC', condition: [primary_prs_group_0_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '5', condition: [primary_prs_group_0_ov]}
+# p group 1 - override
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '0', condition: [primary_prs_group_1_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortB', condition: [primary_prs_group_1_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '2', condition: [primary_prs_group_1_ov]}
+# p group 2 - override
+- {name: RADIOPRS_ALMOST_FULL_CHANNEL, value: '0', condition: [primary_prs_group_2_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PORT, value: 'gpioPortB', condition: [primary_prs_group_2_ov]}
+- {name: RADIOPRS_ALMOST_FULL_PIN, value: '15', condition: [primary_prs_group_2_ov]}
+# DOUT signals as an extra where available - only 0 and 3 is used  - EXP_HEADER_11/13
+# s group 0
+- {name: RADIOPRS_ASYNC_DOUT_CHANNEL, value: '2', condition: [extended_features, secondary_prs_group_0]}
+- {name: RADIOPRS_ASYNC_DOUT_PORT, value: 'gpioPortA', condition: [extended_features, secondary_prs_group_0]}
+- {name: RADIOPRS_ASYNC_DOUT_PIN, value: '6', condition: [extended_features, secondary_prs_group_0]}
+- {name: RADIOPRS_SYNC_DOUT_CHANNEL, value: '3', condition: [extended_features, secondary_prs_group_0]}
+- {name: RADIOPRS_SYNC_DOUT_PORT, value: 'gpioPortA', condition: [extended_features, secondary_prs_group_0]}
+- {name: RADIOPRS_SYNC_DOUT_PIN, value: '7', condition: [extended_features, secondary_prs_group_0]}
+# s group 3
+- {name: RADIOPRS_ASYNC_DOUT_CHANNEL, value: '2', condition: [extended_features, secondary_prs_group_3]}
+- {name: RADIOPRS_ASYNC_DOUT_PORT, value: 'gpioPortB', condition: [extended_features, secondary_prs_group_3]}
+- {name: RADIOPRS_ASYNC_DOUT_PIN, value: '4', condition: [extended_features, secondary_prs_group_3]}
+- {name: RADIOPRS_SYNC_DOUT_CHANNEL, value: '3', condition: [extended_features, secondary_prs_group_3]}
+- {name: RADIOPRS_SYNC_DOUT_PORT, value: 'gpioPortB', condition: [extended_features, secondary_prs_group_3]}
+- {name: RADIOPRS_SYNC_DOUT_PIN, value: '5', condition: [extended_features, secondary_prs_group_3]}
+
+# Misc. config
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_SELECTION_SUBGHZ
+  value: RAIL_TX_POWER_MODE_SUBGIG_EFF_25DBM
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_SELECTION_OFDM
+  value: RAIL_TX_POWER_MODE_OFDM_PA_EFF_25DBM
+- condition: [hardware_board_has_eff]
+  name: SL_RAIL_UTIL_PA_CALIBRATION_ENABLE
+  value: '1'
+- condition: [device_generic_family_efr32xg25, hardware_board_default_rf_band_470]
+  name: SL_DEVICE_INIT_RFFPLL_BAND
+  value: '1'
+- condition: [device_generic_family_efr32xg25, hardware_board_default_rf_band_450]
+  name: SL_DEVICE_INIT_RFFPLL_BAND
+  value: '0'
+
+ui_hints:
+  highlight:
+  - {path: config/rail/radio_settings.radioconf}

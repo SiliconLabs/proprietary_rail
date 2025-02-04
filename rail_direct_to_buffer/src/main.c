@@ -1,17 +1,16 @@
 /***************************************************************************//**
- * @file app_init.c
- * @brief Source file containing startup configurations
- * @version 1.0.0
+ * @file
+ * @brief main.c
  *******************************************************************************
  * # License
- * <b>Copyright 2022 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
  *
  * The licensor of this software is Silicon Laboratories Inc.
  *
- * This software is provided \'as-is\', without any express or implied
+ * This software is provided 'as-is', without any express or implied
  * warranty. In no event will the authors be held liable for any damages
  * arising from the use of this software.
  *
@@ -20,33 +19,41 @@
  * freely, subject to the following restrictions:
  *
  * 1. The origin of this software must not be misrepresented; you must not
- * claim that you wrote the original software. If you use this software
- * in a product, an acknowledgment in the product documentation would be
- * appreciated but is not required.
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
  * 2. Altered source versions must be plainly marked as such, and must not be
- * misrepresented as being the original software.
+ *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
  *******************************************************************************
- *
- * EXPERIMENTAL QUALITY
- * This code has been minimally tested to ensure that it builds with the
- * specified dependency versions and is suitable as a demonstration for
- * evaluation purposes only.
- * This code will be maintained at the sole discretion of Silicon Labs.
- *
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "sl_rail_util_init.h"
+#include "sl_component_catalog.h"
+#include "sl_system_init.h"
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+#include "sl_power_manager.h"
+#endif
 #include "app_init.h"
+#include "app_process.h"
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+#include "sl_system_kernel.h"
+#include "app_task_init.h"
+#else // SL_CATALOG_KERNEL_PRESENT
+#include "sl_system_process_action.h"
+#endif // SL_CATALOG_KERNEL_PRESENT
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define RX_FIFO_THRESHOLD (RX_FIFO_SIZE / 4)
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -55,47 +62,56 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-RAIL_DataConfig_t dataConfig = { .rxMethod = FIFO_MODE };
+
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-static uint8_t rx_fifo[RX_FIFO_SIZE];
+#if !defined(SL_CATALOG_KERNEL_PRESENT)
+/// A static handle of a RAIL instance
+static RAIL_Handle_t rail_handle;
+#endif
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 
 /******************************************************************************
- * The function is used for some basic initialization related to the app.
+ * Main function
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+int main(void)
 {
-  RAIL_Status_t rail_status;
-  uint16_t threshold;
-  // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
-    sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  // Initialize Silicon Labs device, system, service(s) and protocol stack(s).
+  // Note that if the kernel is present, processing task(s) will be created by
+  // this call.
+  sl_system_init();
 
-  threshold = RAIL_SetRxFifoThreshold(rail_handle, RX_FIFO_THRESHOLD);
-  app_assert(threshold == RX_FIFO_THRESHOLD);
+  // Initialize the application. For example, create periodic timer(s) or
+  // task(s) if the kernel is present.
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  app_task_init();
+#else
+  rail_handle = app_init();
+#endif
 
-  dataConfig.rxSource = RX_DATA_SOURCE;
-  rail_status = RAIL_ConfigData(rail_handle, &dataConfig);
-  app_assert(rail_status == RAIL_STATUS_NO_ERROR);
+#if defined(SL_CATALOG_KERNEL_PRESENT)
+  // Start the kernel. Task(s) created in app_init() will start running.
+  sl_system_kernel_start();
+#else // SL_CATALOG_KERNEL_PRESENT
+  while (1) {
+    // Do not remove this call: Silicon Labs components process action routine
+    // must be called from the super loop.
+    sl_system_process_action();
 
-  return rail_handle;
+    // Application process.
+    app_process_action(rail_handle);
+
+#if defined(SL_CATALOG_POWER_MANAGER_PRESENT)
+    // Let the CPU go to sleep if the system allows it.
+    sl_power_manager_sleep();
+#endif
+  }
+#endif // SL_CATALOG_KERNEL_PRESENT
 }
 
-RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle)
-{
-  uint16_t rxFifoSize = RX_FIFO_SIZE;
-  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, &rx_fifo[0], &rxFifoSize);
-  if (rxFifoSize != RX_FIFO_SIZE) {
-    // We set up an incorrect FIFO size
-    return RAIL_STATUS_INVALID_PARAMETER;
-  }
-  if (status == RAIL_STATUS_INVALID_STATE) {
-    // Allow failures due to multiprotocol
-    return RAIL_STATUS_NO_ERROR;
-  }
-  return status;
-}
+// -----------------------------------------------------------------------------
+//                          Static Function Definitions
+// -----------------------------------------------------------------------------
