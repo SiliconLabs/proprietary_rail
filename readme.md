@@ -26,6 +26,7 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 | RAIL Proprietary - Direct Mode Packet Detector   |     [Click Here](./rail_direct_mode_detector)      |
 | RAIL Proprietary - Direct to Buffer              |       [Click Here](./rail_direct_to_buffer)        |
 | RAIL Proprietary - Address Filtering             |       [Click Here](./rail_address_filtering)       |
+| RAIL Proprietary - Improved RF Sense Transmitter | [Click Here](./rail_improved_rfsense_transmitter) |
 
 ## Documentation ##
 
