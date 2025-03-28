@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -72,7 +72,7 @@ uint8_t payload[SL_ADDRESS_FILTERING_PAYLOAD_LENGTH] =
 
 // Two dimensional array to store the addresses (4 for each field).
 // Addresses are paired by the second index.
-// This example only changes the TX payload but not the RX address filter.
+// This example only changes the Tx payload but not the Rx address filter.
 const uint8_t addresses[2][5] = { SL_ADDRESS_FILTERING_FIELD_ZERO_ADDRESSES,
                                   SL_ADDRESS_FILTERING_FIELD_ONE_ADDRESSES };
 // -----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ static volatile uint8_t address_number = 0;
 
 static volatile bool tx_request = false; // go into transfer mode
 
-// This buffer is not the RAIL RX FIFO, but an application buffer.
+// This buffer is not the RAIL Rx FIFO, but an application buffer.
 static uint8_t rx_buffer[SL_ADDRESS_FILTERING_BUFFER_LENGTH];
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -178,7 +178,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
                           NULL);
     app_assert(status == RAIL_STATUS_NO_ERROR,
                "RAIL_StartTx was unable to start the transmission.");
-    // Wait for TX complete
+    // Wait for Tx complete
     while (!tx_complete) {
     }
     app_log("The packet was sent:\n");

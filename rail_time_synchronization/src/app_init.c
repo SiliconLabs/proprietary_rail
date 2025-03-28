@@ -1,9 +1,9 @@
-/**
+/***************************************************************************//**
  * @file
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -40,6 +40,7 @@
 
 #include "em_prs.h"
 
+#include "sl_common.h"
 #include "sl_rail_time_synchronization_config.h"
 #include "sl_radioprs_config_framedet_prs.h"
 #include "sl_radioprs_config_syncsent_prs.h"
@@ -61,8 +62,9 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-__ALIGNED(RAIL_FIFO_ALIGNMENT)
-uint8_t tx_payload[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE] = { 0 };
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE] = { 0 }
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -83,7 +85,7 @@ RAIL_Handle_t app_init(void)
 
   // Fill up dummy payload to avoid clock synchronization failure
   // if there is no symbol change within the payload
-  memset(tx_payload, DUMMY_DATA, SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE);
+  memset(tx_fifo, DUMMY_DATA, SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE);
 
   // Calculate the position of the next second in microseconds
   // and start a debug timer
@@ -91,7 +93,7 @@ RAIL_Handle_t app_init(void)
                             * ONE_SECOND_IN_US;
   RAIL_SetTimer(rail_handle, next_second, RAIL_TIME_ABSOLUTE, timer_callback);
 
-  // Start the RX
+  // Start the Rx
   status = RAIL_StartRx(rail_handle,
                         SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL,
                         NULL);

@@ -3,7 +3,7 @@
 ## Overview ##
 
 This example application showcases how to enhance the RF energy sensing
-capability of EFR32xG22 devices. It is a TX-only application that improves RF
+capability of EFR32xG22 devices. It is a Tx-only application that improves RF
 Sense by transmitting packets across multiple frequencies. The value of this
 example lies in demonstrating that the sensitivity of Selective RF Sense varies
 with frequency. Additionally, it introduces the RF Sense OOK PHY through the
@@ -22,7 +22,7 @@ article](https://community.silabs.com/s/article/rfsense-on-efr32xg22?language=en
 
 ## SDK version ##
 
-SiSDK 2024.06.00 and above
+SiSDK 2024.6.0 and above
 
 ## Hardware Required ##
 
@@ -45,9 +45,9 @@ application is not usable with any of the boards using EFR32xG27. The correct
 radio configuration can be found in the project folder, so it can be used with
 RAILtest or in any custom application.
 
-Note, that this RF Sense PHY is extremely sensitive in RX mode and it is not
+Note, that this RF Sense PHY is extremely sensitive in Rx mode and it is not
 intended to be used for that purpose, because detection happens very frequently
-(RAILtest uses constant RX that should be disabled using this PHY).
+(RAILtest uses constant Rx that should be disabled using this PHY).
 
 ## Setup ##
 
@@ -108,6 +108,14 @@ SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_fifo[
 ```
 
 ### Configuration ###
+
+#### Peripherals Used ####
+
+The application utilizes the default EUSART instance for CLI communication and
+console logging. The VCOM enable signal is pre-configured for the tested boards.
+
+You may want to adjust the EUSART (VCOM) configurations according to the
+board you are using.
 
 #### Project Specific Configurations ####
 

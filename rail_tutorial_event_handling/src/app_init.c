@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,6 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
+#include "sl_common.h"
 #include "sl_rail_util_init.h"
 #include "sl_simple_led_instances.h"
 #include "sl_rail_tutorial_event_handling_config.h"
@@ -56,8 +58,8 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_buffer[
-  SL_TUTORIAL_EVENT_HANDLING_BUFFER_LENGTH]
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+static uint8_t tx_fifo[SL_TUTORIAL_EVENT_HANDLING_BUFFER_LENGTH]
 SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -73,7 +75,7 @@ RAIL_Handle_t app_init(void)
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   uint16_t size = RAIL_SetTxFifo(rail_handle,
-                                 tx_buffer,
+                                 tx_fifo,
                                  0,
                                  SL_TUTORIAL_EVENT_HANDLING_BUFFER_LENGTH);
   if (size == 0) {

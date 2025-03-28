@@ -10,7 +10,7 @@ page](https://docs.silabs.com/rail/latest/rail-developers-guide-direct-mode/).
 
 ## SDK Version ##
 
-SiSDK 2024.06.02 and above
+SiSDK 2024.6.2 and above
 
 ## Hardware Required ##
 
@@ -74,7 +74,7 @@ For comparison, the application also outputs the synchronous demodulated signal
 packet mode. Essentially, if the packet appears on this trace, the hardware
 packet detector would be able to detect it.
 
-This application requires radio configurations that enable RX Direct Mode.
+This application requires radio configurations that enable Rx Direct Mode.
 
 ----
 
@@ -98,7 +98,7 @@ Set the desired mode of operation by configuring
 `SL_DIRECT_MODE_DETECTOR_APP_MODE`.
 
 2. Configure the Syncword and Mask
-   
+
 Define the syncword pattern and mask in the configuration file.
 
 3. Choose radio PHY
@@ -111,7 +111,7 @@ the application. Select the protocol via the
 `SL_RAIL_UTIL_INIT_PROTOCOL_PROPRIETARY_INST0_INDEX` configuration.
 
 4. Transmit a Packet
-   
+
 Press the PB0 button on the transmitter board to send a packet.
 
 ----
@@ -136,7 +136,7 @@ In Packet Reception mode:
 
 ----
 
-You should see the following message on the TX node console whenever the button
+You should see the following message on the Tx node console whenever the button
 is pressed.
 
 ```
@@ -187,14 +187,14 @@ settings, so you will need to modify them manually using a text editor or IDE.
 
 #### `SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE` ####
 
-Sets the default TX FIFO length.
+Sets the default Tx FIFO length.
 
 - [The size must be a power of 2 from 64 to
   4096](https://docs.silabs.com/rail/latest/rail-api/efr32-main#receive-and-transmit-fifo-buffers)
 
 #### `SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH` ####
 
-Sets the default packet length in bytes for both TX and RX.
+Sets the default packet length in bytes for both Tx and RX.
 
 - Set it according to the Radio Configuration. Fixed-length config only.
 
@@ -270,16 +270,17 @@ transmission power but different frequency offsets, set to 50 kHz, 25 kHz, and 0
 kHz, respectively.
 
 The captures demonstrate that the greater the frequency offset, the longer it
-takes for the xG25 receiver to stabilize the demodulated signal.
+takes for the EFR32xG25 receiver to stabilize the demodulated signal.
 
 ----
 
-You can also observe that the pulses on the xG25's algorithm active debug signal
-are approximately twice as narrow (~1.1 µs) compared to those on the xG23 (~2.4
-µs) during preamble signal reception. This difference arises because the SYSCLK
-on the xG23 runs at the HFXO rate by default, whereas in this example, the xG25
-operates on a different clock source, close to 100 MHz. Again, this correlates
-to the maximum baud rate achievable by the algorithm.
+You can also observe that the pulses on the EFR32xG25's algorithm active debug
+signal are approximately twice as narrow (~1.1 µs) compared to those on the
+EFR32xG23 (~2.4 µs) during preamble signal reception. This difference arises
+because the SYSCLK on the EFR32xG23 runs at the HFXO rate by default, whereas in
+this example, the EFR32xG25 operates on a different clock source, close to 100
+MHz. Again, this correlates to the maximum baud rate achievable by the
+algorithm.
 
 > Note that while transmitting only sync DOUT is active.
 

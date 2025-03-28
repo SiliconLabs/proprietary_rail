@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -178,7 +178,7 @@ RAIL_Handle_t app_init(void)
   // Enable duty cycle mode
   RAIL_EnableRxDutyCycle(rail_handle, true);
 
-  // Start RX
+  // Start Rx
   RAIL_StartRx(rail_handle, CHANNEL, NULL);
 
 #if DUTY_CYCLE_ALLOW_EM2 == 1

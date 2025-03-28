@@ -28,8 +28,8 @@
 
 // <h>FIFO Settings
 
-// <o SL_DIRECT_TO_BUFFER_TX_FIFO_SIZE> RX FIFO size
-// <i> Set RX FIFO size in bytes
+// <o SL_DIRECT_TO_BUFFER_TX_FIFO_SIZE> Rx FIFO size
+// <i> Set Rx FIFO size in bytes
 // <i> Default: 1024
 #define SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE                1024
 
@@ -38,7 +38,7 @@
 
 // <h>Mode Settings
 
-// <o SL_DIRECT_TO_BUFFER_RX_SOURCE> Source of RX Data
+// <o SL_DIRECT_TO_BUFFER_RX_SOURCE> Source of Rx Data
 // <RX_DEMOD_DATA=> Get 8-bit output from demodulator
 // <RX_IQDATA_FILTLSB=> Get lowest 16 bits of I/Q data provided to demodulator
 // <RX_IQDATA_FILTMSB=> Get highest 16 bits of I/Q data provided to demodulator

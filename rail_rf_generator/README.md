@@ -50,8 +50,8 @@ A sequence is defined by packets and the delays between the packets. The packets
 For example:
 
 ```
-TX packet ID1->300ms delay->TX PACKET ID3->100ms delay->TX packet ID2->600ms...
-TX packet ID4->100ms delay->TX packet ID1->50ms...
+Tx packet ID1->300ms delay->TX PACKET ID3->100ms delay->TX packet ID2->600ms...
+Tx packet ID4->100ms delay->TX packet ID1->50ms...
 ```
 
 Each packet has its content, length and channel. All of them are configurable at runtime offering a very versatile and flexible application for testing.
@@ -68,18 +68,18 @@ The packets and the sequence can be modified with the predefined CLI commands.
 *[uint8] packetID*
 - setLength: Set the packet's length.\
 *[uint8] packetID*
-- setChannel: Set packet's TX channel.\
+- setChannel: Set packet's Tx channel.\
 *[uint8] packetID*
 - getPacketInfo: Print packet's info.\
 *[uint8] packetID*
-- setSeq: Set the TX sequence.\
+- setSeq: Set the Tx sequence.\
 *[uint32opt] packetID0 delayUs0 payketID1 delayUs1*
-- getSeq: Print the current TX sequence.
+- getSeq: Print the current Tx sequence.
 - setRepeat: Set sequence repeat time. 0 means infinite repeat time.\
 *[uint32] repeat*
 - getRepeat: Print sequence repeat time.
 - tx: Start/Stop sequence TX.
-- txLog: Enable TX printing messages.\
+- txLog: Enable Tx printing messages.\
 *[uint8opt] enable*
 - enterscript: Enter script entry mode. Conclude entry mode with text 'endScript'..\
 *[uint8opt] [0=RAM] 1=Flash-script will run on boot*
@@ -113,7 +113,7 @@ The **Receiver (RX) node** will be displayed:
 
 The devices start in receive state.
 
-On the **RF Generator (TX) node** issue the `tx` command on the TX node to request/stop packet transmission:
+On the **RF Generator (TX) node** issue the `tx` command on the Tx node to request/stop packet transmission:
 
 ```
 tx

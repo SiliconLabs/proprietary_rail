@@ -47,9 +47,7 @@ component:
 - instance: [inst0]
   id: rail_util_init
 - {id: device_init}
-- {id: iostream_eusart_core}
-- instance: [vcom]
-  id: iostream_eusart
+- id: iostream_recommended_stream
 - {id: rail_util_recommended}
 - instance: [almost_full]
   id: sl_radioprs
@@ -76,7 +74,7 @@ provides:
   condition: [device_generic_family_efr32xg27]
 - name: primary_prs_group_0
   condition: [device_generic_family_efr32xg28]
-# xG22 exception list
+# EFR32xG22 exception list
 - name: primary_prs_group_2_ov
   condition: [brd4183b]
 - name: primary_prs_group_2_ov
@@ -89,7 +87,7 @@ provides:
   condition: [brd4403b]
 - name: primary_prs_group_2_ov
   condition: [brd4191A]
-# xG27 exception list
+# EFR32xG27 exception list
 - name: primary_prs_group_1_ov
   condition: [brd4194a]
 # secondary PRS

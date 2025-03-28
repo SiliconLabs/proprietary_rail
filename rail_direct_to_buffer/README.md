@@ -127,12 +127,14 @@ You may encounter different issues when the sample rate exceeds the limitations:
 
 - losing samples when limitation 1. is violated: the radio is not able to
   capture all the samples;
-- RX FIFO overflow when limitation 2. is violated: Rx FIFO is written faster
+- Rx FIFO overflow when limitation 2. is violated: Rx FIFO is written faster
   than it's read;
 
 If the Rx FIFO to Application buffer transfer speed is maximized, the CPU
 becomes heavily occupied with copying data, potentially preventing the
 application from managing other processes effectively.
+
+### Configuration ###
 
 #### Peripherals Used ####
 

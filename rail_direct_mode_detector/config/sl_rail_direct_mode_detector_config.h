@@ -3,7 +3,7 @@
  * @brief RAIL Direct Mode Packet Detector Example Config
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -44,8 +44,8 @@
 
 // <h>Packet Settings
 
-// <o SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE> TX FIFO size
-// <i> Set TX FIFO size in bytes
+// <o SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE> Tx FIFO size
+// <i> Set Tx FIFO size in bytes
 // <i> Default: 64
 #define SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE                  64
 

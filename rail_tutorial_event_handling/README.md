@@ -6,7 +6,7 @@ This example application demonstrates event handling and automatic state
 transitions in RAIL.
 
 To get more information about this topic, read our [related
-article](https://community.silabs.com/s/article/rail-tutorial-3-studio5-event-handling?language=en_US).
+article](https://docs.silabs.com/rail/latest/rail-training-event/).
 
 > [!IMPORTANT]  
 > This application lacks error handling and other critical features for
@@ -15,7 +15,7 @@ article](https://community.silabs.com/s/article/rail-tutorial-3-studio5-event-ha
 
 ## SDK version ##
 
-SiSDK 2024.06.00 and above
+SiSDK 2024.6.0 and above
 
 ## Hardware Required ##
 
@@ -76,6 +76,10 @@ state after each Rx or Tx success/failure, so it is always capable of receiving
 from the other node, and this behavior is symmetric.
 
 ### Configuration ###
+
+#### Peripherals Used ####
+
+-
 
 #### Project Specific Configurations ####
 

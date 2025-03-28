@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -75,9 +75,9 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // Increment the last byte of the payload
     payload[SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH - 1]++;
     // If the radio configuration's payload settings doesn't match the
-    // SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH, the FIFO might get corrupt and a
-    // FIFO reset may be required in
-    // a production quality code before writing anything to it.
+    // SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH, the FIFO might get corrupt and
+    // a FIFO reset may be required in a production quality code before writing
+    // anything to it.
     uint16_t size = RAIL_WriteTxFifo(rail_handle,
                                      payload,
                                      SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH,

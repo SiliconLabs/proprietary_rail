@@ -1,9 +1,9 @@
-/**
+/***************************************************************************//**
  * @file
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -74,7 +74,7 @@
 // Flag indicating synchronization packet to be send
 volatile bool sync_packet_transmit_pend = false;
 
-extern uint8_t tx_payload[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE];
+extern uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE];
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -95,10 +95,9 @@ static volatile bool tx_packet_sent = false;
 static volatile bool rx_packet_received = false;
 static volatile bool tx_packet_failure = false;
 static volatile bool rx_packet_failure = false;
+static volatile bool calibration_error_flag = false;
 
-static __ALIGNED(
-  RAIL_FIFO_ALIGNMENT) uint8_t rx_payload[SL_TIME_SYNCHRONIZATION_PACKET_LENGTH]
-  = { 0 };
+static uint8_t rx_payload[SL_TIME_SYNCHRONIZATION_PACKET_LENGTH] = { 0 };
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -122,6 +121,12 @@ void sl_button_on_change(const sl_button_t *handle)
 void app_process_action(RAIL_Handle_t rail_handle)
 {
   RAIL_Status_t status;
+
+  if (calibration_error_flag) {
+    app_log_error("Calibration failed!\n");
+    calibration_error_flag = false;
+  }
+
   // Wait until user requests synchronization
   if (sync_packet_transmit_pend) {
     app_log_info("Synchronization started.\n");
@@ -131,7 +136,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 
     // Load the first part of the payload
     if (RAIL_SetTxFifo(rail_handle,
-                       tx_payload,
+                       tx_fifo,
                        SL_TIME_SYNCHRONIZATION_PACKET_OFFSET,
                        SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE) == 0) {
       app_log_error("RAIL_SetTxFifo() failed!\n");
@@ -151,7 +156,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
                                               * ONE_SECOND_IN_US)
                                              / RAIL_GetBitRate(rail_handle);
 
-    // Blocking wait until TX started
+    // Blocking wait until Tx started
     while (!tx_started) {}
 
     // Clear flag
@@ -166,13 +171,13 @@ void app_process_action(RAIL_Handle_t rail_handle)
                      4 * sizeof(uint8_t),
                      false);
 
-    // Blocking wait until TX finished
+    // Blocking wait until Tx finished
     // WARNING: Make sure all events of RAIL_EVENTS_TX_COMPLETION are enabled
     // otherwise the while loop may never exit
     while (!tx_packet_sent && !tx_packet_failure) {}
 
     if (tx_packet_failure) {
-      app_log_error("Packet TX failed!\n");
+      app_log_error("Packet Tx failed!\n");
     }
 
     if (tx_packet_sent) {
@@ -185,7 +190,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
 
   if (rx_packet_received) {
-    // Adjust timestamp to the RX packet syncword's end
+    // Adjust timestamp to the Rx packet syncword's end
     RAIL_GetRxTimeSyncWordEnd(rail_handle,
                               SL_TIME_SYNCHRONIZATION_PACKET_LENGTH,
                               &packet_timestamp.packetTime);
@@ -197,7 +202,8 @@ void app_process_action(RAIL_Handle_t rail_handle)
                                                           SL_TIME_SYNCHRONIZATION_PACKET_OFFSET);
 
     // Compensate the propagation delay
-    time_sync_word_end_position_master_us += SL_TIME_SYNCHRONIZATION_PROPAGATION_DELAY_US;
+    time_sync_word_end_position_master_us +=
+      SL_TIME_SYNCHRONIZATION_PROPAGATION_DELAY_US;
 
     // Calculate the difference of local times marking the time of the
     // synchronization packet's syncword end
@@ -237,7 +243,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
                                             time_preamble_and_syncword_duration_us;
   }
 
-  // Catch all TX completion events and set flags accordingly
+  // Catch all Tx completion events and set flags accordingly
   if (events & RAIL_EVENTS_TX_COMPLETION) {
     if (events & RAIL_EVENT_TX_PACKET_SENT) {
       tx_packet_sent = true;
@@ -245,7 +251,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
       tx_packet_failure = true;
     }
   }
-  // Catch all RX completion events and set flags accordingly
+  // Catch all Rx completion events and set flags accordingly
   if (events & RAIL_EVENTS_RX_COMPLETION) {
     if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
       rx_packet_received = true;
@@ -275,7 +281,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     if (RAIL_STATUS_NO_ERROR != RAIL_Calibrate(rail_handle,
                                                NULL,
                                                RAIL_CAL_ALL_PENDING)) {
-      app_log_error("Calibration failed!\n");
+      calibration_error_flag = true;
     }
   }
 

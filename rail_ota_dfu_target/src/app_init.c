@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -47,7 +47,7 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-uint8_t tx_buffer[BUFFER_LENGTH];
+uint8_t tx_fifo[BUFFER_LENGTH];
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ RAIL_Handle_t app_init(void)
   RAIL_Handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  RAIL_SetTxFifo(rail_handle, tx_buffer, 0, BUFFER_LENGTH);
+  RAIL_SetTxFifo(rail_handle, tx_fifo, 0, BUFFER_LENGTH);
 
   RAIL_ConfigEvents(rail_handle, RAIL_EVENTS_ALL,
                     RAIL_EVENTS_TX_COMPLETION | RAIL_EVENTS_RX_COMPLETION);

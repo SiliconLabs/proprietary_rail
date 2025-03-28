@@ -6,7 +6,7 @@ This example application demonstrates calibration event handling and downloading
 packets in RAIL.
 
 To get more information about this topic, read our [related
-article](https://community.silabs.com/s/article/rail-tutorial-4-studio5-combining-transmit-and-receive?language=en_US).
+article](https://docs.silabs.com/rail/latest/rail-training-trx/).
 
 > [!IMPORTANT]  
 > This application lacks error handling and other critical features for
@@ -15,7 +15,7 @@ article](https://community.silabs.com/s/article/rail-tutorial-4-studio5-combinin
 
 ## SDK version ##
 
-SiSDK 2024.06.00 and above
+SiSDK 2024.6.0 and above
 
 ## Hardware Required ##
 
@@ -77,6 +77,14 @@ from the other node, and this behavior is symmetric. Additionally, the
 calibration runs before the radio's first use to ensure optimal performance.
 
 ### Configuration ###
+
+#### Peripherals Used ####
+
+The application utilizes the default EUSART instance for console logging. The
+VCOM enable signal is pre-configured for the tested boards.
+
+You may want to adjust the EUSART (VCOM) configurations according to the
+board you are using.
 
 #### Project Specific Configurations ####
 

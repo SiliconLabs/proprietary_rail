@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -31,7 +31,10 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
+#include "sl_common.h"
 #include "sl_rail_util_init.h"
+
 #include "app_init.h"
 #include "app_assert.h"
 
@@ -60,7 +63,9 @@ uint8_t payload[PACKET_LENGTH] = {
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-static __ALIGNED(RAIL_FIFO_ALIGNMENT) uint8_t tx_fifo[RAIL_FIFO_SIZE];
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+static uint8_t tx_fifo[RAIL_FIFO_SIZE]
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------

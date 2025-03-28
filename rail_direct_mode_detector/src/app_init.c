@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,18 +37,18 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
 #include "em_cmu.h"
 #include "em_timer.h"
 #include "em_gpio.h"
 
-#include "app_log.h"
-
+#include "sl_common.h"
 #include "sl_rail_util_init.h"
-
 #include "sl_radioprs_config_async_dout.h"
 #include "sl_radioprs_config_sync_dout.h"
-
 #include "sl_rail_direct_mode_detector_config.h"
+
+#include "app_log.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -67,8 +67,9 @@ static void initTimers(void);
 uint32_t symbol_duration;
 
 // Payload buffer for transmitted packet
-__ALIGNED(
-  RAIL_FIFO_ALIGNMENT) uint8_t tx_payload[SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE];
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+uint8_t tx_fifo[SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE]
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -88,11 +89,11 @@ RAIL_Handle_t app_init(void)
 
   initTimers();
 
-  // Fills up TX payload with a user-defined pattern
-  memset(tx_payload, SL_DIRECT_MODE_DETECTOR_PAYLOAD_PATTERN,
-         sizeof(tx_payload));
+  // Fills up Tx payload with a user-defined pattern
+  memset(tx_fifo, SL_DIRECT_MODE_DETECTOR_PAYLOAD_PATTERN,
+         sizeof(tx_fifo));
 
-  // Starts RX: after this point the radio will be always in RX mode except
+  // Starts RX: after this point the radio will be always in Rx mode except
   // when transmitting a packet or packet printing. Normal packet detection is
   // disabled by the radio configuration.
   RAIL_StartRx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL, NULL);
@@ -102,10 +103,10 @@ RAIL_Handle_t app_init(void)
   symbol_duration = CMU_ClockFreqGet(cmuClock_TIMER0)
                     / RAIL_GetSymbolRate(rail_handle);
 
-  // TX fifo filled only once, TX_OPTION_RESEND is used to keep the payload
+  // Tx fifo filled only once, TX_OPTION_RESEND is used to keep the payload
   // in the FIFO
   uint16_t fifo_size = RAIL_SetTxFifo(rail_handle,
-                                      tx_payload,
+                                      tx_fifo,
                                       SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH,
                                       SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE);
   if (fifo_size == 0) {

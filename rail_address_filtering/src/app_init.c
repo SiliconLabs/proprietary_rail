@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,11 +37,14 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
 #include "sl_rail_util_init.h"
 #include "sl_rail_address_filtering_config.h"
 #include "sl_common.h"
+
 #include "app_log.h"
 #include "app_assert.h"
+
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -58,8 +61,8 @@ extern const uint8_t addresses[2][5];
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_buffer[
-  SL_ADDRESS_FILTERING_BUFFER_LENGTH]
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+static uint8_t tx_fifo[SL_ADDRESS_FILTERING_BUFFER_LENGTH]
 SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 
 // Using two address fields, one byte each, with zero offsets (packet should
@@ -128,7 +131,7 @@ RAIL_Handle_t app_init(void)
     payload[1]);
 
   uint16_t size = RAIL_SetTxFifo(rail_handle,
-                                 tx_buffer,
+                                 tx_fifo,
                                  0,
                                  SL_ADDRESS_FILTERING_BUFFER_LENGTH);
   app_assert(size == SL_ADDRESS_FILTERING_BUFFER_LENGTH,

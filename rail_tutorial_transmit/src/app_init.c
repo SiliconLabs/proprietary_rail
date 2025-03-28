@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -37,6 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
+#include "sl_common.h"
 #include "sl_rail_util_init.h"
 #include "sl_rail_tutorial_transmit_config.h"
 
@@ -55,8 +57,9 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(4) static uint8_t tx_buffer[SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH]
-SL_ATTRIBUTE_ALIGN(4);
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+static uint8_t tx_fifo[SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH]
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -71,7 +74,7 @@ RAIL_Handle_t app_init(void)
   RAIL_Handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  RAIL_SetTxFifo(rail_handle, tx_buffer, 0, SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH);
+  RAIL_SetTxFifo(rail_handle, tx_fifo, 0, SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH);
   return rail_handle;
 }
 

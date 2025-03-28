@@ -37,15 +37,19 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
 #include "sl_rail_util_init.h"
 #include "sl_rail_improved_rfsense_transmitter_config.h"
 #include "sl_simple_led_instances.h"
 #include "sl_common.h"
+
 #include "pa_curve_types_efr32.h"
 #include "pa_conversions_efr32.h"
+
 #include "app_process.h"
 #include "app_log.h"
 #include "app_assert.h"
+
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
@@ -61,8 +65,10 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_fifo[
-  SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH] = { 0x55, 0x6F, 0xB1 };
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
+static uint8_t tx_fifo[SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH]
+  = { 0x55, 0x6F, 0xB1 };
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------

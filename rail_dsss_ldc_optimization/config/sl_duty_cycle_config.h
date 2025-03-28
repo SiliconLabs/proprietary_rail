@@ -3,7 +3,7 @@
  * @brief
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -38,14 +38,14 @@
 
 // <<< Use Configuration Wizard in Context Menu >>>
 
-// <h> Duty Cycle RX listening time in microseconds
+// <h> Duty Cycle Rx listening time in microseconds
 
 // <o DUTY_CYCLE_ON_TIME> Duty Cycle ON time in microseconds
 // <i> Default: 1000
-// <i> Define the number of microseconds the radio will be in RX mode.
+// <i> Define the number of microseconds the radio will be in Rx mode.
 #define DUTY_CYCLE_ON_TIME      4167
 
-// </h> End Duty Cycle RX listening time in microseconds
+// </h> End Duty Cycle Rx listening time in microseconds
 
 // <h> Duty Cycle IDLE/Sleep maximum time in microseconds
 

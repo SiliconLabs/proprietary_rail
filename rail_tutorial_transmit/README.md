@@ -5,7 +5,7 @@
 This project demonstrates packet transmitting using RAIL.
 
 To get more information about the topic of transmit, read our [related
-article](https://community.silabs.com/s/article/rail-tutorial-2-studio5-transmitting-a-packet?language=en_US).
+article](https://docs.silabs.com/rail/latest/rail-training-tx/).
 
 > [!IMPORTANT]  
 > This application lacks error handling and other critical features for
@@ -14,7 +14,7 @@ article](https://community.silabs.com/s/article/rail-tutorial-2-studio5-transmit
 
 ## SDK version ##
 
-SiSDK 2024.06.00 and above
+SiSDK 2024.6.0 and above
 
 ## Hardware Required ##
 
@@ -50,8 +50,8 @@ Connect a Development Kit to your PC.
 This project demonstrates how a packet can be transmitted with RAIL. To use this
 application you need at least one node (transmitter), however to receive the
 transmitted packets you will also need a receiver node. For more information
-about packet reception, see [RAIL Tutorial 4: Downloading
-messages](https://community.silabs.com/s/article/rail-tutorial-4-studio5-combining-transmit-and-receive?language=en_US).
+about packet reception, see [RAIL Tutorial: Downloading Received
+Messages](https://docs.silabs.com/rail/latest/rail-training-trx/).
 
 For the receiver, you can use an application like RAILtest or the Simple TRX
 example configured with the same radio settings to ensure compatibility during
@@ -75,6 +75,10 @@ act as a counter of the transmitted packets.
 To initiate a packet transmission, you need to press the PB0 button.
 
 ### Configuration ###
+
+#### Peripherals Used ####
+
+-
 
 #### Project Specific Configurations ####
 

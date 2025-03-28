@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -117,6 +117,12 @@ static uint8_t rx_payload[SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH];
 // Flag indicating synchronization packet to be send
 volatile bool transmit_pend = false;
 
+// Flag indicating packet transmission is complete
+static volatile bool tx_complete = false;
+
+// Flag indicating calibration error
+static volatile calibration_error_flag = true;
+
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -140,6 +146,11 @@ void app_process_action(RAIL_Handle_t rail_handle)
 {
   RAIL_Status_t status;
 
+  if (calibration_error_flag) {
+    calibration_error_flag = false;
+    app_log_error("RAIL_Calibrate was unable to perform calibration!");
+  }
+
   // Handles packet transmission requested by the user
   if (transmit_pend) {
     app_log_info("Packet transmission initiated.\n");
@@ -150,7 +161,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 
     // Clears the flag
     transmit_pend = false;
-    
+
     // Sends the packet - Resend option keeps the payload in the FIFO
     status = RAIL_StartTx(rail_handle,
                           SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL,
@@ -159,6 +170,11 @@ void app_process_action(RAIL_Handle_t rail_handle)
     if (status != RAIL_STATUS_NO_ERROR) {
       app_log_error("RAIL_StartTx() failed!\n");
     }
+  }
+
+  if (tx_complete) {
+    app_log_info("Packet transmission complete.\n");
+    tx_complete = false;
   }
 
 #if SL_DIRECT_MODE_DETECTOR_APP_MODE == SL_DETECT_ONLY
@@ -172,7 +188,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
 
 #if SL_DIRECT_MODE_DETECTOR_APP_MODE == SL_PACKET_RECEIVE
   // In packet receive mode the application logs the received packet
-  // and restart RX after the payload is logged
+  // and restart Rx after the payload is logged
   if (packet_ready) {
     // Idle the radio manually while printing the packet
     RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
@@ -192,7 +208,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // Rearms the algorithm for the next packet
     rearm_detector_algorithm();
 
-    // Restarts RX
+    // Restarts Rx
     RAIL_StartRx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL, NULL);
 
     // Resets flags
@@ -208,7 +224,6 @@ void app_process_action(RAIL_Handle_t rail_handle)
 void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 {
   if (events & RAIL_EVENTS_TX_COMPLETION) {
-    app_log_info("Packet transmission completed.\n");
     rearm_detector_algorithm();
   }
 
@@ -216,7 +231,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     if (RAIL_STATUS_NO_ERROR != RAIL_Calibrate(rail_handle,
                                                NULL,
                                                RAIL_CAL_ALL_PENDING)) {
-      app_log_error("Calibration failed!\n");
+      calibration_error_flag = true;
     }
   }
 

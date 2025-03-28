@@ -3,7 +3,7 @@
  * @brief RAIL Time Synchronization Example Config
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * The licensor of this software is Silicon Laboratories Inc. Your use of this
@@ -28,8 +28,8 @@
 
 // <h>Packet Settings
 
-// <o SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE> TX FIFO size
-// <i> Set TX FIFO size in bytes
+// <o SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE> Tx FIFO size
+// <i> Set Tx FIFO size in bytes
 // <i> Default: 64
 #define SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE                64
 

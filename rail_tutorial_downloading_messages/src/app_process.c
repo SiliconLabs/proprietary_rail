@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2024 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -63,7 +63,7 @@ static uint8_t payload[SL_TUTORIAL_DOWNLOADING_MESSAGES_PAYLOAD_LENGTH] =
 
 static volatile bool send_packet = false;
 
-// This buffer is not the RAIL RX FIFO, but an application buffer.
+// This buffer is not the RAIL Rx FIFO, but an application buffer.
 static uint8_t rx_buffer[SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH];
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -118,7 +118,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
       sl_led_toggle(&sl_led_led1);
     }
 
-    app_log("RX");
+    app_log("Rx");
     for (int i = 0; i < packet_info.packetBytes; i++) {
       app_log(" 0x%02X", rx_buffer[i]);
     }

@@ -48,9 +48,7 @@ component:
 - instance: [inst0]
   id: rail_util_init
 - {id: device_init}
-- {id: iostream_eusart_core}
-- instance: [vcom]
-  id: iostream_eusart
+- id: iostream_recommended_stream
 - id: app_log
 - id: app_assert
 - {id: rail_util_recommended}
@@ -59,15 +57,15 @@ config_file:
 - path: ../config/efr32xg22/radio_settings.radioconf
   file_id: radio_configuration_settings
   directory: rail
-  condition: [device_sdid_205]
+  condition: [device_generic_family_efr32xg22]
 - path: ../config/efr32xg27/radio_settings.radioconf
   file_id: radio_configuration_settings
   directory: rail
-  condition: [device_sdid_230]
+  condition: [device_generic_family_efr32xg27]
 - path: ../config/efr32xg28/radio_settings.radioconf
   file_id: radio_configuration_settings
   directory: rail
-  condition: [device_sdid_235]
+  condition: [device_generic_family_efr32xg28]
 - path: ../config/sl_rail_improved_rfsense_transmitter_config.h
 
 requires:

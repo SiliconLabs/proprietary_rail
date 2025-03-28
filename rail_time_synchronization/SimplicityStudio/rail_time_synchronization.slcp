@@ -48,9 +48,7 @@ component:
 - instance: [inst0]
   id: rail_util_init
 - {id: device_init}
-- {id: iostream_eusart_core}
-- instance: [vcom]
-  id: iostream_eusart
+- id: iostream_recommended_stream
 - {id: rail_util_recommended}
 - instance: [timer_tick_prs, framedet_prs, syncsent_prs]
   id: sl_radioprs
@@ -163,10 +161,10 @@ configuration:
 - condition: [hardware_board_has_eff]
   name: SL_RAIL_UTIL_PA_CALIBRATION_ENABLE
   value: '1'
-- condition: [device_sdid_220, hardware_board_default_rf_band_470]
+- condition: [device_generic_family_efr32xg25, hardware_board_default_rf_band_470]
   name: SL_DEVICE_INIT_RFFPLL_BAND
   value: '1'
-- condition: [device_sdid_220, hardware_board_default_rf_band_450]
+- condition: [device_generic_family_efr32xg25, hardware_board_default_rf_band_450]
   name: SL_DEVICE_INIT_RFFPLL_BAND
   value: '0'
 

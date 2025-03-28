@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief app_init.c
+ * @brief app_process.c
  *******************************************************************************
  * # License
  * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
@@ -87,7 +87,7 @@ static void printf_rx_buffer();
 /// Flag, indicating print request
 static volatile bool print_requested = false;
 
-// Flag, indicating RX FIFO overflow
+// Flag, indicating Rx FIFO overflow
 static volatile bool fifo_error = false;
 
 // Allocates a ping-pong style application buffer
@@ -119,7 +119,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   // After FIFO overflow the radio stays in Idle state regardless of the
   // auto state transition config
   if (fifo_error) {
-    app_log_warning("RX FIFO overflow\n");
+    app_log_warning("Rx FIFO overflow\n");
     fifo_error = false;
   }
 
@@ -131,7 +131,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
       app_log_error("RAIL_Idle failed with status %d\n", rail_status);
     }
 
-    // Prepare the RX FIFO for the next iteration
+    // Prepare the Rx FIFO for the next iteration
     rail_status = RAIL_ResetFifo(rail_handle, false, true);
     if (rail_status != RAIL_STATUS_NO_ERROR) {
       app_log_error("RAIL_ResetFifo failed with status %d\n", rail_status);
@@ -178,12 +178,12 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
     fifo_error = true;
   }
 
-  // Half of the RX FIFO is reay to be read
-  // For simplicity RX FIFO size is equal to the rx_buffers size, and rx_buffers
-  // boundary is aligned with the RX FIFO boundary
+  // Half of the Rx FIFO is reay to be read
+  // For simplicity Rx FIFO size is equal to the rx_buffers size, and rx_buffers
+  // boundary is aligned with the Rx FIFO boundary
   if (events & RAIL_EVENT_RX_FIFO_ALMOST_FULL) {
     uint16_t bytes_read;
-    // Read the RX FIFO into the active buffer
+    // Read the Rx FIFO into the active buffer
     bytes_read = RAIL_ReadRxFifo(rail_handle,
                                  rx_buffers[active_buffer],
                                  SL_BUFFER_LENGTH);

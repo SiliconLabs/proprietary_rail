@@ -10,7 +10,7 @@ article](https://community.silabs.com/s/article/time-synchronization-with-rail-e
 
 ## SDK version ##
 
-SiSDK 2024.06.02 and above
+SiSDK 2024.6.2 and above
 
 ## Hardware Required ##
 
@@ -46,10 +46,10 @@ terminal connected to the VCOM port.
 ## How It Works ##
 
 > This example builds on the [RAIL Tutorial: Time, Timestamping and
-> Scheduling](https://community.silabs.com/s/article/rail-tutorial-time-timestamping-and-scheduling?language=en_US)
-> and [RAIL Tutorial: Combining Transmit and Receive, Downloading
-> Messages](https://community.silabs.com/s/article/rail-tutorial-4-studio5-combining-transmit-and-receive?language=en_US)
-> tutorials. Please read them first if you haven't already.
+> Scheduling](https://docs.silabs.com/rail/latest/rail-training-timestamping/)
+> and [RAIL Tutorial: Downloading Received
+> Messages](https://docs.silabs.com/rail/latest/rail-training-trx/) tutorials.
+> Please read them first if you haven't already.
 
 ----
 
@@ -93,7 +93,7 @@ frequency can deviate by 10–20 Hz from the nominal clock frequency of 38.4–4
 MHz. Over time, this can result in synchronization errors accumulating at a rate
 of 10–20 microseconds per second.
 
-### How to use
+### How to use ###
 
 To initiate sharing the System Time in the packet, you need to press the PB0
 button on or issue the `start` CLI command the transmitter node. When the packet
@@ -108,9 +108,9 @@ console in the same interval. Once synchronized, the remote node's System Time
 is also displayed on the console. Additionally, the application features the
 `getTime` CLI command to read the current System Time of the node.
 
-### Configuration
+### Configuration ###
 
-#### Peripherals Used
+#### Peripherals Used ####
 
 The Application uses the default EUSART instance for CLI communication and
 console logging. The VCOM enable signal is also configured for the tested
@@ -125,28 +125,28 @@ debug pins.
 You may want to adjust the PRS and EUSART (VCOM) configurations according to the
 board you are using.
 
-#### Project Specific Configurations
+#### Project Specific Configurations ####
 
 Additional project-specific configurations can be found in the
 `<project_root>/config/sl_rail_time_synchronization_config.h` file. These
 configurations are not currently accessible through the UI as component
 settings, so you will need to modify them manually using a text editor or IDE.
 
-#### `SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE`
+#### `SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE` ####
 
-Sets the default TX FIFO length.
+Sets the default Tx FIFO length.
 
 - [The size must be a power of 2 from 64 to
   4096](https://docs.silabs.com/rail/latest/rail-api/efr32-main#receive-and-transmit-fifo-buffers)
 
-#### `SL_TIME_SYNCHRONIZATION_PACKET_LENGTH`
+#### `SL_TIME_SYNCHRONIZATION_PACKET_LENGTH` ####
 
 Sets the default packet length.
 
 - Set it according to the Radio Configuration. Fixed-length config only.
 - Must not exceed `SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE`.
 
-#### `SL_TIME_SYNCHRONIZATION_PACKET_OFFSET`
+#### `SL_TIME_SYNCHRONIZATION_PACKET_OFFSET` ####
 
 Position of the timestamp in the packet. The timestamp is a 32-bit value.
 
@@ -159,19 +159,19 @@ Position of the timestamp in the packet. The timestamp is a 32-bit value.
 `SL_TIME_SYNCHRONIZATION_PACKET_OFFSET = SL_TIME_SYNCHRONIZATION_PACKET_LENGTH -
 4`
 
-#### `SL_TIME_SYNCHRONIZATION_PREABMLE_LENGTH_TOTAL`
+#### `SL_TIME_SYNCHRONIZATION_PREABMLE_LENGTH_TOTAL` ####
 
 Total length of the preamble in bits.
 
 - Set it according to the Radio Configuration.
 
-#### `SL_TIME_SYNCHRONIZATION_SYNCWORD_LENGTH_TOTAL`
+#### `SL_TIME_SYNCHRONIZATION_SYNCWORD_LENGTH_TOTAL` ####
 
 Total length of the sync word in bits.
 
 - Set it according to the Radio Configuration.
 
-#### `SL_TIME_SYNCHRONIZATION_PROPAGATION_DELAY_US`
+#### `SL_TIME_SYNCHRONIZATION_PROPAGATION_DELAY_US` ####
 
 Demodulator propagation delay in microseconds.
 
@@ -179,16 +179,16 @@ Demodulator propagation delay in microseconds.
   and `RADIOPRS_FRAMEDET_PRS_CHANNEL` channels.
 - The `<project_root>/autogen/radioconf_generation_log.json` file may include an
   estimation for the demodulator propagation delay, which can be converted to
-  microseconds using `(Signal Propagation Delay [symbols]` and `Actual RX
+  microseconds using `(Signal Propagation Delay [symbols]` and `Actual Rx
   Baudrate [baud]` variables.
 
-#### `SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL`
+#### `SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL` ####
 
 Sets the default channel the communication will take place on.
 
 - Must be within the range defined in the Radio Configuration.
 
-## Demo Captures
+## Demo Captures ##
 
 In the `doc` folder you can find 3 logic analyzer captures of the application
 running on two EFR32 Series 2 boards. Each of these were captured at a subGHz
@@ -233,7 +233,7 @@ source to Node #2, and Node #1 also aligns its tick signal with Node #2.
 Similarly, when Node #3 transmits a packet (P5), both Node #1 and Node #2 switch
 their synchronization source to Node #3.
 
-## Notes
+## Notes ##
 
 - An issue related to `Flex - RAIL PRS Support` component has been fixed in
   `SiSDK 2024.06.02` version. If you are using an older version, you may need to

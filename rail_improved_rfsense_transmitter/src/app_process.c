@@ -95,7 +95,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
   if (tx_error_flag) {
     tx_error_flag = false;
-    app_log_error("Packet transmission was not successful! Increase TX delay!");
+    app_log_error("Packet transmission was not successful! Increase Tx delay!");
   }
   if (send_timer_elapsed) {
     send_timer_elapsed = false;

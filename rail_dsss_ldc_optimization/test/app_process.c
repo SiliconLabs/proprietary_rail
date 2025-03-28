@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2021 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -86,7 +86,7 @@ typedef enum {
 static void printf_rx_packet(const uint8_t * const rx_buffer);
 
 /*******************************************************************************
- * Send a prepared TX packet on selected rail handler
+ * Send a prepared Tx packet on selected rail handler
  *
  * @param rail_handle: which rail handler to use for tx function
  * @return rail_status: error code from rail
@@ -157,8 +157,8 @@ static union {
               } };
 
 /// Counter to be displayed on LCD
-static uint16_t packet_transmitted = 0;              // TX packets count
-static uint16_t packet_received = 0;                 // RX packets count
+static uint16_t packet_transmitted = 0;              // Tx packets count
+static uint16_t packet_received = 0;                 // Rx packets count
 
 /// Flag to refresh LCD with new values
 static bool refresh_display = true;
@@ -295,7 +295,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
 #endif
 
-  // After packet received or DutyCyle end RAIL RX needs to be restarted
+  // After packet received or DutyCyle end RAIL Rx needs to be restarted
   if (duty_cycle_end) {
     duty_cycle_end = false;
 #if DUTY_CYCLE_ALLOW_EM2 == 0
@@ -388,13 +388,13 @@ static void process_rail_errors(void)
 {
   if (rail_tx_error) {
     rail_tx_error = false;
-    app_log_warning("Radio TX Error occured\nEvents: %lld\n", 
+    app_log_warning("Radio Tx Error occured\nEvents: %lld\n", 
                     (current_rail_err & RAIL_EVENTS_TX_COMPLETION));
     duty_cycle_end = true;
   }
   if (rail_rx_error) {
     rail_rx_error = false;
-    app_log_warning("Radio RX Error occured\nEvents: %lld\n", 
+    app_log_warning("Radio Rx Error occured\nEvents: %lld\n", 
                     (current_rail_err & RAIL_EVENTS_RX_COMPLETION));
     duty_cycle_end = true;
   }
@@ -424,7 +424,7 @@ static void printf_rx_packet(const uint8_t * const rx_buffer)
 }
 
 /*******************************************************************************
- * Send a prepared TX packet on selecetd rail handler
+ * Send a prepared Tx packet on selecetd rail handler
  *
  * @param rail_handle: which rail handler to use for tx function
  * @return rail_status: error code from rail

@@ -37,6 +37,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+
 #include "sl_rail_util_init.h"
 #include "sl_rail_direct_to_buffer_config.h"
 #include "sl_common.h"
@@ -59,11 +60,10 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-
-// RX FIFO allocated for RAIL
-__ALIGNED(RAIL_FIFO_ALIGNMENT)
+// Rx FIFO allocated for RAIL
+SL_ALIGN(RAIL_FIFO_ALIGNMENT)
 static uint8_t rx_fifo[SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE];
-
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -79,8 +79,8 @@ RAIL_Handle_t app_init(void)
   RAIL_Handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  // Sets RX fifo threshold for RX FIFO Almost Full event to the half of
-  // the RX FIFO size
+  // Sets Rx fifo threshold for Rx FIFO Almost Full event to the half of
+  // the Rx FIFO size
   if (RX_FIFO_THRESHOLD
       != RAIL_SetRxFifoThreshold(rail_handle, RX_FIFO_THRESHOLD)) {
     app_log_warning("Rx FIFO threshold is not configured correctly!\n");
@@ -99,7 +99,7 @@ RAIL_Handle_t app_init(void)
     app_log_warning("RAIL_ConfigData failed with status %d\n", rail_status);
   }
 
-  // FIFO mode data collection starts with entering RX state
+  // FIFO mode data collection starts with entering Rx state
   rail_status =
     RAIL_StartRx(rail_handle, SL_DIRECT_TO_BUFFER_DEFAULT_CHANNEL, NULL);
 
@@ -113,11 +113,12 @@ RAIL_Handle_t app_init(void)
   return rail_handle;
 }
 
-RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t railHandle)
+RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t rail_handle)
 {
-  uint16_t rxFifoSize = SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE;
-  RAIL_Status_t status = RAIL_SetRxFifo(railHandle, &rx_fifo[0], &rxFifoSize);
-  if (rxFifoSize != SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE) {
+  uint16_t rx_fifo_size = SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE;
+  RAIL_Status_t status = RAIL_SetRxFifo(rail_handle, &rx_fifo[0],
+                                        &rx_fifo_size);
+  if (rx_fifo_size != SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE) {
     // We set up an incorrect FIFO size
     return RAIL_STATUS_INVALID_PARAMETER;
   }
