@@ -26,7 +26,14 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
+
 #ifndef APP_INIT_H
 #define APP_INIT_H
 
@@ -34,34 +41,31 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "rail.h"
+#include "sl_rail_rf_generator_config.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define RAIL_FIFO_SIZE    256
-#define NUMBER_OF_PACKETS 6
-#define PACKET_LENGTH     16
-#define MAX_PACKET_LENGTH 512
-#define PACKET_DELAY      2000000
-#define SEQUENCE_LENGTH   NUMBER_OF_PACKETS
-
 typedef struct packet_t{
-  uint8_t id, channel;
+  uint8_t id;
+  uint8_t channel;
   uint16_t length;
-  uint8_t payload[MAX_PACKET_LENGTH];
+  uint8_t payload[SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH];
 }packet_t;
 
-typedef struct packetSequenceElement_t{
+// An element of the sequence array that is transmitted
+typedef struct packet_sequence_element_t{
   packet_t *packet;
   RAIL_Time_t delay;
-}packetSequenceElement_t;
+}packet_sequence_element_t;
 
+// States of the application state machine
 typedef enum {
-  S_IDLE,
-  S_TX_SEQUENCE,
-  S_TX_STARTED,
-  S_TX,
-  S_TX_ABORTED,
+  S_IDLE, // No active transmission
+  S_SCHEDULE_NEXT_TX, // Schedules the next Tx of the sequence
+  S_TX_STARTED, // Logs the started event if enabled
+  S_WAITING_FOR_TX, // Waiting for the scheduled Tx
+  S_TX_ABORT_PENDING, // Aborts the sequence transmission
 }state_t;
 // -----------------------------------------------------------------------------
 //                                Global Variables

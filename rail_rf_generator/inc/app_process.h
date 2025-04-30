@@ -26,7 +26,14 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
+
 #ifndef APP_PROCESS_H
 #define APP_PROCESS_H
 
@@ -46,7 +53,6 @@
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
-void tx_toggle();
 
 /**************************************************************************//**
  * The function is used for Application logic.

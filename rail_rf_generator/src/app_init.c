@@ -1,4 +1,4 @@
-/**************************************************************************/ /**
+/***************************************************************************//**
  * @file
  * @brief app_init.c
  *******************************************************************************
@@ -26,6 +26,12 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
@@ -45,17 +51,18 @@
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-static void rf_generator_init(RAIL_Handle_t rail_handle);
-static void init_packets();
-static void init_sequence();
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-packet_t packets[NUMBER_OF_PACKETS] = { 0 };
-packetSequenceElement_t sequence[SEQUENCE_LENGTH];
+// These packets are used as default ones in the application
+packet_t packets[SL_RF_GENERATOR_NUMBER_OF_PACKETS] = { 0 };
 
-uint8_t payload[PACKET_LENGTH] = {
+// This array contains the packets with timing information for transmission
+packet_sequence_element_t sequence[SL_RF_GENERATOR_SEQUENCE_LENGTH];
+
+// Payload that is used for the initial packet data
+uint8_t payload[SL_RF_GENERATOR_PAYLOAD_LENGTH] = {
   0x0F, 0x0E, 0x11, 0x22, 0x33, 0x44, 0x55, 0x0F,
   0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE,
 };
@@ -63,9 +70,11 @@ uint8_t payload[PACKET_LENGTH] = {
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t tx_fifo[RAIL_FIFO_SIZE]
+// RAIL Tx fifo
+SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_fifo[
+  SL_RF_GENERATOR_FIFO_LENGTH]
 SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -79,9 +88,32 @@ RAIL_Handle_t app_init(void)
   RAIL_Handle_t rail_handle
     = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  rf_generator_init(rail_handle);
+  uint16_t allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle,
+                                                   tx_fifo,
+                                                   0,
+                                                   SL_RF_GENERATOR_FIFO_LENGTH);
+  app_assert(allocated_tx_fifo_size == SL_RF_GENERATOR_FIFO_LENGTH,
+             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
+             allocated_tx_fifo_size,
+             SL_RF_GENERATOR_FIFO_LENGTH);
 
-  app_log_info("RF Generator\n");
+  // Initializing packets
+  for (uint8_t i = 0; i < SL_RF_GENERATOR_NUMBER_OF_PACKETS; ++i)
+  {
+    packets[i].id = i;
+    packets[i].channel = SL_RF_GENERATOR_DEFAULT_CHANNEL;
+    packets[i].length = SL_RF_GENERATOR_PAYLOAD_LENGTH;
+    memcpy(packets[i].payload, payload, SL_RF_GENERATOR_PAYLOAD_LENGTH);
+  }
+
+  // Initializing sequence
+  for (uint8_t i = 0; i < SL_RF_GENERATOR_SEQUENCE_LENGTH; ++i)
+  {
+    sequence[i].packet = &packets[i];
+    sequence[i].delay = SL_RF_GENERATOR_PACKET_DELAY_US;
+  }
+
+  app_log("RF Generator\n");
 
   return rail_handle;
 }
@@ -89,37 +121,3 @@ RAIL_Handle_t app_init(void)
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
-static void rf_generator_init(RAIL_Handle_t rail_handle)
-{
-  uint16_t allocated_tx_fifo_size = 0;
-  allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle,
-                                          tx_fifo,
-                                          0,
-                                          RAIL_FIFO_SIZE);
-  app_assert(allocated_tx_fifo_size == RAIL_FIFO_SIZE,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             RAIL_FIFO_SIZE);
-
-  init_packets();
-  init_sequence();
-}
-
-static void init_packets()
-{
-  for (uint8_t i = 0; i < NUMBER_OF_PACKETS; ++i)
-  {
-    packets[i].id = i;
-    packets[i].length = PACKET_LENGTH;
-    memcpy(packets[i].payload, payload, PACKET_LENGTH);
-  }
-}
-
-static void init_sequence()
-{
-  for (uint8_t i = 0; i < NUMBER_OF_PACKETS; ++i)
-  {
-    sequence[i].packet = &packets[i % NUMBER_OF_PACKETS];
-    sequence[i].delay = PACKET_DELAY;
-  }
-}

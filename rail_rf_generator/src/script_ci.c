@@ -1,5 +1,5 @@
 /***************************************************************************//**
- * @file
+ * @file script_ci.c
  * @brief CLI implementations for the scripting features of the multiprotocol
  *   app. These features allow a user to upload a series of commands to the
  *   chip to be executed consecutively without waiting for further CLI input
@@ -31,6 +31,12 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 #include <stdio.h>
@@ -124,7 +130,7 @@ void wait(sl_cli_command_arg_t *args)
   (void)args;
   responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                      "CLI Delay support not enabled");
-#endif //SL_CATALOG_CLI_DELAY_PRESENT
+#endif // SL_CATALOG_CLI_DELAY_PRESENT
 }
 
 void enterScript(sl_cli_command_arg_t *args)
@@ -149,7 +155,7 @@ void enterScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
@@ -163,7 +169,7 @@ void enterScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_RAM_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_RAM_PRESENT
   }
 
   responsePrint(sl_cli_get_command_string(args, 0),
@@ -191,7 +197,7 @@ void clearScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
@@ -202,7 +208,7 @@ void clearScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_RAM_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_RAM_PRESENT
   }
 
   responsePrint(sl_cli_get_command_string(args, 0),
@@ -234,7 +240,7 @@ void printScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
@@ -248,7 +254,7 @@ void printScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_RAM_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_RAM_PRESENT
   }
 
   responsePrint(sl_cli_get_command_string(args, 0),
@@ -281,7 +287,7 @@ void runScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_NVM3_PRESENT
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
@@ -295,7 +301,7 @@ void runScript(sl_cli_command_arg_t *args)
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
-#endif //SL_CATALOG_CLI_STORAGE_RAM_PRESENT
+#endif // SL_CATALOG_CLI_STORAGE_RAM_PRESENT
   }
 
   responsePrint(sl_cli_get_command_string(args, 0),
