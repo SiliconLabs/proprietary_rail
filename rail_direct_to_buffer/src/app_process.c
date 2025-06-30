@@ -126,7 +126,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   // While printing the radio is unable to collect data
   if (print_requested) {
     // Stop the radio to avoid data corruption
-    rail_status = RAIL_Idle(rail_handle, RAIL_IDLE, true);
+    rail_status = RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, true);
     if (rail_status != RAIL_STATUS_NO_ERROR) {
       app_log_error("RAIL_Idle failed with status %d\n", rail_status);
     }

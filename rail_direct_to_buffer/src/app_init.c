@@ -62,7 +62,7 @@
 // -----------------------------------------------------------------------------
 // Rx FIFO allocated for RAIL
 SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t rx_fifo[SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE];
+static uint8_t rx_fifo[SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE]
 SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions

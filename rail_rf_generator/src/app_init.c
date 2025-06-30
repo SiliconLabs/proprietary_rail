@@ -71,8 +71,8 @@ uint8_t payload[SL_RF_GENERATOR_PAYLOAD_LENGTH] = {
 //                                Static Variables
 // -----------------------------------------------------------------------------
 // RAIL Tx fifo
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_fifo[
-  SL_RF_GENERATOR_FIFO_LENGTH]
+SL_ALIGN(RAIL_FIFO_ALIGNMENT) 
+static uint8_t tx_fifo[SL_RF_GENERATOR_FIFO_LENGTH]
 SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 
 // -----------------------------------------------------------------------------

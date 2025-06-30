@@ -34,6 +34,20 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 
 Official documentation can be found at our [Developer Documentation](https://docs.silabs.com/rail/latest/) page.
 
+## Working with Projects ##
+
+1. To add an external repository, perform the following steps.
+
+    - From Simpilicity Studio 5, go to **Preferences > Simplicity Studio > External Repos**. Here you can add the repo `https://github.com/SiliconLabs/proprietary_rail`.
+
+    - Cloning and then selecting the branch, tag, or commit to add. The default branch is Master. This repo cloned to `<path_to_the_SimplicityStudio_v5>/developer/repos/`
+
+2. From Launcher, select your device from the "Debug Adapters" on the left before creating a project. Then click the **EXAMPLE PROJECTS & DEMOS** tab -> check **proprietary_rail** under **Provider** to show a list of Proprietary RAIL example projects compatible with the selected device. Click CREATE on a project to generate a new application from the selected template.
+
+Alternatively the example application can be created directly by SLC-CLI invocations as documented in the [SLC-CLI: Usage](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-tools-slc-cli/03-usage) page.
+
+For further information on how to work with projects, please refer to the [Application Examples: Usage](https://docs.silabs.com/application-examples/latest/ae-getting-started/how-do-you-use-it) page.
+
 ## Reporting Bugs/Issues and Posting Questions and Comments ##
 
 To report bugs in the Application Examples projects, please create a new "Issue" in the "Issues" section of this repo. Please reference the board, project, and source files associated with the bug, and reference line numbers. If you are proposing a fix, also include information on the proposed fix. Since these examples are provided as-is, there is no guarantee that these examples will be updated to fix these issues.

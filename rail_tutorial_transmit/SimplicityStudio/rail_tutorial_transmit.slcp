@@ -50,6 +50,7 @@ config_file:
 
 requires:
 - {name: a_radio_config}
+- {name: simple_button}
 - condition: [kernel]
   name: sl_simple_rail_os
 - condition: [hardware_board_has_eff]

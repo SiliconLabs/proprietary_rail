@@ -63,8 +63,8 @@
 //                                Global Variables
 // -----------------------------------------------------------------------------
 SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE] = { 0 }
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE] 
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0 };
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------

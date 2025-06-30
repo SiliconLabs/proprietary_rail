@@ -67,8 +67,7 @@
 // -----------------------------------------------------------------------------
 SL_ALIGN(RAIL_FIFO_ALIGNMENT)
 static uint8_t tx_fifo[SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH]
-  = { 0x55, 0x6F, 0xB1 };
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0x55, 0x6F, 0xB1 };
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
