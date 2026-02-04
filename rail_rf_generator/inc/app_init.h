@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_rf_generator_config.h"
 
 // -----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ typedef struct packet_t{
 // An element of the sequence array that is transmitted
 typedef struct packet_sequence_element_t{
   packet_t *packet;
-  RAIL_Time_t delay;
+  sl_rail_time_t delay;
 }packet_sequence_element_t;
 
 // States of the application state machine
@@ -77,10 +77,7 @@ typedef enum {
 
 /**************************************************************************//**
  * The function is used for application initialization.
- *
- * @param None
- * @returns RAIL_Handle_t RAIL handle
  *****************************************************************************/
-RAIL_Handle_t app_init(void);
+void app_init(void);
 
 #endif // APP_INIT_H

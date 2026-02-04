@@ -38,7 +38,8 @@
 //                                   Includes
 // -----------------------------------------------------------------------------
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 
 #include "sl_rail_time_synchronization_config.h"
 
@@ -58,10 +59,10 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 
-#define PREAMBLE_AND_SYNCWORD_TOTAL ( \
-          SL_TIME_SYNCHRONIZATION_PREABMLE_LENGTH_TOTAL \
-          + \
-          SL_TIME_SYNCHRONIZATION_SYNCWORD_LENGTH_TOTAL)
+#define PREAMBLE_AND_SYNCWORD_TOTAL (             \
+    SL_TIME_SYNCHRONIZATION_PREABMLE_LENGTH_TOTAL \
+    +                                             \
+    SL_TIME_SYNCHRONIZATION_SYNCWORD_LENGTH_TOTAL)
 
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
@@ -74,7 +75,7 @@
 // Flag indicating synchronization packet to be send
 volatile bool sync_packet_transmit_pend = false;
 
-extern uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE];
+extern sl_rail_fifo_buffer_align_t tx_fifo[];
 
 // -----------------------------------------------------------------------------
 //                                Static Variables
@@ -83,11 +84,11 @@ extern uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE];
 // Flag indicating transmission already started
 static volatile bool tx_started = false;
 
-static RAIL_Time_t time_preamble_and_syncword_duration_us;
-static RAIL_Time_t time_sync_word_end_position_master_us;
-static RAIL_Time_t time_tx_started_position_master_us;
-static RAIL_Time_t time_sync_word_end_position_slave_us;
-static RAIL_PacketTimeStamp_t packet_timestamp;
+static sl_rail_time_t time_preamble_and_syncword_duration_us;
+static sl_rail_time_t time_sync_word_end_position_master_us;
+static sl_rail_time_t time_tx_started_position_master_us;
+static sl_rail_time_t time_sync_word_end_position_slave_us;
+static sl_rail_packet_time_stamp_t packet_timestamp;
 
 static int32_t local_times_difference = 0;
 
@@ -118,9 +119,9 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
 
   if (calibration_error_flag) {
     app_log_error("Calibration failed!\n");
@@ -129,32 +130,37 @@ void app_process_action(RAIL_Handle_t rail_handle)
 
   // Wait until user requests synchronization
   if (sync_packet_transmit_pend) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle =
+      sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
     app_log_info("Synchronization started.\n");
 
     // Clear flag
     sync_packet_transmit_pend = false;
 
     // Load the first part of the payload
-    if (RAIL_SetTxFifo(rail_handle,
-                       tx_fifo,
-                       SL_TIME_SYNCHRONIZATION_PACKET_OFFSET,
-                       SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE) == 0) {
-      app_log_error("RAIL_SetTxFifo() failed!\n");
+    if (sl_rail_set_tx_fifo(rail_handle,
+                            tx_fifo,
+                            SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE,
+                            SL_TIME_SYNCHRONIZATION_PACKET_OFFSET,
+                            0) != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_set_tx_fifo() failed!\n");
     }
 
     // Send the first packet of the synchronization process
-    status = RAIL_StartTx(rail_handle,
-                          SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL,
-                          RAIL_TX_OPTIONS_DEFAULT,
-                          NULL);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartTx() failed!\n");
+    status = sl_rail_start_tx(rail_handle,
+                              SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL,
+                              SL_RAIL_TX_OPTIONS_DEFAULT,
+                              NULL);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_tx() failed!\n");
     }
 
     // Changing the channel this value might change; recalculate
     time_preamble_and_syncword_duration_us = (PREAMBLE_AND_SYNCWORD_TOTAL
                                               * ONE_SECOND_IN_US)
-                                             / RAIL_GetBitRate(rail_handle);
+                                             / sl_rail_get_bit_rate(rail_handle);
 
     // Blocking wait until Tx started
     while (!tx_started) {}
@@ -166,13 +172,13 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // WARNING: This should be done before transmitting
     //   SL_TIME_SYNCHRONIZATION_PACKET_OFFSET
     // bytes of the payload!
-    RAIL_WriteTxFifo(rail_handle,
-                     (uint8_t *)&time_sync_word_end_position_master_us,
-                     4 * sizeof(uint8_t),
-                     false);
+    sl_rail_write_tx_fifo(rail_handle,
+                          (uint8_t *)&time_sync_word_end_position_master_us,
+                          4 * sizeof(uint8_t),
+                          false);
 
     // Blocking wait until Tx finished
-    // WARNING: Make sure all events of RAIL_EVENTS_TX_COMPLETION are enabled
+    // WARNING: Make sure all events of SL_RAIL_EVENTS_TX_COMPLETION are enabled
     // otherwise the while loop may never exit
     while (!tx_packet_sent && !tx_packet_failure) {}
 
@@ -190,11 +196,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
 
   if (rx_packet_received) {
-    // Adjust timestamp to the Rx packet syncword's end
-    RAIL_GetRxTimeSyncWordEnd(rail_handle,
-                              SL_TIME_SYNCHRONIZATION_PACKET_LENGTH,
-                              &packet_timestamp.packetTime);
-    time_sync_word_end_position_slave_us = packet_timestamp.packetTime;
+    time_sync_word_end_position_slave_us = packet_timestamp.packet_time;
 
     // Acquire the timestamp from the received packet
     time_sync_word_end_position_master_us = *(uint32_t *)(rx_payload
@@ -226,17 +228,21 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_TX_STARTED) {
+  if (events & SL_RAIL_EVENT_TX_STARTED) {
     // Set flag
     tx_started = true;
 
-    // Get the time when transmission started
-    RAIL_GetTxTimePreambleStart(rail_handle,
-                                RAIL_TX_STARTED_BYTES,
-                                &time_tx_started_position_master_us);
+    sl_rail_tx_packet_details_t packet_details;
+    packet_details.time_sent.total_packet_bytes = SL_RAIL_TX_STARTED_BYTES;
 
+    // Get the time when transmission started
+    sl_rail_get_tx_time_preamble_start(rail_handle,
+                                       &packet_details);
+
+    time_tx_started_position_master_us = packet_details.time_sent.packet_time;
     // Calculate timestamp when syncword transmission ends
     time_sync_word_end_position_master_us = time_tx_started_position_master_us
                                             +
@@ -244,43 +250,51 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
   }
 
   // Catch all Tx completion events and set flags accordingly
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       tx_packet_sent = true;
     } else {
       tx_packet_failure = true;
     }
   }
   // Catch all Rx completion events and set flags accordingly
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       rx_packet_received = true;
 
-      // Get the latest received packet
-      RAIL_RxPacketInfo_t rx_packet_info;
-      RAIL_RxPacketHandle_t rx_packet_handle = RAIL_RX_PACKET_HANDLE_NEWEST;
-      RAIL_GetRxPacketInfo(rail_handle, rx_packet_handle, &rx_packet_info);
+      // Get the latest received packet details
+      sl_rail_rx_packet_info_t rx_packet_info;
+      sl_rail_rx_packet_handle_t rx_packet_handle = sl_rail_get_rx_packet_info(
+        rail_handle,
+        SL_RAIL_RX_PACKET_HANDLE_NEWEST,
+        &rx_packet_info);
+
+      sl_rail_rx_packet_details_t rx_packet_details;
+      rx_packet_details.time_received.total_packet_bytes =
+        rx_packet_info.packet_bytes;
+      rx_packet_details.time_received.time_position =
+        SL_RAIL_PACKET_TIME_AT_SYNC_END_USED_TOTAL;
+
+      sl_rail_get_rx_packet_details(rail_handle,
+                                    rx_packet_handle,
+                                    &rx_packet_details);
 
       // Get the timestamp of the received packet' syncword end
-      packet_timestamp.timePosition = RAIL_PACKET_TIME_AT_SYNC_END;
-      RAIL_RxPacketDetails_t rx_packet_details =
-      { .timeReceived = packet_timestamp };
-      RAIL_GetRxPacketDetailsAlt(rail_handle, rx_packet_handle,
-                                 &rx_packet_details);
+      sl_rail_get_rx_time_sync_word_end(rail_handle, &rx_packet_details);
 
       // Copy the received packet's payload to the buffer
-      RAIL_CopyRxPacket(rx_payload, &rx_packet_info);
+      sl_rail_copy_rx_packet(rail_handle, rx_payload, &rx_packet_info);
 
-      packet_timestamp = rx_packet_details.timeReceived;
+      packet_timestamp = rx_packet_details.time_received;
     } else {
       rx_packet_failure = true;
     }
   }
 
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    if (RAIL_STATUS_NO_ERROR != RAIL_Calibrate(rail_handle,
-                                               NULL,
-                                               RAIL_CAL_ALL_PENDING)) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    if (SL_RAIL_STATUS_NO_ERROR != sl_rail_calibrate(rail_handle,
+                                                     NULL,
+                                                     SL_RAIL_CAL_ALL_PENDING)) {
       calibration_error_flag = true;
     }
   }
@@ -290,17 +304,16 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 #endif
 }
 
-void timer_callback(RAIL_Handle_t rail_handle)
+void timer_callback(sl_rail_handle_t rail_handle)
 {
-  RAIL_Time_t current_time = RAIL_GetTime();
-  RAIL_Time_t next_local_second_boundary = ((current_time / ONE_SECOND_IN_US)
-                                            + 1)
-                                           * ONE_SECOND_IN_US;
-  RAIL_Time_t next_second_boundary = next_local_second_boundary;
-
+  sl_rail_time_t current_time = sl_rail_get_time(rail_handle);
+  sl_rail_time_t next_local_second_boundary = ((current_time / ONE_SECOND_IN_US)
+                                               + 1)
+                                              * ONE_SECOND_IN_US;
+  sl_rail_time_t next_second_boundary = next_local_second_boundary;
   if (local_times_difference != 0) {
     // Calculate the next second boundary in the remote's time
-    RAIL_Time_t next_remote_second_boundary = 0;
+    sl_rail_time_t next_remote_second_boundary = 0;
     if (local_times_difference < 0) {
       uint32_t unsigned_difference = -local_times_difference;
       next_remote_second_boundary = next_local_second_boundary
@@ -324,10 +337,10 @@ void timer_callback(RAIL_Handle_t rail_handle)
   }
 
   // Set the timer for the next interrupt
-  RAIL_SetTimer(rail_handle,
-                next_second_boundary,
-                RAIL_TIME_ABSOLUTE,
-                timer_callback);
+  sl_rail_set_timer(rail_handle,
+                    next_second_boundary,
+                    SL_RAIL_TIME_ABSOLUTE,
+                    timer_callback);
 
   if (local_times_difference != 0) {
     app_log_debug("Local time: %lu us, Remote time %lu us\n",

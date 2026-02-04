@@ -57,7 +57,7 @@
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-static void initTimers(void);
+static void init_timers(void);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -67,9 +67,7 @@ static void initTimers(void);
 uint32_t symbol_duration;
 
 // Payload buffer for transmitted packet
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-uint8_t tx_fifo[SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE);
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -81,13 +79,13 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  initTimers();
+  init_timers();
 
   // Fills up Tx payload with a user-defined pattern
   memset(tx_fifo, SL_DIRECT_MODE_DETECTOR_PAYLOAD_PATTERN,
@@ -96,34 +94,30 @@ RAIL_Handle_t app_init(void)
   // Starts RX: after this point the radio will be always in Rx mode except
   // when transmitting a packet or packet printing. Normal packet detection is
   // disabled by the radio configuration.
-  RAIL_StartRx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL, NULL);
+  sl_rail_start_rx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL, NULL);
 
-  // At this point the active channel is set, RAIL_GetSymbolRate()
+  // At this point the active channel is set, sl_rail_get_symbol_rate()
   // gets the correct symbol rate
   symbol_duration = CMU_ClockFreqGet(cmuClock_TIMER0)
-                    / RAIL_GetSymbolRate(rail_handle);
+                    / sl_rail_get_symbol_rate(rail_handle);
 
-  // Tx fifo filled only once, TX_OPTION_RESEND is used to keep the payload
+  // Tx fifo filled only once, SL_TX_OPTION_RESEND is used to keep the payload
   // in the FIFO
-  uint16_t fifo_size = RAIL_SetTxFifo(rail_handle,
-                                      tx_fifo,
-                                      SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH,
-                                      SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE);
-  if (fifo_size == 0) {
-    app_log_error("RAIL_SetTxFifo() failed!\n");
-  } else if (fifo_size != SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE) {
-    app_log_warning("TX FIFO is set to %d\n", fifo_size);
-  } else {
+  sl_rail_status_t status = sl_rail_set_tx_fifo(rail_handle,
+                                                tx_fifo,
+                                                SL_DIRECT_MODE_DETECTOR_TX_FIFO_SIZE,
+                                                SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH,
+                                                0);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_set_tx_fifo() failed!\n");
   }
-
-  return rail_handle;
 }
 
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
 
-static void initTimers()
+static void init_timers()
 {
   CMU_ClockEnable(cmuClock_TIMER0, true);
 

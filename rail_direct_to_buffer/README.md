@@ -3,7 +3,7 @@
 ## Overview ##
 
 This example application demonstrates how to use Direct-to-Buffer (
-[`RAIL_RxDataSource_t`](https://docs.silabs.com/rail/latest/rail-api/data-management#rail-rx-data-source-t))
+[`sl_rail_rx_data_source_t`](https://docs.silabs.com/rail/latest/rail-api/data-management#sl-rail-rx-data-source-t))
 modes.
 
 The application sets the radio to receive mode and continuously captures the
@@ -48,7 +48,7 @@ VCOM port.
    v5](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-about-the-launcher/welcome-and-device-tabs#example-projects-demos-tab)
    or with [SLC
    CLI](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-tools-slc-cli/).
-2. Adjust parameters detailed in the [Configuration](#Configuration) section
+2. Adjust parameters detailed in the [Configuration](#configuration) section
    below.
 3. Build and flash the project on two boards.
 
@@ -59,7 +59,7 @@ specified by the `SL_DIRECT_TO_BUFFER_RX_SOURCE` configuration. In this mode,
 the selected specialized data source is continuously captured first into the Rx
 FIFO, then moved to a ping-pong buffer allocated by the application. The
 transfer of data from the Rx FIFO to the buffer is triggered by the
-`RAIL_EVENT_RX_FIFO_ALMOST_FULL` event (this event is also visible on the
+`SL_RAIL_EVENT_RX_FIFO_ALMOST_FULL` event (this event is also visible on the
 `PRS_BUFC_THR1` signal's rising edge) that triggers every time the Rx FIFO is
 halfway full.
 
@@ -79,9 +79,11 @@ console when the pushbutton on the development kit is pressed. The samples are
 formatted in a way that represents the selected specialized data source suitable
 for interpretation:
 
-- `RX_IQDATA_FILTMSB` / `RX_IQDATA_FILTLSB`: `"%6d %6d\n"`
-- `RX_DEMOD_DATA`: `"%02d"`
-- `RX_DIRECT_MODE_DATA` / `RX_DIRECT_SYNCHRONOUS_MODE_DATA`: `"%02x"`
+- `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB` /
+  `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB`: `"%6d %6d\n"`
+- `SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA`: `"%02d"`
+- `SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA` /
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA`: `"%02x"`
 
 This application does not support changing the Rx Data Source type during
 runtime.
@@ -115,11 +117,11 @@ to the host of 10 MB/s.
 
 | Type                            | Sample rate        | Size of sample | EFR32xG22  [sample/s] | EFR32xG23 [sample/s] | EFR32xG24 [sample/s] | EFR32xG25 [sample/s] | EFR32xG27 [sample/s] | EFR32xG28 [sample/s] |
 |---------------------------------|--------------------|----------------|-----------------------|----------------------|----------------------|----------------------|----------------------|----------------------|
-| RX_IQDATA_FILTLSB               | f_OSR * 4 Bps      | 4 bytes        | 400 k                 | 400 k                | 400 k                | 400 k                | 400 k                | 400 k                |
-| RX_IQDATA_FILTMSB               | f_OSR * 4 Bps      | 4 bytes        | 400 k                 | 2.5 M *              | 2.5 M *              | 2.5 M *              | 400 k                | 2.5 M *              |
-| RX_DEMOD_DATA                   | f_OSR * 1 Bps      | 1 byte         | 1.6 M                 | 10 M *               | 10 M *               | Not Supported        | 1.6 M                | 10 M *               |
-| RX_DIRECT_MODE_DATA             | f_OSR / 8 Bps      | 1 bit          | Not Supported         | 80 M *               | Not Supported        | 80 M *               | Not Supported        | 80 M *               |
-| RX_DIRECT_SYNCHRONOUS_MODE_DATA | f_baudrate / 8 Bps | 1 bit          | Not Supported         | 80 M *               | Not Supported        | 80 M *               | Not Supported        | 80 M *               |
+| SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB | f_OSR * 4 Bps      | 4 bytes        | 400 k                 | 400 k                | 400 k                | 400 k                | 400 k                | 400 k                |
+| SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB | f_OSR * 4 Bps      | 4 bytes        | 400 k                 | 2.5 M *              | 2.5 M *              | 2.5 M *              | 400 k                | 2.5 M *              |
+| SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA     | f_OSR * 1 Bps      | 1 byte         | 1.6 M                 | 10 M *               | 10 M *               | Not Supported        | 1.6 M                | 10 M *               |
+| SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA | f_OSR / 8 Bps      | 1 bit          | Not Supported         | 80 M *               | Not Supported        | 80 M *               | Not Supported        | 80 M *               |
+| SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA | f_baudrate / 8 Bps | 1 bit          | Not Supported         | 80 M *               | Not Supported        | 80 M *               | Not Supported        | 80 M *               |
 
 , where f_OSR is the IQ sample rate, and f_baudrate is the baudrate.
 
@@ -184,8 +186,9 @@ Sets the default channel the communication will take place on.
 
 #### Radio Configuration ####
 
-- In order to make `RX_DIRECT_MODE_DATA` or `RX_DIRECT_SYNCHRONOUS_MODE_DATA`
-  operational the `RX Direct Mode` must to be set to `SYNC` or `ASYNC`.
+- In order to make `SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA` or
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA` operational the `RX
+  Direct Mode` must to be set to `SYNC` or `ASYNC`.
 
 ## Demo Captures ##
 
@@ -241,20 +244,25 @@ configurations.
 - For certain development kit and SiSDK version combinations the Radio
   Configuration (i.e., the .radioconf file) might not be added automatically to
   your generated project. In such cases, you should manually copy the file,
-  otherwise `RX_DIRECT_MODE_DATA` and `RX_DIRECT_SYNCHRONOUS_MODE_DATA` modes
-  might not work on EFR32xG23/25/28 platforms.
-- `RX_DEMOD_DATA` on EFR32xG25 devices is currently not operational.
+  otherwise `SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA` and
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA` modes might not work on
+  EFR32xG23/25/28 platforms.
+- `SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA` on EFR32xG25 devices is currently not
+  operational.
 - You may encounter extra 7-800 uA consumption in EM2 mode when using
-  `RX_IQDATA_FILTMSB`, `RX_DEMOD_DATA`, `RX_DIRECT_MODE_DATA` or
-  `RX_DIRECT_SYNCHRONOUS_MODE_DATA` modes on EFR32xG23/24/25/28 platforms
-  (marked by *).
+  `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB`, `SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA`,
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA` or
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA` modes on
+  EFR32xG23/24/25/28 platforms (marked by *).
 - Currently, there may be data corruption when transitioning from
-  `RX_IQDATA_FILTMSB`, `RX_DEMOD_DATA`, `RX_DIRECT_MODE_DATA` or
-  `RX_DIRECT_SYNCHRONOUS_MODE_DATA` to `RX_IQDATA_FILTLSB` mode (mode marked by
-  \* to normal mode) on EFR32xG23/24/25/28 platforms.
+  `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB`, `SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA`,
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA` or
+  `SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA` to
+  `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB` mode (mode marked by \* to normal
+  mode) on EFR32xG23/24/25/28 platforms.
 - Currently, Direct-to-PRS functions (i.e., `PRS_MODEML_DOUT` and
-  `PRS_MODEM_LRDSALIVE` signals) are not operational when in `RX_IQDATA_FILTLSB`
-  mode on EFR32xG23/25/28 platforms. 
+  `PRS_MODEM_LRDSALIVE` signals) are not operational when in
+  `SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB` mode on EFR32xG23/25/28 platforms.
 - On EFR32xG23/24/25/28 platforms, the IQ sample representation is reversed when
   using `FILTMSB` mode compared to `FILTLSB` (between normal mode and modes
   marked by *). This reversal is accounted for in the application’s console
@@ -269,6 +277,7 @@ configurations.
 - Currently, the PHY details in the `radioconf_generation_log.json` log file for
   EFR32xG27 are not populated.
 - Configuring Direct-to-Buffer mode (i.e., selecting Rx Data Source other than
-  `RX_PACKET_DATA`) in the `RAIL Utility, Initialization` component is not safe,
-  because loading the channel may conflict with that configuration. First
-  load the channel and call the `RAIL_ConfigData()` afterwards.
+  `SL_RAIL_RX_DATA_SOURCE_PACKET_DATA`) in the `RAIL Utility, Initialization`
+  component is not safe, because loading the channel may conflict with that
+  configuration. First load the channel and call the `RAIL_ConfigData()`
+  afterwards.

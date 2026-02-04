@@ -44,7 +44,7 @@
 #include "rail.h"
 #include "app_init.h"
 #include "app_process.h"
-//#include "sl_simple_led_instances.h" //This line should be commented out
+// #include "sl_simple_led_instances.h" //This line should be commented out
 #include "sl_duty_cycle_config.h"
 
 #if DUTY_CYCLE_USE_LCD_BUTTON
@@ -60,7 +60,7 @@
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
 /// Size of RAIL RX/TX FIFO
-#define RAIL_FIFO_SIZE (256u)
+#define RAIL_FIFO_SIZE    (256u)
 /// Transmit data length
 #define TX_PAYLOAD_LENGTH (16u)
 /// Application type string
@@ -77,13 +77,13 @@ typedef enum {
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
+
 /*******************************************************************************
  * The function print the received message
  *
  * @param rx_buffer Msg buffer
- * @returns None
  ******************************************************************************/
-static void printf_rx_packet(const uint8_t * const rx_buffer);
+static void printf_rx_packet(const uint8_t *const rx_buffer);
 
 /*******************************************************************************
  * Send a prepared Tx packet on selected rail handler
@@ -95,9 +95,6 @@ static RAIL_Status_t send_tx_packet(RAIL_Handle_t rail_handle);
 
 /*******************************************************************************
  * The API print out the received errors from RAIL to CLI
- *
- * @param  None.
- * @return None.
  ******************************************************************************/
 static void process_rail_errors(void);
 
@@ -182,11 +179,11 @@ static RAIL_ScheduleRxConfig_t rx_schedule_config = {
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
+
 /*******************************************************************************
  * Setter function for flag which allows to run state machine without interrupt
  *
  * @param is_first_run: Set the first run flag
- * @return None.
  ******************************************************************************/
 void set_first_run(bool is_first_run)
 {
@@ -197,7 +194,6 @@ void set_first_run(bool is_first_run)
  * Application state machine, called infinitely
  *
  * @param rail_handle: which rail handler to use for rx and tx
- * @return None.
  ******************************************************************************/
 void app_process_action(RAIL_Handle_t rail_handle)
 {
@@ -213,10 +209,10 @@ void app_process_action(RAIL_Handle_t rail_handle)
   // Status indicator of the RAIL API calls
   RAIL_Status_t rail_status;
 
-  //Handle the errors before everything else
+  // Handle the errors before everything else
   process_rail_errors();
 
-  //Select which state comes
+  // Select which state comes
   if (packet_is_received) {
     packet_is_received = false;
     state = S_PACKET_RECEIVED;
@@ -240,7 +236,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
       // wait out sending
       break;
     case S_PACKET_SENT:
-      //sl_led_toggle(&sl_led_led1);//This line should be commented out
+      // sl_led_toggle(&sl_led_led1);//This line should be commented out
       packet_transmitted++;
       state = S_IDLE;
       refresh_display = true;
@@ -252,9 +248,9 @@ void app_process_action(RAIL_Handle_t rail_handle)
 #endif
       break;
     case S_PACKET_RECEIVED:
-      rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle, 
-                                          RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                          &packet_info);
+      rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
+                                              RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+                                              &packet_info);
       while (rx_packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
         RAIL_CopyRxPacket(rx_fifo, &packet_info);
         rail_status = RAIL_ReleaseRxPacket(rail_handle, rx_packet_handle);
@@ -264,12 +260,12 @@ void app_process_action(RAIL_Handle_t rail_handle)
         if (rx_requested) {
           printf_rx_packet(&rx_fifo[0]);
         }
-        //sl_led_toggle(&sl_led_led0);//This line should be commented out
+        // sl_led_toggle(&sl_led_led0);//This line should be commented out
         packet_received++;
 
         rx_packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                          RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                          &packet_info);
+                                                RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+                                                &packet_info);
       }
       state = S_IDLE;
       radio_interrupt = true;
@@ -327,7 +323,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
   }
 
   // Handle Rx events
-  if (events & RAIL_EVENTS_RX_COMPLETION ) {
+  if (events & RAIL_EVENTS_RX_COMPLETION) {
     if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
       // Keep the packet in the radio buffer,
       // download it later at the state machine
@@ -360,6 +356,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 }
 
 #if DUTY_CYCLE_USE_LCD_BUTTON == 1
+
 /*******************************************************************************
  * Button callback, called if any button is pressed or released.
  ******************************************************************************/
@@ -373,28 +370,27 @@ void sl_button_on_change(const sl_button_t *handle)
   app_task_notify();
 #endif
 }
+
 #endif
 
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
+
 /*******************************************************************************
  * The API print out the received errors from RAIL to CLI
- *
- * @param  None.
- * @return None.
  ******************************************************************************/
 static void process_rail_errors(void)
 {
   if (rail_tx_error) {
     rail_tx_error = false;
-    app_log_warning("Radio Tx Error occured\nEvents: %lld\n", 
+    app_log_warning("Radio Tx Error occured\nEvents: %lld\n",
                     (current_rail_err & RAIL_EVENTS_TX_COMPLETION));
     duty_cycle_end = true;
   }
   if (rail_rx_error) {
     rail_rx_error = false;
-    app_log_warning("Radio Rx Error occured\nEvents: %lld\n", 
+    app_log_warning("Radio Rx Error occured\nEvents: %lld\n",
                     (current_rail_err & RAIL_EVENTS_RX_COMPLETION));
     duty_cycle_end = true;
   }
@@ -411,9 +407,8 @@ static void process_rail_errors(void)
  * The API forwards the received rx packet on CLI
  *
  * @param  rx_buffer pointer to the buffer to be written out.
- * @return None.
  ******************************************************************************/
-static void printf_rx_packet(const uint8_t * const rx_buffer)
+static void printf_rx_packet(const uint8_t *const rx_buffer)
 {
   uint8_t i = 0;
   app_log_info("Packet has been received: ");

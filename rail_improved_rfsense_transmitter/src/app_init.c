@@ -65,9 +65,8 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t tx_fifo[SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0x55, 0x6F, 0xB1 };
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo,
+                            SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH) = { 0x55, 0x6F, 0xB1 };
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -75,51 +74,41 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0x55, 0x6F, 0xB1 };
 /******************************************************************************
  * The function is used for some basic initialization relates to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  uint16_t size = RAIL_SetFixedLength(rail_handle,
-                                      SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH);
+  uint16_t size = sl_rail_set_fixed_length(rail_handle,
+                                           SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH);
   app_assert(size == SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH,
-             "RAIL_SetFixedLength was unable to set the required size.");
+             "sl_rail_set_fixed_length was unable to set the required size.");
 
-  size = RAIL_SetTxFifo(rail_handle,
-                        tx_fifo,
-                        SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH,
-                        SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH);
+  status = sl_rail_set_tx_fifo(rail_handle,
+                               tx_fifo,
+                               SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH,
+                               SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH,
+                               0);
 
-  app_assert(size == SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH,
-             "RAIL_SetTxFifo was unable to set the required size.");
-
-  RAIL_TxPowerConfig_t tx_power_config;
-  const RAIL_TxPowerCurves_t *tx_power_curve_ptr;
-
-  status = RAIL_GetTxPowerConfig(rail_handle, &tx_power_config);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_GetTxPowerConfig return status failed.");
-  RAIL_TxPowerMode_t tx_power_mode = tx_power_config.mode;
-  tx_power_curve_ptr = RAIL_GetTxPowerCurve(tx_power_mode);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_set_tx_fifo was unable to set the required size.");
 
   // Set the Tx power to maximum to achieve maximum range
-  status = RAIL_SetTxPowerDbm(rail_handle,
-                              tx_power_curve_ptr->maxPower);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_SetTxPowerDbm return status failed.");
+  status = sl_rail_set_tx_power_dbm(rail_handle,
+                                    SL_RAIL_TX_POWER_MAX);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_set_tx_power_dbm return status failed.");
 
   // Welcome message
   app_log("Improved RF Sense Transmitter example\n");
 
-  status = RAIL_SetTimer(rail_handle, ONE_SECOND_US, RAIL_TIME_DELAY,
-                         &RAILCb_TimerExpired);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_SetTimer return status failed.");
-
-  return rail_handle;
+  status = sl_rail_set_timer(rail_handle, ONE_SECOND_US, SL_RAIL_TIME_DELAY,
+                             &sl_rail_cb_timer_expired);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_set_timer return status failed.");
 }
 
 // -----------------------------------------------------------------------------

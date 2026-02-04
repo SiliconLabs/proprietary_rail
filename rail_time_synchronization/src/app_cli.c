@@ -34,7 +34,8 @@
  * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_cli_instances.h"
 #include "app_log.h"
 #include "app_process.h"
@@ -48,5 +49,8 @@ void cli_start(sl_cli_command_arg_t *arguments)
 void cli_get_time(sl_cli_command_arg_t *arguments)
 {
   (void)arguments;
-  app_log_info("Time: %lu us.\n", RAIL_GetTime());
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle =
+    sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  app_log_info("Time: %lu us.\n", sl_rail_get_time(rail_handle));
 }

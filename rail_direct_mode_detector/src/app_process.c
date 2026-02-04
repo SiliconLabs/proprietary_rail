@@ -42,7 +42,8 @@
 #include "sl_component_catalog.h"
 #include "sl_simple_button_instances.h"
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 
 #include "em_timer.h"
 #include "em_cmu.h"
@@ -63,15 +64,15 @@
 // -----------------------------------------------------------------------------
 
 #if SL_DIRECT_MODE_DEBUG_GPIO == 1
-#define sl_algorithm_active_gpio_set() \
-        GPIO_PinOutSet(SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, \
-                       SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN)
-#define sl_algorithm_active_gpio_clear() \
-        GPIO_PinOutClear(SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, \
-                         SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN)
-#define sl_async_detect_gpio_toggle() \
-        GPIO_PinOutToggle(SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PORT, \
-                          SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PIN)
+#define sl_algorithm_active_gpio_set()                     \
+  GPIO_PinOutSet(SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, \
+                 SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN)
+#define sl_algorithm_active_gpio_clear()                     \
+  GPIO_PinOutClear(SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PORT, \
+                   SL_EMLIB_GPIO_INIT_ALGORITHM_ACTIVE_PIN)
+#define sl_async_detect_gpio_toggle()                     \
+  GPIO_PinOutToggle(SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PORT, \
+                    SL_EMLIB_GPIO_INIT_ASYNC_DETECT_PIN)
 
 #else // SL_DIRECT_MODE_DEBUG_GPIO == 0
 #define sl_algorithm_active_gpio_set()   (void)0
@@ -121,7 +122,7 @@ volatile bool transmit_pend = false;
 static volatile bool tx_complete = false;
 
 // Flag indicating calibration error
-static volatile calibration_error_flag = true;
+static volatile bool calibration_error_flag = false;
 
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
@@ -142,17 +143,20 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
 
   if (calibration_error_flag) {
     calibration_error_flag = false;
-    app_log_error("RAIL_Calibrate was unable to perform calibration!");
+    app_log_error("sl_rail_calibrate was unable to perform calibration!");
   }
 
   // Handles packet transmission requested by the user
   if (transmit_pend) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
     app_log_info("Packet transmission initiated.\n");
 
     // Disable Timers to stop the demodulation
@@ -163,12 +167,12 @@ void app_process_action(RAIL_Handle_t rail_handle)
     transmit_pend = false;
 
     // Sends the packet - Resend option keeps the payload in the FIFO
-    status = RAIL_StartTx(rail_handle,
-                          SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL,
-                          RAIL_TX_OPTION_RESEND,
-                          NULL);
-    if (status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartTx() failed!\n");
+    status = sl_rail_start_tx(rail_handle,
+                              SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL,
+                              SL_RAIL_TX_OPTION_RESEND,
+                              NULL);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_tx() failed!\n");
     }
   }
 
@@ -190,8 +194,11 @@ void app_process_action(RAIL_Handle_t rail_handle)
   // In packet receive mode the application logs the received packet
   // and restart Rx after the payload is logged
   if (packet_ready) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
     // Idle the radio manually while printing the packet
-    RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
+    sl_rail_idle(rail_handle, SL_RAIL_IDLE_ABORT, false);
     // Each byte takes 3 chars ("XX ") and one for null terminator
     static char log_buffer[SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH * 3 + 1];
 
@@ -209,7 +216,8 @@ void app_process_action(RAIL_Handle_t rail_handle)
     rearm_detector_algorithm();
 
     // Restarts Rx
-    RAIL_StartRx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL, NULL);
+    sl_rail_start_rx(rail_handle, SL_DIRECT_MODE_DETECTOR_DEFAULT_CHANNEL,
+                     NULL);
 
     // Resets flags
     packet_ready = false;
@@ -221,16 +229,17 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
     rearm_detector_algorithm();
   }
 
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    if (RAIL_STATUS_NO_ERROR != RAIL_Calibrate(rail_handle,
-                                               NULL,
-                                               RAIL_CAL_ALL_PENDING)) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    if (SL_RAIL_STATUS_NO_ERROR != sl_rail_calibrate(rail_handle,
+                                                     NULL,
+                                                     SL_RAIL_CAL_ALL_PENDING)) {
       calibration_error_flag = true;
     }
   }
@@ -276,8 +285,8 @@ static void handle_timer_interrupt(TIMER_TypeDef *timer, bool is_high_pulse)
   uint32_t pulse_duration = TIMER_CaptureBufGet(timer, 0);
 
   // Round pulse duration to the nearest symbol duration multiple
-  uint8_t number_of_symbols = (pulse_duration + (symbol_duration >>
-                                                 1)) / symbol_duration;
+  uint8_t number_of_symbols = (pulse_duration + (symbol_duration
+                                                 >> 1)) / symbol_duration;
 
 #if SL_DIRECT_MODE_DETECTOR_APP_MODE == SL_PACKET_RECEIVE
   // Variables to store write position in the payload buffer

@@ -55,12 +55,8 @@
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
+
 /*******************************************************************************
- * The function is used for Application logic.
- *
- * @param None
- * @returns None
- *
  * The function is used for Application logic.
  * It is called infinitely.
  ******************************************************************************/
@@ -70,7 +66,6 @@ void app_process_action(RAIL_Handle_t rail_handle);
  * Setter function for flag which allows to run state machine without interrupt
  *
  * @param is_first_run: Set the first run flag
- * @return None.
  ******************************************************************************/
 void set_first_run(bool is_first_run);
 

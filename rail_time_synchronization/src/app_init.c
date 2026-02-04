@@ -45,7 +45,7 @@
 #include "sl_radioprs_config_framedet_prs.h"
 #include "sl_radioprs_config_syncsent_prs.h"
 
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "app_log.h"
 #include "app_init.h"
@@ -62,9 +62,7 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-uint8_t tx_fifo[SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE] 
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0 };
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_TIME_SYNCHRONIZATION_TX_FIFO_SIZE);
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -76,11 +74,11 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT) = { 0 };
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Fill up dummy payload to avoid clock synchronization failure
@@ -89,24 +87,26 @@ RAIL_Handle_t app_init(void)
 
   // Calculate the position of the next second in microseconds
   // and start a debug timer
-  RAIL_Time_t next_second = ((RAIL_GetTime() / ONE_SECOND_IN_US) + 1)
-                            * ONE_SECOND_IN_US;
-  RAIL_SetTimer(rail_handle, next_second, RAIL_TIME_ABSOLUTE, timer_callback);
+  sl_rail_time_t next_second =
+    ((sl_rail_get_time(rail_handle) / ONE_SECOND_IN_US) + 1)
+    * ONE_SECOND_IN_US;
+  sl_rail_set_timer(rail_handle,
+                    next_second,
+                    SL_RAIL_TIME_ABSOLUTE,
+                    timer_callback);
 
   // Start the Rx
-  status = RAIL_StartRx(rail_handle,
-                        SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL,
-                        NULL);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_StartTx() failed!\n");
+  status = sl_rail_start_rx(rail_handle,
+                            SL_TIME_SYNCHRONIZATION_DEFAULT_CHANNEL,
+                            NULL);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_start_rx() failed!\n");
   }
 
   // Combine SYNCSENT and FRAMEDET PRS channels to a single PRS channel
   PRS_Combine(RADIOPRS_SYNCSENT_PRS_CHANNEL,
               RADIOPRS_FRAMEDET_PRS_CHANNEL,
               prsLogic_A_OR_B);
-
-  return rail_handle;
 }
 
 // -----------------------------------------------------------------------------

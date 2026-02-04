@@ -37,7 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
 #include "sl_rail_tutorial_event_handling_config.h"
@@ -68,9 +69,12 @@ static volatile bool send_packet = false;
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
   if (send_packet) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
     send_packet = false;
     // Increment the last byte of the payload
     payload[SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH - 1]++;
@@ -78,19 +82,19 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH, the FIFO might get corrupt and
     // a FIFO reset may be required in a production quality code before writing
     // anything to it.
-    uint16_t size = RAIL_WriteTxFifo(rail_handle,
-                                     payload,
-                                     SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH,
-                                     false);
+    uint16_t size = sl_rail_write_tx_fifo(rail_handle,
+                                          payload,
+                                          SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH,
+                                          false);
     if (size != SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH) {
       // Turn led1 ON on WriteTxFifo Error
       sl_led_toggle(&sl_led_led1);
     }
-    RAIL_Status_t status = RAIL_StartTx(rail_handle,
-                                        SL_TUTORIAL_EVENT_HANDLING_DEFAULT_CHANNEL,
-                                        RAIL_TX_OPTIONS_DEFAULT,
-                                        NULL);
-    if (status != RAIL_STATUS_NO_ERROR) {
+    sl_rail_status_t status = sl_rail_start_tx(rail_handle,
+                                               SL_TUTORIAL_EVENT_HANDLING_DEFAULT_CHANNEL,
+                                               SL_RAIL_TX_OPTIONS_DEFAULT,
+                                               NULL);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       sl_led_toggle(&sl_led_led1);
     }
   }
@@ -109,24 +113,25 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   (void) rail_handle;
 
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       sl_led_toggle(&sl_led_led0);
     } else {
       sl_led_toggle(&sl_led_led1); // all other events in
-                                   // RAIL_EVENTS_TX_COMPLETION are errors
+                                   // SL_RAIL_EVENTS_TX_COMPLETION are errors
     }
   }
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
       sl_led_toggle(&sl_led_led0);
     } else {
       sl_led_toggle(&sl_led_led1); // all other events in
-                                   // RAIL_EVENTS_RX_COMPLETION are errors
+                                   // SL_RAIL_EVENTS_RX_COMPLETION are errors
     }
   }
 }

@@ -37,7 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_button.h"
 #include "sl_simple_button_instances.h"
 #include "sl_rail_tutorial_transmit_config.h"
@@ -70,9 +71,12 @@ static volatile bool send_packet = false;
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
   if (send_packet) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
     send_packet = false;
     // Increment the last byte of the payload
     payload[SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH - 1]++;
@@ -80,14 +84,14 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH, the FIFO might get corrupt and a
     // FIFO reset may be required in
     // a production quality code before writing anything to it.
-    RAIL_WriteTxFifo(rail_handle,
-                     payload,
-                     SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH,
-                     false);
-    RAIL_StartTx(rail_handle,
-                 SL_TUTORIAL_TRANSMIT_DEFAULT_CHANNEL,
-                 RAIL_TX_OPTIONS_DEFAULT,
-                 NULL);
+    sl_rail_write_tx_fifo(rail_handle,
+                          payload,
+                          SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH,
+                          false);
+    sl_rail_start_tx(rail_handle,
+                     SL_TUTORIAL_TRANSMIT_DEFAULT_CHANNEL,
+                     SL_RAIL_TX_OPTIONS_DEFAULT,
+                     NULL);
   }
 }
 
@@ -104,7 +108,8 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   (void) rail_handle;
   (void) events;

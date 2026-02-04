@@ -58,9 +58,8 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t tx_fifo[SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo,
+                            SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -68,37 +67,38 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 /******************************************************************************
  * The function is used for some basic initialization relates to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  uint16_t size = RAIL_SetTxFifo(rail_handle,
-                                 tx_fifo,
-                                 0,
-                                 SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH);
-  if (size == 0) {
-    // Turn led1 ON on SetTxFifo Error
+  sl_rail_status_t status = sl_rail_set_tx_fifo(rail_handle,
+                                                tx_fifo,
+                                                SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH,
+                                                0,
+                                                0);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    // Turn led1 ON on set_tx_fifo Error
     sl_led_toggle(&sl_led_led1);
   }
-  RAIL_Status_t status = RAIL_ConfigEvents(rail_handle, RAIL_EVENTS_ALL,
-                                           RAIL_EVENTS_TX_COMPLETION
-                                           | RAIL_EVENTS_RX_COMPLETION
-                                           | RAIL_EVENT_CAL_NEEDED
-                                           );
-  if (status != RAIL_STATUS_NO_ERROR) {
-    // Turn led1 ON on ConfigEvents Error
+  status = sl_rail_config_events(rail_handle,
+                                 SL_RAIL_EVENTS_ALL,
+                                 SL_RAIL_EVENTS_TX_COMPLETION
+                                 | SL_RAIL_EVENTS_RX_COMPLETION
+                                 | SL_RAIL_EVENT_CAL_NEEDED
+                                 );
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    // Turn led1 ON on config_events Error
     sl_led_toggle(&sl_led_led1);
   }
-  status = RAIL_StartRx(rail_handle,
-                        SL_TUTORIAL_DOWNLOADING_MESSAGES_DEFAULT_CHANNEL,
-                        NULL);
-  if (status != RAIL_STATUS_NO_ERROR) {
-    // Turn led1 ON on StartRx Error
+  status = sl_rail_start_rx(rail_handle,
+                            SL_TUTORIAL_DOWNLOADING_MESSAGES_DEFAULT_CHANNEL,
+                            NULL);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    // Turn led1 ON on start_rx Error
     sl_led_toggle(&sl_led_led1);
   }
-  return rail_handle;
 }
 
 // -----------------------------------------------------------------------------

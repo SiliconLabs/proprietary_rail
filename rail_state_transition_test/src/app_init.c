@@ -90,9 +90,9 @@ float timer_freq;
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
 
   // Initialize PRS and TIMER peripherals
   init_PRS();
@@ -103,80 +103,83 @@ RAIL_Handle_t app_init(void)
   app_log_debug("TIMER peripherals frequency: %.2f us\n", timer_freq);
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   /* Configure options in RAIL that may impact the state transition times */
 
 #if SL_RAIL_STATE_TRANSITION_TEST_BEST_EFFORT_TIMING
-  RAIL_StateTiming_t state_timing = {
-    .idleToRx = 0,
-    .idleToTx = 0,
-    .rxToTx = 0,
-    .txToRx = 0,
-    .rxSearchTimeout = 0,
-    .txToRxSearchTimeout = 0,
-    .txToTx = 0,
+  sl_rail_state_timing_t state_timing = {
+    .idle_to_rx = 0,
+    .idle_to_tx = 0,
+    .rx_to_tx = 0,
+    .tx_to_rx = 0,
+    .rxsearch_timeout = 0,
+    .tx_to_rxsearch_timeout = 0,
+    .tx_to_tx = 0,
   };
 
-  rail_status = RAIL_SetStateTiming(rail_handle, &state_timing);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_SetStateTiming failed with code %ld\n", rail_status);
+  rail_status = sl_rail_set_state_timing(rail_handle, &state_timing);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_set_state_timing failed with code %ld\n",
+                  rail_status);
   }
 #endif
 
 #if SL_RAIL_STATE_TRANSITION_TEST_ENABLE_SYNTH_CAL_CACHING
-  rail_status = RAIL_EnableCacheSynthCal(rail_handle, true);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_EnableCacheSynthCal failed with code %ld\n",
+  rail_status = sl_rail_enable_cache_synth_cal(rail_handle, true);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_enable_cache_synth_cal failed with code %ld\n",
                   rail_status);
   }
 #endif
 
   // Start Rx on both channels to cache the calibration values
-  RAIL_StartRx(rail_handle, SL_RAIL_STATE_TRANSITION_TEST_PRIMARY_CHANNEL,
-               NULL);
-  while (RAIL_GetRadioStateAlt(rail_handle) != RAIL_RAC_STATE_RXSEARCH) {}
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
+  sl_rail_start_rx(rail_handle, SL_RAIL_STATE_TRANSITION_TEST_PRIMARY_CHANNEL,
+                   NULL);
+  while (sl_rail_get_radio_state_internal(rail_handle)
+         != SL_RAIL_RAC_STATE_RXSEARCH) {}
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
 
-  RAIL_StartRx(rail_handle,
-               SL_RAIL_STATE_TRANSITION_TEST_SECONDARY_CHANNEL,
-               NULL);
-  while (RAIL_GetRadioStateAlt(rail_handle) != RAIL_RAC_STATE_RXSEARCH) {}
-  RAIL_Idle(rail_handle, RAIL_IDLE, true);
+  sl_rail_start_rx(rail_handle,
+                   SL_RAIL_STATE_TRANSITION_TEST_SECONDARY_CHANNEL,
+                   NULL);
+  while (sl_rail_get_radio_state_internal(rail_handle)
+         != SL_RAIL_RAC_STATE_RXSEARCH) {}
+  sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
 
 #if SL_RAIL_STATE_TRANSITION_TEST_ENABLE_FAST_RX_2_RX
-  rail_status = RAIL_ConfigRxOptions(rail_handle,
-                                     RAIL_RX_OPTION_FAST_RX2RX,
-                                     RAIL_RX_OPTION_FAST_RX2RX);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_ConfigRxOptions failed with code %ld\n", rail_status);
+  rail_status = sl_rail_config_rx_options(rail_handle,
+                                          SL_RAIL_RX_OPTION_FAST_RX_TO_RX,
+                                          SL_RAIL_RX_OPTION_FAST_RX_TO_RX);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_config_rx_options failed with code %ld\n",
+                  rail_status);
   }
 #endif
 
 #if SL_RAIL_STATE_TRANSITION_TEST_BYPASS_CALIBRATIONS
-  rail_status = RAIL_ConfigRxOptions(rail_handle,
-                                     RAIL_RX_OPTION_SKIP_SYNTH_CAL
-                                     | RAIL_RX_OPTION_SKIP_DC_CAL,
-                                     RAIL_RX_OPTION_SKIP_SYNTH_CAL
-                                     | RAIL_RX_OPTION_SKIP_DC_CAL);
+  rail_status = sl_rail_config_rx_options(rail_handle,
+                                          SL_RAIL_RX_OPTION_SKIP_SYNTH_CAL
+                                          | SL_RAIL_RX_OPTION_SKIP_DC_CAL,
+                                          SL_RAIL_RX_OPTION_SKIP_SYNTH_CAL
+                                          | SL_RAIL_RX_OPTION_SKIP_DC_CAL);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_ConfigRxOptions failed with code %ld\n", rail_status);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_config_rx_options failed with code %ld\n",
+                  rail_status);
   }
 #endif
 
 #if SL_RAIL_STATE_TRANSITION_TEST_PTI_DISABLE
-  rail_status = RAIL_EnablePti(rail_handle, false);
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_EnablePti failed with code %ld\n", rail_status);
+  rail_status = sl_rail_enable_pti(rail_handle, false);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_enable_pti failed with code %ld\n", rail_status);
   }
 #endif
 
   // Hardcode init measurement scenario printing
   app_log_info("Current mode: MANUAL_TRANSITIONS\n");
-
-  return rail_handle;
 }
 
 static void init_PRS(void)

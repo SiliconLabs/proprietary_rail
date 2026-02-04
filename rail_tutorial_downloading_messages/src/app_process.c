@@ -37,7 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
 #include "sl_rail_tutorial_downloading_messages_config.h"
@@ -72,11 +73,15 @@ static uint8_t rx_buffer[SL_TUTORIAL_DOWNLOADING_MESSAGES_BUFFER_LENGTH];
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  static RAIL_RxPacketHandle_t packet_handle;
-  static RAIL_RxPacketInfo_t packet_info;
-  static RAIL_RxPacketDetails_t packet_details;
+  static sl_rail_rx_packet_handle_t packet_handle;
+  static sl_rail_rx_packet_info_t packet_info;
+  static sl_rail_rx_packet_details_t packet_details;
+
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+    SL_RAIL_UTIL_HANDLE_INST0);
 
   if (send_packet) {
     send_packet = false;
@@ -86,43 +91,44 @@ void app_process_action(RAIL_Handle_t rail_handle)
     // SL_TUTORIAL_DOWNLOADING_MESSAGES_PAYLOAD_LENGTH, the FIFO might get
     // corrupt and a FIFO reset may be required in a production quality code
     // before writing anything to it.
-    uint16_t size = RAIL_WriteTxFifo(rail_handle,
-                                     payload,
-                                     SL_TUTORIAL_DOWNLOADING_MESSAGES_PAYLOAD_LENGTH,
-                                     false);
+    uint16_t size = sl_rail_write_tx_fifo(rail_handle,
+                                          payload,
+                                          SL_TUTORIAL_DOWNLOADING_MESSAGES_PAYLOAD_LENGTH,
+                                          false);
     if (size != SL_TUTORIAL_DOWNLOADING_MESSAGES_PAYLOAD_LENGTH) {
       // Turn led1 ON on WriteTxFifo Error
       sl_led_toggle(&sl_led_led1);
     }
-    RAIL_Status_t status = RAIL_StartTx(rail_handle,
-                                        SL_TUTORIAL_DOWNLOADING_MESSAGES_DEFAULT_CHANNEL,
-                                        RAIL_TX_OPTIONS_DEFAULT,
-                                        NULL);
-    if (status != RAIL_STATUS_NO_ERROR) {
+    sl_rail_status_t status = sl_rail_start_tx(rail_handle,
+                                               SL_TUTORIAL_DOWNLOADING_MESSAGES_DEFAULT_CHANNEL,
+                                               SL_RAIL_TX_OPTIONS_DEFAULT,
+                                               NULL);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       sl_led_toggle(&sl_led_led1);
     }
   }
 
-  packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                       RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                       &packet_info);
-  if (packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
-    RAIL_CopyRxPacket(rx_buffer, &packet_info);
-    RAIL_Status_t status =
-      RAIL_GetRxPacketDetails(rail_handle, packet_handle, &packet_details);
-    if (status != RAIL_STATUS_NO_ERROR) {
+  packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                             SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+                                             &packet_info);
+  if (packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+    sl_rail_copy_rx_packet(rail_handle, rx_buffer, &packet_info);
+    sl_rail_status_t status =
+      sl_rail_get_rx_packet_details(rail_handle, packet_handle,
+                                    &packet_details);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       sl_led_toggle(&sl_led_led1);
     }
-    status = RAIL_ReleaseRxPacket(rail_handle, packet_handle);
-    if (status != RAIL_STATUS_NO_ERROR) {
+    status = sl_rail_release_rx_packet(rail_handle, packet_handle);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       sl_led_toggle(&sl_led_led1);
     }
 
     app_log("Rx");
-    for (int i = 0; i < packet_info.packetBytes; i++) {
+    for (int i = 0; i < packet_info.packet_bytes; i++) {
       app_log(" 0x%02X", rx_buffer[i]);
     }
-    app_log("; RSSI=%d dBm\n", packet_details.rssi);
+    app_log("; RSSI=%d dBm\n", packet_details.rssi_dbm);
   }
 }
 
@@ -139,32 +145,34 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+SL_CODE_RAM void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                                       sl_rail_events_t events)
 {
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       sl_led_toggle(&sl_led_led0);
     } else {
       sl_led_toggle(&sl_led_led1); // all other events in
-                                   // RAIL_EVENTS_TX_COMPLETION are errors
+                                   // SL_RAIL_EVENTS_TX_COMPLETION are errors
     }
   }
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
-      if (RAIL_HoldRxPacket(rail_handle) == RAIL_RX_PACKET_HANDLE_INVALID) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
+      if (sl_rail_hold_rx_packet(rail_handle)
+          == SL_RAIL_RX_PACKET_HANDLE_INVALID) {
         sl_led_toggle(&sl_led_led1);
       }
       sl_led_toggle(&sl_led_led0);
     } else {
       sl_led_toggle(&sl_led_led1); // all other events in
-                                   // RAIL_EVENTS_RX_COMPLETION are errors
+                                   // SL_RAIL_EVENTS_RX_COMPLETION are errors
     }
   }
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    RAIL_Status_t status = RAIL_Calibrate(rail_handle,
-                                          NULL,
-                                          RAIL_CAL_ALL_PENDING);
-    if (status != RAIL_STATUS_NO_ERROR) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    sl_rail_status_t status = sl_rail_calibrate(rail_handle,
+                                                NULL,
+                                                SL_RAIL_CAL_ALL_PENDING);
+    if (status != SL_RAIL_STATUS_NO_ERROR) {
       sl_led_toggle(&sl_led_led1);
     }
   }

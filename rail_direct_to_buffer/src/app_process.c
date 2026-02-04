@@ -40,7 +40,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 
 #include "sl_component_catalog.h"
 #include "sl_rail_direct_to_buffer_config.h"
@@ -76,8 +77,6 @@ typedef struct iq_data {
 
 /**************************************************************************//**
  * The function prints the rx buffer. The format depends on the data source.
- *
- * @returns None
  *****************************************************************************/
 static void printf_rx_buffer();
 
@@ -103,7 +102,7 @@ uint8_t active_buffer = 0;
 static volatile uint64_t cal_error_events = 0;
 
 /// Contains the status of RAIL Calibration
-static volatile RAIL_Status_t calibration_status = 0;
+static volatile sl_rail_status_t calibration_status = 0;
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -111,10 +110,10 @@ static volatile RAIL_Status_t calibration_status = 0;
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
   // Status indicator of the RAIL API calls
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
 
   // After FIFO overflow the radio stays in Idle state regardless of the
   // auto state transition config
@@ -125,25 +124,29 @@ void app_process_action(RAIL_Handle_t rail_handle)
 
   // While printing the radio is unable to collect data
   if (print_requested) {
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle =
+      sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
     // Stop the radio to avoid data corruption
-    rail_status = RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, true);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_Idle failed with status %d\n", rail_status);
+    rail_status = sl_rail_idle(rail_handle, SL_RAIL_IDLE_ABORT, true);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_idle failed with status %d\n", rail_status);
     }
 
     // Prepare the Rx FIFO for the next iteration
-    rail_status = RAIL_ResetFifo(rail_handle, false, true);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_ResetFifo failed with status %d\n", rail_status);
+    rail_status = sl_rail_reset_fifo(rail_handle, false, true);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_reset_fifo failed with status %d\n", rail_status);
     }
 
     printf_rx_buffer();
 
     // Restart the radio
     rail_status =
-      RAIL_StartRx(rail_handle, SL_DIRECT_TO_BUFFER_DEFAULT_CHANNEL, NULL);
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
-      app_log_error("RAIL_StartRx failed with status %d\n", rail_status);
+      sl_rail_start_rx(rail_handle, SL_DIRECT_TO_BUFFER_DEFAULT_CHANNEL, NULL);
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+      app_log_error("sl_rail_start_rx failed with status %d\n", rail_status);
     }
 
     active_buffer = 0;
@@ -162,31 +165,33 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs.
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
   // Perform all calibrations when needed
-  if (events & RAIL_EVENT_CAL_NEEDED) {
-    calibration_status = RAIL_Calibrate(rail_handle, NULL,
-                                        RAIL_CAL_ALL_PENDING);
-    if (calibration_status != RAIL_STATUS_NO_ERROR) {
-      cal_error_events = (events & RAIL_EVENT_CAL_NEEDED);
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    calibration_status = sl_rail_calibrate(rail_handle, NULL,
+                                           SL_RAIL_CAL_ALL_PENDING);
+    if (calibration_status != SL_RAIL_STATUS_NO_ERROR) {
+      cal_error_events = (events & SL_RAIL_EVENT_CAL_NEEDED);
     }
   }
 
   // In FIFO mode these events are coincident with each other
-  if ((events & (RAIL_EVENT_RX_FIFO_OVERFLOW | RAIL_EVENT_RX_FIFO_FULL))) {
+  if ((events
+       & (SL_RAIL_EVENT_RX_FIFO_OVERFLOW | SL_RAIL_EVENT_RX_FIFO_FULL))) {
     fifo_error = true;
   }
 
   // Half of the Rx FIFO is reay to be read
   // For simplicity Rx FIFO size is equal to the rx_buffers size, and rx_buffers
   // boundary is aligned with the Rx FIFO boundary
-  if (events & RAIL_EVENT_RX_FIFO_ALMOST_FULL) {
+  if (events & SL_RAIL_EVENT_RX_FIFO_ALMOST_FULL) {
     uint16_t bytes_read;
     // Read the Rx FIFO into the active buffer
-    bytes_read = RAIL_ReadRxFifo(rail_handle,
-                                 rx_buffers[active_buffer],
-                                 SL_BUFFER_LENGTH);
+    bytes_read = sl_rail_read_rx_fifo(rail_handle,
+                                      rx_buffers[active_buffer],
+                                      SL_BUFFER_LENGTH);
     if (bytes_read != SL_BUFFER_LENGTH) {
       // handle by idling and printing what's available
       print_requested = true;
@@ -213,14 +218,14 @@ void sl_button_on_change(const sl_button_t *handle)
 static void printf_rx_buffer()
 {
   // Get data source from configuration
-  RAIL_RxDataSource_t data_source = SL_DIRECT_TO_BUFFER_RX_SOURCE;
+  sl_rail_rx_data_source_t data_source = SL_DIRECT_TO_BUFFER_RX_SOURCE;
   switch (data_source) {
-    case (RX_IQDATA_FILTLSB):
-    case (RX_IQDATA_FILTMSB):
+    case (SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB):
+    case (SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB):
       app_log_info("IQ Data:\n");
       iq_data_t *iq_data = (iq_data_t *)rx_buffers[active_buffer];
 #if SL_DIRECT_TO_BUFFER_IQ_SWAP
-      if (data_source == RX_IQDATA_FILTLSB) {
+      if (data_source == SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB) {
         for (uint16_t i = 0; i < SL_BUFFER_LENGTH / 4; ++i) {
           app_log_append_info("%6d %6d\n", iq_data[i].I, iq_data[i].Q);
         }
@@ -247,7 +252,7 @@ static void printf_rx_buffer()
       }
 #endif
       break;
-    case RX_DEMOD_DATA:
+    case SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA:
       app_log_info("Demodulated Data:\n");
       int8_t *demod_data = (int8_t *)rx_buffers[active_buffer];
       for (uint16_t i = 0; i < SL_BUFFER_LENGTH; ++i) {
@@ -265,8 +270,8 @@ static void printf_rx_buffer()
         }
       }
       break;
-    case RX_DIRECT_MODE_DATA:
-    case RX_DIRECT_SYNCHRONOUS_MODE_DATA:
+    case SL_RAIL_RX_DATA_SOURCE_DIRECT_MODE_DATA:
+    case SL_RAIL_RX_DATA_SOURCE_DIRECT_SYNCHRONOUS_MODE_DATA:
       app_log_info("Direct Mode Data:\n");
       for (uint16_t i = 0; i < SL_BUFFER_LENGTH; ++i) {
         app_log_append_info("%02x ", rx_buffers[active_buffer][i]);

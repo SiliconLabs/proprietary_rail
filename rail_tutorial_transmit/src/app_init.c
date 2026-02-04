@@ -57,10 +57,7 @@
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t tx_fifo[SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
-
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -68,14 +65,17 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 /******************************************************************************
  * The function is used for some basic initialization relates to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  RAIL_SetTxFifo(rail_handle, tx_fifo, 0, SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH);
-  return rail_handle;
+  sl_rail_set_tx_fifo(rail_handle,
+                      tx_fifo,
+                      SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH,
+                      0,
+                      0);
 }
 
 // -----------------------------------------------------------------------------

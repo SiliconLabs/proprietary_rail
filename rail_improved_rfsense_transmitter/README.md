@@ -103,8 +103,8 @@ byte order. The entire packet must be constructed in the application and written
 to the Tx FIFO. Here is the correct setup for the above mentioned payload:
 
 ```c
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) static uint8_t tx_fifo[
-  SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH] = { 0x55, 0x6F, 0xB1 };
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo,
+  SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH) = { 0x55, 0x6F, 0xB1 };
 ```
 
 ### Configuration ###

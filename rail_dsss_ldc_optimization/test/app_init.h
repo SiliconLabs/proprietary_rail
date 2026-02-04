@@ -53,10 +53,10 @@ extern RAIL_RxDutyCycleConfig_t duty_cycle_config;
 // -----------------------------------------------------------------------------
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
+
 /**************************************************************************//**
  * The function is used for some basic initialization related to the app.
  *
- * @param None
  * @returns RAIL_Handle_t RAIL handle
  *
  * It ensures the followings:

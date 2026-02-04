@@ -33,13 +33,13 @@
  * maintained and there may be no bug maintenance planned for these resources.
  * Silicon Labs may update projects from time to time.
  ******************************************************************************/
+
 #ifndef APP_PROCESS_H
 #define APP_PROCESS_H
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -55,13 +55,8 @@
 
 /**************************************************************************//**
  * The function is used for Application logic.
- *
- * @param rail_handle RAIL handle
- * @returns None
- *
- * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
 #endif // APP_PROCESS_H

@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -55,16 +55,11 @@ extern volatile bool sync_packet_transmit_pend;
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
 
-/**
- * The function is used for Application logic.
- *
- * @param rail_handle RAIL handle
- * @returns None
- *
+/**************************************************************************//**
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 void timer_callback(RAIL_Handle_t rail_handle);
 
 #endif // APP_PROCESS_H

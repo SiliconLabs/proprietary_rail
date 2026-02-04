@@ -71,10 +71,7 @@ uint8_t payload[SL_RF_GENERATOR_PAYLOAD_LENGTH] = {
 //                                Static Variables
 // -----------------------------------------------------------------------------
 // RAIL Tx fifo
-SL_ALIGN(RAIL_FIFO_ALIGNMENT) 
-static uint8_t tx_fifo[SL_RF_GENERATOR_FIFO_LENGTH]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
-
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_RF_GENERATOR_FIFO_LENGTH);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -82,20 +79,19 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle
+  sl_rail_handle_t rail_handle
     = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  uint16_t allocated_tx_fifo_size = RAIL_SetTxFifo(rail_handle,
-                                                   tx_fifo,
-                                                   0,
-                                                   SL_RF_GENERATOR_FIFO_LENGTH);
-  app_assert(allocated_tx_fifo_size == SL_RF_GENERATOR_FIFO_LENGTH,
-             "RAIL_SetTxFifo() failed to allocate a large enough fifo (%d bytes instead of %d bytes)\n",
-             allocated_tx_fifo_size,
-             SL_RF_GENERATOR_FIFO_LENGTH);
+  sl_rail_status_t status = sl_rail_set_tx_fifo(rail_handle,
+                                                tx_fifo,
+                                                SL_RF_GENERATOR_FIFO_LENGTH,
+                                                0,
+                                                0);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_set_tx_fifo() failed to allocate a large enough fifo\n");
 
   // Initializing packets
   for (uint8_t i = 0; i < SL_RF_GENERATOR_NUMBER_OF_PACKETS; ++i)
@@ -114,8 +110,6 @@ RAIL_Handle_t app_init(void)
   }
 
   app_log("RF Generator\n");
-
-  return rail_handle;
 }
 
 // -----------------------------------------------------------------------------

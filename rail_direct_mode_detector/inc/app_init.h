@@ -33,13 +33,13 @@
  * maintained and there may be no bug maintenance planned for these resources.
  * Silicon Labs may update projects from time to time.
  ******************************************************************************/
+
 #ifndef APP_INIT_H
 #define APP_INIT_H
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -55,10 +55,7 @@
 
 /**************************************************************************//**
  * The function is used for application initialization.
- *
- * @param None
- * @returns RAIL_Handle_t RAIL handle
  *****************************************************************************/
-RAIL_Handle_t app_init(void);
+void app_init(void);
 
 #endif // APP_INIT_H

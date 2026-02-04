@@ -45,7 +45,8 @@
 
 #include "sl_cli_instances.h"
 
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "response_print.h"
 
 #if defined(SL_COMPONENT_CATALOG_PRESENT)
@@ -61,19 +62,19 @@
 #include "sl_cli_delay.h"
 #endif
 
-static bool flashCommandScriptExists;
-static bool ramCommandScriptExists;
+static bool flash_command_script_exists;
+static bool ram_command_script_exists;
 
-bool parseTimeModeFromString(char *str, RAIL_TimeMode_t *mode)
+bool parse_time_mode_from_string(char *str, sl_rail_time_mode_t *mode)
 {
   if (strcasecmp("dis", str) == 0) {
-    *mode = RAIL_TIME_DISABLED;
+    *mode = SL_RAIL_TIME_DISABLED;
   } else if (strcasecmp("rel", str) == 0) {
-    *mode = RAIL_TIME_DELAY;
+    *mode = SL_RAIL_TIME_DELAY;
   } else if (strcasecmp("abs", str) == 0) {
-    *mode = RAIL_TIME_ABSOLUTE;
+    *mode = SL_RAIL_TIME_ABSOLUTE;
   } else {
-    *mode = RAIL_TIME_DISABLED;
+    *mode = SL_RAIL_TIME_DISABLED;
     return false;
   }
   return true;
@@ -84,45 +85,48 @@ void wait(sl_cli_command_arg_t *args)
 {
 #if defined(SL_CATALOG_CLI_DELAY_PRESENT)
   // Relative time by default
-  RAIL_TimeMode_t timeMode = RAIL_TIME_DELAY;
+  sl_rail_time_mode_t time_mode = SL_RAIL_TIME_DELAY;
 
   if ((sl_cli_get_argument_count(args) >= 2)
-      && !parseTimeModeFromString(sl_cli_get_argument_string(args, 1),
-                                  &timeMode)) {
+      && !parse_time_mode_from_string(sl_cli_get_argument_string(args, 1),
+                                      &time_mode)) {
     responsePrintError(sl_cli_get_command_string(args, 0),
                        0x3,
                        "Invalid time mode");
     return;
   }
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle
+    = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  RAIL_Time_t timeStart = RAIL_GetTime();
-  RAIL_Time_t timeDurationUs = sl_cli_get_argument_uint32(args, 0);
+  sl_rail_time_t time_start = sl_rail_get_time(rail_handle);
+  sl_rail_time_t time_duration_us = sl_cli_get_argument_uint32(args, 0);
 
   // In the code, everything is handled as relative time, so convert this
   // to a relative value
-  if (timeMode == RAIL_TIME_ABSOLUTE) {
-    timeDurationUs -= timeStart;
+  if (time_mode == SL_RAIL_TIME_ABSOLUTE) {
+    time_duration_us -= time_start;
   }
 
   responsePrint(sl_cli_get_command_string(args, 0),
-                "currentTime:%u,delay:%u,resumeTime:%u",
-                timeStart,
-                timeDurationUs,
-                timeDurationUs + timeStart);
+                "current_time:%u,delay:%u,resume_time:%u",
+                time_start,
+                time_duration_us,
+                time_duration_us + time_start);
 
   // Take into account the time it took to printf above.
-  uint32_t extraOffset = RAIL_GetTime() - timeStart;
-  if (extraOffset < timeDurationUs) {
-    timeDurationUs -= extraOffset;
+  uint32_t extra_offset = sl_rail_get_time(rail_handle) - time_start;
+  if (extra_offset < time_duration_us) {
+    time_duration_us -= extra_offset;
   } else {
-    timeDurationUs = 0;
+    time_duration_us = 0;
   }
 
   // Remove the optional 2nd CLI argument so sl_cli_delay_command works.
   // Also, convert microsecond time delay into milliseconds.
-  uint32_t timeDurationMs = timeDurationUs / 1000; // convert us to ms
+  uint32_t time_duration_ms = time_duration_us / 1000; // convert us to ms
   args->argc = 2; // pass only cmd and delay (and not optional argument)
-  args->argv[1] = (void *)&timeDurationMs;
+  args->argv[1] = (void *)&time_duration_ms;
 
   // Call the non-blocking wait function (with a relative delay in ms).
   sl_cli_delay_command(args);
@@ -133,25 +137,25 @@ void wait(sl_cli_command_arg_t *args)
 #endif // SL_CATALOG_CLI_DELAY_PRESENT
 }
 
-void enterScript(sl_cli_command_arg_t *args)
+void enter_script(sl_cli_command_arg_t *args)
 {
-  bool useFlash = (sl_cli_get_argument_count(args) >= 1)
-                  && !!sl_cli_get_argument_uint8(args, 0);
+  bool use_flash = (sl_cli_get_argument_count(args) >= 1)
+                   && !!sl_cli_get_argument_uint8(args, 0);
   bool success = true;
 
   // Don't pass along the optional input argument.
   args->argc = 1; // pass only cmd (and not optional argument)
 
-  if (useFlash) {
+  if (use_flash) {
     // Use flash.
 #if defined(SL_CATALOG_CLI_STORAGE_NVM3_PRESENT)
-    if (flashCommandScriptExists) {
+    if (flash_command_script_exists) {
       sl_cli_storage_nvm3_clear(args);
     }
-    flashCommandScriptExists = true;
+    flash_command_script_exists = true;
     sl_cli_storage_nvm3_define(args);
 #else
-    (void)flashCommandScriptExists;
+    (void)flash_command_script_exists;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
@@ -159,13 +163,13 @@ void enterScript(sl_cli_command_arg_t *args)
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
-    if (ramCommandScriptExists) {
+    if (ram_command_script_exists) {
       sl_cli_storage_ram_clear(args);
     }
-    ramCommandScriptExists = true;
+    ram_command_script_exists = true;
     sl_cli_storage_ram_define(args);
 #else
-    (void)ramCommandScriptExists;
+    (void)ram_command_script_exists;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
@@ -174,26 +178,26 @@ void enterScript(sl_cli_command_arg_t *args)
 
   responsePrint(sl_cli_get_command_string(args, 0),
                 "location:%s,status:%s",
-                useFlash ? "flash" : "RAM",
+                use_flash ? "flash" : "RAM",
                 success ? "Success" : "Failure");
 }
 
-void clearScript(sl_cli_command_arg_t *args)
+void clear_script(sl_cli_command_arg_t *args)
 {
-  bool useFlash = (sl_cli_get_argument_count(args) >= 1)
-                  && !!sl_cli_get_argument_uint8(args, 0);
+  bool use_flash = (sl_cli_get_argument_count(args) >= 1)
+                   && !!sl_cli_get_argument_uint8(args, 0);
   bool success = true;
 
   // Don't pass along the optional input argument.
   args->argc = 1; // pass only cmd (and not optional argument)
 
-  if (useFlash) {
+  if (use_flash) {
     // Use flash.
 #if defined(SL_CATALOG_CLI_STORAGE_NVM3_PRESENT)
-    flashCommandScriptExists = false;
+    flash_command_script_exists = false;
     sl_cli_storage_nvm3_clear(args);
 #else
-    (void)flashCommandScriptExists;
+    (void)flash_command_script_exists;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
@@ -201,10 +205,10 @@ void clearScript(sl_cli_command_arg_t *args)
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
-    ramCommandScriptExists = false;
+    ram_command_script_exists = false;
     sl_cli_storage_ram_clear(args);
 #else
-    (void)ramCommandScriptExists;
+    (void)ram_command_script_exists;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
@@ -213,30 +217,30 @@ void clearScript(sl_cli_command_arg_t *args)
 
   responsePrint(sl_cli_get_command_string(args, 0),
                 "location:%s,status:%s",
-                useFlash ? "flash" : "RAM",
+                use_flash ? "flash" : "RAM",
                 success ? "Success" : "Failure");
 }
 
-void printScript(sl_cli_command_arg_t *args)
+void print_script(sl_cli_command_arg_t *args)
 {
-  bool useFlash = (sl_cli_get_argument_count(args) >= 1)
-                  && !!sl_cli_get_argument_uint8(args, 0);
+  bool use_flash = (sl_cli_get_argument_count(args) >= 1)
+                   && !!sl_cli_get_argument_uint8(args, 0);
   bool success = false;
-  uint32_t scriptCount = 0U;
+  uint32_t script_count = 0U;
 
   // Don't pass along the optional input argument.
   args->argc = 1; // pass only cmd (and not optional argument)
 
-  if (useFlash) {
+  if (use_flash) {
     // Use flash.
 #if defined(SL_CATALOG_CLI_STORAGE_NVM3_PRESENT)
-    scriptCount = sl_cli_storage_nvm3_count(args->handle);
-    if (scriptCount > 0U) {
+    script_count = sl_cli_storage_nvm3_count(args->handle);
+    if (script_count > 0U) {
       sl_cli_storage_nvm3_list(args);
       success = true;
     }
 #else
-    (void)scriptCount;
+    (void)script_count;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
@@ -244,13 +248,13 @@ void printScript(sl_cli_command_arg_t *args)
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
-    scriptCount = sl_cli_storage_ram_count(args->handle);
-    if (scriptCount > 0U) {
+    script_count = sl_cli_storage_ram_count(args->handle);
+    if (script_count > 0U) {
       sl_cli_storage_ram_list(args);
       success = true;
     }
 #else
-    (void)scriptCount;
+    (void)script_count;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
@@ -259,31 +263,31 @@ void printScript(sl_cli_command_arg_t *args)
 
   responsePrint(sl_cli_get_command_string(args, 0),
                 "location:%s,status:%s,scriptCount:%u",
-                useFlash ? "flash" : "RAM",
+                use_flash ? "flash" : "RAM",
                 success ? "Success" : "Failure",
-                scriptCount);
+                script_count);
 }
 
-void runScript(sl_cli_command_arg_t *args)
+void run_script(sl_cli_command_arg_t *args)
 {
-  bool useFlash = (sl_cli_get_argument_count(args) >= 1)
-                  && !!sl_cli_get_argument_uint8(args, 0);
+  bool use_flash = (sl_cli_get_argument_count(args) >= 1)
+                   && !!sl_cli_get_argument_uint8(args, 0);
   bool success = false;
-  uint32_t scriptCount = 0U;
+  uint32_t script_count = 0U;
 
   // Don't pass along the optional input argument.
   args->argc = 1; // pass only cmd (and not optional argument)
 
-  if (useFlash) {
+  if (use_flash) {
     // Use flash.
 #if defined(SL_CATALOG_CLI_STORAGE_NVM3_PRESENT)
-    scriptCount = sl_cli_storage_nvm3_count(args->handle);
-    if (scriptCount > 0U) {
+    script_count = sl_cli_storage_nvm3_count(args->handle);
+    if (script_count > 0U) {
       sl_cli_storage_nvm3_execute(args);
       success = true;
     }
 #else
-    (void)scriptCount;
+    (void)script_count;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "Flash support not enabled");
     return;
@@ -291,13 +295,13 @@ void runScript(sl_cli_command_arg_t *args)
   } else {
     // Use RAM.
 #if defined(SL_CATALOG_CLI_STORAGE_RAM_PRESENT)
-    scriptCount = sl_cli_storage_ram_count(args->handle);
-    if (scriptCount > 0U) {
+    script_count = sl_cli_storage_ram_count(args->handle);
+    if (script_count > 0U) {
       sl_cli_storage_ram_execute(args);
       success = true;
     }
 #else
-    (void)scriptCount;
+    (void)script_count;
     responsePrintError(sl_cli_get_command_string(args, 0), 0x12,
                        "RAM support not enabled");
     return;
@@ -306,6 +310,6 @@ void runScript(sl_cli_command_arg_t *args)
 
   responsePrint(sl_cli_get_command_string(args, 0),
                 "location:%s,status:%s",
-                useFlash ? "flash" : "RAM",
+                use_flash ? "flash" : "RAM",
                 success ? "Success" : "Failure");
 }

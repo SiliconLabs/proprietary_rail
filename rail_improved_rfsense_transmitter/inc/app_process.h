@@ -40,7 +40,7 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
@@ -54,25 +54,19 @@
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
 
-/**
- * The function is used for Application logic.
- *
- * @param rail_handle RAIL handle
- * @returns None
- *
+/**************************************************************************//**
  * The function is used for Application logic.
  * It is called infinitely.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle);
+void app_process_action(void);
 
-/**
+/**************************************************************************//**
  * The function is a RAIL timer callback.
  *
  * @param rail_handle RAIL handle
- * @returns None
  *
- * Used as a callback function for RAIL_SetTimer.
+ * Used as a callback function for sl_rail_set_timer.
  *****************************************************************************/
-void RAILCb_TimerExpired(RAIL_Handle_t railHandle);
+void sl_rail_cb_timer_expired(sl_rail_handle_t rail_handle);
 
 #endif // APP_PROCESS_H

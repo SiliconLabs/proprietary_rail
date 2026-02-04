@@ -61,9 +61,7 @@
 //                                Static Variables
 // -----------------------------------------------------------------------------
 // Rx FIFO allocated for RAIL
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t rx_fifo[SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+SL_RAIL_DECLARE_FIFO_BUFFER(rx_fifo, SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE);
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
@@ -71,60 +69,54 @@ SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  RAIL_Status_t rail_status;
+  sl_rail_status_t rail_status;
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
+  uint16_t rx_fifo_size = SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE;
+  rail_status = sl_rail_set_rx_fifo(rail_handle, &rx_fifo[0],
+                                    &rx_fifo_size);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_set_rx_fifo failed with status %d\n",
+                    rail_status);
+  }
+  if (rx_fifo_size != SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE) {
+    app_log_warning("sl_rail_set_rx_fifo failed to set the correct FIFO size\n");
+  }
 
   // Sets Rx fifo threshold for Rx FIFO Almost Full event to the half of
   // the Rx FIFO size
   if (RX_FIFO_THRESHOLD
-      != RAIL_SetRxFifoThreshold(rail_handle, RX_FIFO_THRESHOLD)) {
+      != sl_rail_set_rx_fifo_threshold(rail_handle, RX_FIFO_THRESHOLD)) {
     app_log_warning("Rx FIFO threshold is not configured correctly!\n");
   }
 
   // Configure data capture method
   // Note: this is a workaround for an issue present if the user
   // wants to configure the data mode in rail_util_init
-  RAIL_DataConfig_t data_config = {
-    .rxMethod = FIFO_MODE,
-    .rxSource = SL_DIRECT_TO_BUFFER_RX_SOURCE,
+  sl_rail_rx_data_config_t rx_data_config = {
+    .rx_method = SL_RAIL_DATA_METHOD_FIFO_MODE,
+    .rx_source = SL_DIRECT_TO_BUFFER_RX_SOURCE,
   };
-  rail_status = RAIL_ConfigData(rail_handle, &data_config);
+  rail_status = sl_rail_config_rx_data(rail_handle, &rx_data_config);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_warning("RAIL_ConfigData failed with status %d\n", rail_status);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_warning("sl_rail_config_rx_data failed with status %d\n",
+                    rail_status);
   }
 
   // FIFO mode data collection starts with entering Rx state
   rail_status =
-    RAIL_StartRx(rail_handle, SL_DIRECT_TO_BUFFER_DEFAULT_CHANNEL, NULL);
+    sl_rail_start_rx(rail_handle, SL_DIRECT_TO_BUFFER_DEFAULT_CHANNEL, NULL);
 
-  if (rail_status != RAIL_STATUS_NO_ERROR) {
-    app_log_error("RAIL_StartRx failed with status %d\n", rail_status);
+  if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_start_rx failed with status %d\n", rail_status);
   }
 
   app_log_info(
     "RAIL Direct to Buffer Example\nPush BTN0 to print data collected\n");
-
-  return rail_handle;
-}
-
-RAIL_Status_t RAILCb_SetupRxFifo(RAIL_Handle_t rail_handle)
-{
-  uint16_t rx_fifo_size = SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE;
-  RAIL_Status_t status = RAIL_SetRxFifo(rail_handle, &rx_fifo[0],
-                                        &rx_fifo_size);
-  if (rx_fifo_size != SL_DIRECT_TO_BUFFER_RX_FIFO_SIZE) {
-    // We set up an incorrect FIFO size
-    return RAIL_STATUS_INVALID_PARAMETER;
-  }
-  if (status == RAIL_STATUS_INVALID_STATE) {
-    // Allow failures due to multiprotocol
-    return RAIL_STATUS_NO_ERROR;
-  }
-  return status;
 }

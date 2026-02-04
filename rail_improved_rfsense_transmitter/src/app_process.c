@@ -37,7 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_rail_improved_rfsense_transmitter_config.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
@@ -87,11 +88,11 @@ static volatile uint32_t active_channel_index = sizeof(array_of_channels);
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
   if (calibration_error_flag) {
     calibration_error_flag = false;
-    app_log_error("RAIL_Calibrate was unable to perform calibration!");
+    app_log_error("sl_rail_calibrate was unable to perform calibration!");
   }
   if (tx_error_flag) {
     tx_error_flag = false;
@@ -100,40 +101,46 @@ void app_process_action(RAIL_Handle_t rail_handle)
   if (send_timer_elapsed) {
     send_timer_elapsed = false;
 
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle =
+      sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
     if (active_channel_index < sizeof(array_of_channels)) {
       app_log("Ch: %u\n", array_of_channels[active_channel_index]);
-      RAIL_Status_t status = RAIL_StartTx(rail_handle,
-                                          array_of_channels[active_channel_index],
-                                          RAIL_TX_OPTION_RESEND,
-                                          NULL);
-      app_assert(status == RAIL_STATUS_NO_ERROR,
-                 "RAIL_StartTx return status failed.");
+      sl_rail_status_t status = sl_rail_start_tx(rail_handle,
+                                                 array_of_channels[
+                                                   active_channel_index],
+                                                 SL_RAIL_TX_OPTION_RESEND,
+                                                 NULL);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+                 "sl_rail_start_tx return status failed.");
       active_channel_index++;
     } else {
       sl_led_turn_off(&sl_led_led0);
     }
-    RAIL_SetTimer(rail_handle,
-                  SL_IMPROVED_RFSENSE_TRANSMITTER_TX_DELAY_US,
-                  RAIL_TIME_DELAY,
-                  &RAILCb_TimerExpired);
+    sl_rail_set_timer(rail_handle,
+                      SL_IMPROVED_RFSENSE_TRANSMITTER_TX_DELAY_US,
+                      SL_RAIL_TIME_DELAY,
+                      &sl_rail_cb_timer_expired);
   }
 }
 
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_CAL_NEEDED) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
     // Calibrate if necessary
-    if (RAIL_Calibrate(rail_handle,
-                       NULL,
-                       RAIL_CAL_ALL_PENDING) != RAIL_STATUS_NO_ERROR) {
+    if (sl_rail_calibrate(rail_handle,
+                          NULL,
+                          SL_RAIL_CAL_ALL_PENDING) != SL_RAIL_STATUS_NO_ERROR) {
       calibration_error_flag = true;
     }
   }
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (!(events & RAIL_EVENT_TX_PACKET_SENT)) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (!(events & SL_RAIL_EVENT_TX_PACKET_SENT)) {
       tx_error_flag = true;
     }
   }
@@ -154,9 +161,9 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * Timer callback, called if RAIL timer has elapsed
  *****************************************************************************/
-void RAILCb_TimerExpired(RAIL_Handle_t railHandle)
+void sl_rail_cb_timer_expired(sl_rail_handle_t rail_handle)
 {
-  (void) railHandle;
+  (void) rail_handle;
 
   send_timer_elapsed = true;
 }

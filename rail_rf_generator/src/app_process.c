@@ -39,7 +39,7 @@
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
 #include "app_init.h"
-#include "rail.h"
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
 #include "sl_simple_led_instances.h"
 #include "sl_simple_button_instances.h"
@@ -58,14 +58,14 @@
 /******************************************************************************
  * This function handles the transmission sequence
  *****************************************************************************/
-static void schedule_next_tx(RAIL_Handle_t rail_handle);
+static void schedule_next_tx(sl_rail_handle_t rail_handle);
 
 /******************************************************************************
  * This function updates the length config and writes the packet to FIFO
  *****************************************************************************/
-static RAIL_Status_t prepare_packet(RAIL_Handle_t rail_handle,
-                                    uint8_t *payload,
-                                    uint16_t packet_length);
+static sl_rail_status_t prepare_packet(sl_rail_handle_t rail_handle,
+                                       uint8_t *payload,
+                                       uint16_t packet_length);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -119,11 +119,15 @@ void sl_button_on_change(const sl_button_t *handle)
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
+  // Get RAIL handle, used later by the application
+  sl_rail_handle_t rail_handle
+    = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+
   if (calibration_error_flag) {
     calibration_error_flag = false;
-    app_log_error("RAIL_Calibrate was unable to perform calibration!");
+    app_log_error("sl_rail_calibrate was unable to perform calibration!");
   }
   if (tx_error_flag) {
     tx_error_flag = false;
@@ -157,7 +161,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
       }
       break;
     case S_TX_ABORT_PENDING:
-      RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
+      sl_rail_idle(rail_handle, SL_RAIL_IDLE_ABORT, false);
       app_log_info("Tx aborted\n");
       state = S_IDLE;
       break;
@@ -167,26 +171,28 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_CAL_NEEDED) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
     // Calibrate if necessary
-    if (RAIL_Calibrate(rail_handle,
-                       NULL,
-                       RAIL_CAL_ALL_PENDING) != RAIL_STATUS_NO_ERROR) {
+    if (sl_rail_calibrate(rail_handle,
+                          NULL,
+                          SL_RAIL_CAL_ALL_PENDING) != SL_RAIL_STATUS_NO_ERROR) {
       calibration_error_flag = true;
     }
   }
-  if (events & RAIL_EVENT_SCHEDULED_TX_STARTED) {
+  if (events & SL_RAIL_EVENT_TX_SCHEDULED_TX_STARTED) {
     state = S_TX_STARTED;
   }
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (events & RAIL_EVENT_TX_PACKET_SENT) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_TX_PACKET_SENT) {
       sl_led_toggle(&sl_led_led1);
-      RAIL_TxPacketDetails_t tx_packet_details = { 0 };
-      tx_packet_details.timeSent.timePosition = RAIL_PACKET_TIME_AT_PACKET_END;
-      RAIL_GetTxPacketDetails(rail_handle, &tx_packet_details);
-      tx_time = tx_packet_details.timeSent.packetTime
+      sl_rail_tx_packet_details_t tx_packet_details = { 0 };
+      tx_packet_details.time_sent.time_position =
+        SL_RAIL_PACKET_TIME_AT_PACKET_END;
+      sl_rail_get_tx_packet_details(rail_handle, &tx_packet_details);
+      tx_time = tx_packet_details.time_sent.packet_time
                 + sequence[packet_counter].delay;
       packet_counter++;
       if (packet_counter == sequence_length) {
@@ -207,7 +213,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 /******************************************************************************
  * This function handles the transmission sequence
  *****************************************************************************/
-static void schedule_next_tx(RAIL_Handle_t rail_handle)
+static void schedule_next_tx(sl_rail_handle_t rail_handle)
 {
   if ((sequence_counter < repeats) || !repeats) {
     if (prepare_packet(rail_handle, sequence[packet_counter].packet->payload,
@@ -216,26 +222,26 @@ static void schedule_next_tx(RAIL_Handle_t rail_handle)
       state = S_IDLE;
       return;
     }
-    RAIL_Status_t rail_status;
+    sl_rail_status_t rail_status;
     if ((sequence_counter == 0) && (packet_counter == 0)) {
-      rail_status = RAIL_StartTx(rail_handle,
-                                 sequence[packet_counter].packet->channel,
-                                 RAIL_TX_OPTIONS_DEFAULT,
-                                 NULL);
+      rail_status = sl_rail_start_tx(rail_handle,
+                                     sequence[packet_counter].packet->channel,
+                                     SL_RAIL_TX_OPTIONS_DEFAULT,
+                                     NULL);
       state = S_TX_STARTED;
     } else {
-      RAIL_ScheduleTxConfig_t scheduled_tx_config = {
+      sl_rail_scheduled_tx_config_t scheduled_tx_config = {
         .when = tx_time,
-        .mode = RAIL_TIME_ABSOLUTE,
+        .mode = SL_RAIL_TIME_ABSOLUTE,
       };
       rail_status =
-        RAIL_StartScheduledTx(rail_handle,
-                              sequence[packet_counter].packet->channel,
-                              RAIL_TX_OPTIONS_DEFAULT,
-                              &scheduled_tx_config,
-                              NULL);
+        sl_rail_start_scheduled_tx(rail_handle,
+                                   sequence[packet_counter].packet->channel,
+                                   SL_RAIL_TX_OPTIONS_DEFAULT,
+                                   &scheduled_tx_config,
+                                   NULL);
     }
-    if (rail_status != RAIL_STATUS_NO_ERROR) {
+    if (rail_status != SL_RAIL_STATUS_NO_ERROR) {
       app_log_warning("Tx can not be started! Result: %lu\n", rail_status);
       state = S_IDLE;
     } else if (state != S_TX_STARTED) {
@@ -249,21 +255,22 @@ static void schedule_next_tx(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * This function updates the length config and writes the packet to FIFO
  *****************************************************************************/
-static RAIL_Status_t prepare_packet(RAIL_Handle_t rail_handle,
-                                    uint8_t *payload,
-                                    uint16_t packet_length)
+static sl_rail_status_t prepare_packet(sl_rail_handle_t rail_handle,
+                                       uint8_t *payload,
+                                       uint16_t packet_length)
 {
-  if (RAIL_SetFixedLength(rail_handle, packet_length)
-      == RAIL_SETFIXEDLENGTH_INVALID) {
-    app_log_error("RAIL_SetFixedLength() result: %u\n",
-                  RAIL_SETFIXEDLENGTH_INVALID);
+  if (sl_rail_set_fixed_length(rail_handle, packet_length)
+      == SL_RAIL_SET_FIXED_LENGTH_INVALID) {
+    app_log_error("sl_rail_set_fixed_length() result: %u\n",
+                  SL_RAIL_SET_FIXED_LENGTH_INVALID);
     return SL_STATUS_FAIL;
   } else {
-    if (RAIL_WriteTxFifo(rail_handle,
-                         payload,
-                         packet_length,
-                         false) != packet_length) {
-      app_log_error("RAIL_WriteTxFifo was unable to write the required size.");
+    if (sl_rail_write_tx_fifo(rail_handle,
+                              payload,
+                              packet_length,
+                              false) != packet_length) {
+      app_log_error(
+        "sl_rail_write_tx_fifo was unable to write the required size.");
       return SL_STATUS_FAIL;
     }
   }

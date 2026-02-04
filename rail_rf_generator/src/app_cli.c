@@ -160,10 +160,10 @@ void cli_set_channel(sl_cli_command_arg_t *arguments)
     uint8_t packet_id = sl_cli_get_argument_uint8(arguments, 0);
     uint16_t channel = sl_cli_get_argument_uint16(arguments, 1);
     if (validate_packet(packet_id)) {
-      RAIL_Handle_t rail_handle
+      sl_rail_handle_t rail_handle
         = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
-      RAIL_Status_t status = RAIL_IsValidChannel(rail_handle, channel);
-      if (status == RAIL_STATUS_NO_ERROR) {
+      sl_rail_status_t status = sl_rail_is_valid_channel(rail_handle, channel);
+      if (status == SL_RAIL_STATUS_NO_ERROR) {
         packets[packet_id].channel = channel;
         responsePrint(sl_cli_get_command_string(arguments, 0),
                       "packet id: %u, channel: %u",

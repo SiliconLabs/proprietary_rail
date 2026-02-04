@@ -61,15 +61,13 @@ extern const uint8_t addresses[2][5];
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-SL_ALIGN(RAIL_FIFO_ALIGNMENT)
-static uint8_t tx_fifo[SL_ADDRESS_FILTERING_BUFFER_LENGTH]
-SL_ATTRIBUTE_ALIGN(RAIL_FIFO_ALIGNMENT);
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_ADDRESS_FILTERING_BUFFER_LENGTH);
 
 // Using two address fields, one byte each, with zero offsets (packet should
 // start with 1-1 byte address fields)
-static const RAIL_AddrConfig_t addr_config =
+static const sl_rail_addr_config_t addr_config =
 { .offsets = { 0, 0 }, .sizes = { 1, 1 },
-  .matchTable = SL_ADDRESS_FILTERING_MATCH_TABLE };
+  .match_table = SL_ADDRESS_FILTERING_MATCH_TABLE };
 // 0000 0000 0110 0000 1000 1011 0011 0100
 
 /// Match table for address matching is shown below.
@@ -90,33 +88,33 @@ static const RAIL_AddrConfig_t addr_config =
 /******************************************************************************
  * The function is used for some basic initialization relates to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  RAIL_Status_t status;
+  sl_rail_status_t status;
 
   // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
+  sl_rail_handle_t rail_handle =
     sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
   // Configuring and setting the address filter
-  status = RAIL_ConfigAddressFilter(rail_handle, &addr_config);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_ConfigAddressFilter return status failed.");
+  status = sl_rail_config_address_filter(rail_handle, &addr_config);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_config_address_filter return status failed.");
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 4; j++) {
       status =
-        RAIL_SetAddressFilterAddress(rail_handle,
-                                     i,
-                                     j,
-                                     &addresses[i][j + 1],
-                                     true);
+        sl_rail_set_address_filter_address(rail_handle,
+                                           i,
+                                           j,
+                                           &addresses[i][j + 1],
+                                           true);
       // The addresses array contains the don't care option, so the index is
       // increased with 1
-      app_assert(status == RAIL_STATUS_NO_ERROR,
-                 "RAIL_SetAddressFilterAddress return status failed.");
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+                 "sl_rail_set_address_filter_address return status failed.");
     }
   }
-  bool enabled = RAIL_EnableAddressFilter(rail_handle, true);
+  bool enabled = sl_rail_enable_address_filter(rail_handle, true);
   app_assert(enabled == false, "Address filter was enabled to start with.");
 
   // Welcome message
@@ -130,20 +128,19 @@ RAIL_Handle_t app_init(void)
     payload[0],
     payload[1]);
 
-  uint16_t size = RAIL_SetTxFifo(rail_handle,
-                                 tx_fifo,
-                                 0,
-                                 SL_ADDRESS_FILTERING_BUFFER_LENGTH);
-  app_assert(size == SL_ADDRESS_FILTERING_BUFFER_LENGTH,
-             "RAIL_SetTxFifo was unable to set the required size.");
+  status = sl_rail_set_tx_fifo(rail_handle,
+                               tx_fifo,
+                               SL_ADDRESS_FILTERING_BUFFER_LENGTH,
+                               0,
+                               0);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_set_tx_fifo was unable to set the required size.");
 
-  status = RAIL_StartRx(rail_handle,
-                        SL_ADDRESS_FILTERING_DEFAULT_CHANNEL,
-                        NULL);
-  app_assert(status == RAIL_STATUS_NO_ERROR,
-             "RAIL_StartRx was unable to start the reception.");
-
-  return rail_handle;
+  status = sl_rail_start_rx(rail_handle,
+                            SL_ADDRESS_FILTERING_DEFAULT_CHANNEL,
+                            NULL);
+  app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+             "sl_rail_start_rx was unable to start the reception.");
 }
 
 // -----------------------------------------------------------------------------

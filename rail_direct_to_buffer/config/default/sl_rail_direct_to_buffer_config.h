@@ -35,15 +35,16 @@
 
 // </h> end FIFO Settings
 
-
 // <h>Mode Settings
 
 // <o SL_DIRECT_TO_BUFFER_RX_SOURCE> Source of Rx Data
-// <RX_DEMOD_DATA=> Get 8-bit output from demodulator
-// <RX_IQDATA_FILTLSB=> Get lowest 16 bits of I/Q data provided to demodulator
-// <RX_IQDATA_FILTMSB=> Get highest 16 bits of I/Q data provided to demodulator
-// <i> Default: RX_PACKET_DATA
-#define SL_DIRECT_TO_BUFFER_RX_SOURCE  RX_DEMOD_DATA
+// <SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA=> Get 8-bit output from demodulator
+// <SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTLSB=> Get lowest 16 bits of I/Q data
+// provided to demodulator
+// <SL_RAIL_RX_DATA_SOURCE_IQDATA_FILTMSB=> Get highest 16 bits of I/Q data
+// provided to demodulator
+// <i> Default: SL_RAIL_RX_DATA_SOURCE_PACKET_DATA
+#define SL_DIRECT_TO_BUFFER_RX_SOURCE  SL_RAIL_RX_DATA_SOURCE_DEMOD_DATA
 // </h> end Mode Settings
 
 // <h>Static Variables

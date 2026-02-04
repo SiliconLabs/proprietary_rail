@@ -37,7 +37,8 @@
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include "rail.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_rail_address_filtering_config.h"
 #include "sl_simple_button_instances.h"
 #include "sl_simple_led_instances.h"
@@ -110,7 +111,7 @@ static uint8_t rx_buffer[SL_ADDRESS_FILTERING_BUFFER_LENGTH];
 /******************************************************************************
  * Application state machine, called infinitely
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
   // Refresh the display based on any filter or receive flags raised
   if (filter_flag) {
@@ -119,18 +120,22 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
   if (receive_flag) {
     receive_flag = false;
-    RAIL_RxPacketInfo_t packet_info;
-    RAIL_RxPacketHandle_t packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                                               RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                                               &packet_info);
-    if (packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
-      RAIL_CopyRxPacket(rx_buffer, &packet_info);
-      RAIL_Status_t status = RAIL_ReleaseRxPacket(rail_handle, packet_handle);
-      app_assert(status == RAIL_STATUS_NO_ERROR,
-                 "RAIL_ReleaseRxPacket return status failed.");
-
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
+    sl_rail_rx_packet_info_t packet_info;
+    sl_rail_rx_packet_handle_t packet_handle = sl_rail_get_rx_packet_info(
+      rail_handle,
+      SL_RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
+      &packet_info);
+    if (packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+      sl_rail_copy_rx_packet(rail_handle, rx_buffer, &packet_info);
+      sl_rail_status_t status = sl_rail_release_rx_packet(rail_handle,
+                                                          packet_handle);
+      app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+                 "sl_rail_release_rx_packet return status failed.");
       app_log("RIGHT address, message was received:\n");
-      for (uint8_t i = 0; i < packet_info.packetBytes; i++) {
+      for (uint8_t i = 0; i < packet_info.packet_bytes; i++) {
         app_log("%#04x ", rx_buffer[i]);
       }
       app_log("\n");
@@ -142,7 +147,7 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
   if (calibration_error_flag) {
     calibration_error_flag = false;
-    app_log_error("RAIL_Calibrate was unable to perform calibration!");
+    app_log_error("sl_rail_calibrate was unable to perform calibration!");
   }
   // If an address change was changed, reconfigure the packet's address fields,
   // the first two bytes
@@ -159,25 +164,28 @@ void app_process_action(RAIL_Handle_t rail_handle)
   }
   if (tx_request) {
     tx_request = false;
-    RAIL_Status_t status = RAIL_Idle(rail_handle, RAIL_IDLE, true);
-    app_assert(status == RAIL_STATUS_NO_ERROR,
-               "RAIL_Idle return status failed.");
+    // Get RAIL handle, used later by the application
+    sl_rail_handle_t rail_handle = sl_rail_util_get_handle(
+      SL_RAIL_UTIL_HANDLE_INST0);
+    sl_rail_status_t status = sl_rail_idle(rail_handle, SL_RAIL_IDLE, true);
+    app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+               "sl_rail_idle return status failed.");
     // If the radio configuration's payload settings doesn't match the
     // SL_ADDRESS_FILTERING_PAYLOAD_LENGTH, the FIFO might get corrupt and a
     // FIFO reset may be required in a production quality code before
     // writing anything to it.
-    uint16_t size = RAIL_WriteTxFifo(rail_handle,
-                                     payload,
-                                     SL_ADDRESS_FILTERING_PAYLOAD_LENGTH,
-                                     false);
+    uint16_t size = sl_rail_write_tx_fifo(rail_handle,
+                                          payload,
+                                          SL_ADDRESS_FILTERING_PAYLOAD_LENGTH,
+                                          false);
     app_assert(size == SL_ADDRESS_FILTERING_PAYLOAD_LENGTH,
-               "RAIL_WriteTxFifo was unable to write the requested data.");
-    status = RAIL_StartTx(rail_handle,
-                          SL_ADDRESS_FILTERING_DEFAULT_CHANNEL,
-                          RAIL_TX_OPTIONS_DEFAULT,
-                          NULL);
-    app_assert(status == RAIL_STATUS_NO_ERROR,
-               "RAIL_StartTx was unable to start the transmission.");
+               "sl_rail_write_tx_fifo was unable to write the requested data.");
+    status = sl_rail_start_tx(rail_handle,
+                              SL_ADDRESS_FILTERING_DEFAULT_CHANNEL,
+                              SL_RAIL_TX_OPTIONS_DEFAULT,
+                              NULL);
+    app_assert(status == SL_RAIL_STATUS_NO_ERROR,
+               "sl_rail_start_tx was unable to start the transmission.");
     // Wait for Tx complete
     while (!tx_complete) {
     }
@@ -192,25 +200,27 @@ void app_process_action(RAIL_Handle_t rail_handle)
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENT_CAL_NEEDED) {
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
     // Calibrate if necessary
-    if (RAIL_Calibrate(rail_handle,
-                       NULL,
-                       RAIL_CAL_ALL_PENDING) != RAIL_STATUS_NO_ERROR) {
+    if (sl_rail_calibrate(rail_handle,
+                          NULL,
+                          SL_RAIL_CAL_ALL_PENDING) != SL_RAIL_STATUS_NO_ERROR) {
       // Raise the calibration error flag
       calibration_error_flag = true;
     }
   }
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
-      if (RAIL_HoldRxPacket(rail_handle) != RAIL_RX_PACKET_HANDLE_INVALID) {
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
+      if (sl_rail_hold_rx_packet(rail_handle)
+          != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
         sl_led_toggle(&sl_led_led1);
         // Raise the receive flag
         receive_flag = true;
       }
-    } else if (events & RAIL_EVENT_RX_ADDRESS_FILTERED) {
+    } else if (events & SL_RAIL_EVENT_RX_ADDRESS_FILTERED) {
       // Raise the filter flag
       filter_flag = true;
     } else {
@@ -218,7 +228,7 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
       receive_error_flag = true;
     }
   }
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
     sl_led_toggle(&sl_led_led0);
     tx_complete = true;
   }

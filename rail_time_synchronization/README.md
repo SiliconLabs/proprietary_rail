@@ -39,7 +39,7 @@ terminal connected to the VCOM port.
    v5](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-about-the-launcher/welcome-and-device-tabs#example-projects-demos-tab)
    or with [SLC
    CLI](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-tools-slc-cli/).
-2. Adjust parameters detailed in the [Configuration](#Configuration) section
+2. Adjust parameters detailed in the [Configuration](#configuration) section
    below.
 3. Build and flash the project on two boards.
 
