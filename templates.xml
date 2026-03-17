@@ -149,4 +149,34 @@
     <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced Wireless\ Technology|RAIL"/>
     <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
   </descriptors>
+  <descriptors name="rail_ota_dfu_host" label="Proprietary RAIL Examples - OTA DFU Host"
+               description="This example application demonstrates OTA DFU host functionality.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="rail_ota_dfu_host/SimplicityStudio/rail_ota_dfu_host.slcp"/>
+    <properties key="readmeFiles" value="rail_ota_dfu_host/README.md"/>
+    <properties key="boardCompatibility" value=".* com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*"/>
+    <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Proprietary Examples"/>
+    <properties key="quality" value="experimental"/>
+    <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced Wireless\ Technology|RAIL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
+  <descriptors name="rail_ota_dfu_target" label="Proprietary RAIL Examples - OTA DFU Target"
+               description="This example application demonstrates OTA DFU target functionality.">
+    <properties key="namespace" value="template.uc"/>
+    <properties key="keywords" value="universal\ configurator"/>
+    <properties key="projectFilePaths" value="rail_ota_dfu_target/SimplicityStudio/rail_ota_dfu_target.slcp"/>
+    <properties key="readmeFiles" value="rail_ota_dfu_target/README.md"/>
+    <properties key="boardCompatibility" value=".* com.silabs.board.none"/>
+    <properties key="partCompatibility" value=".*"/>
+    <properties key="ideCompatibility" value="iar-embedded-workbench makefile-ide segger-embedded-studio simplicity-ide visual-studio-code"/>
+    <properties key="toolchainCompatibility" value="gcc iar segger"/>
+    <properties key="category" value="Proprietary Examples"/>
+    <properties key="quality" value="experimental"/>
+    <properties key="filters" value="Device\ Type|SoC MCU|32-bit\ MCU Project\ Difficulty|Advanced Wireless\ Technology|RAIL"/>
+    <properties key="stockConfigCompatibility" value="com.silabs.ss.framework.project.toolchain.core.default"/>
+  </descriptors>
 </model:MDescriptors>

@@ -3,7 +3,7 @@
  * @brief app_init.c
  *******************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -26,21 +26,28 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
+#include "sl_rail.h"
 #include "sl_rail_util_init.h"
-#include "sl_simple_led_instances.h"
-#include "sl_simple_button_instances.h"
+
+#include "sl_rail_ota_dfu_host_config.h"
+
 #include "app_log.h"
 #include "ota_dfu_host.h"
-#include "led_control.h"
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-#define BUFFER_LENGTH 20
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
@@ -48,7 +55,11 @@
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-uint8_t rx_fifo[BUFFER_LENGTH];
+
+SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, SL_OTA_DFU_HOST_TX_FIFO_LENGTH);
+
+uint32_t last_segment_id = 0;
+
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
@@ -60,37 +71,71 @@ uint8_t rx_fifo[BUFFER_LENGTH];
 /******************************************************************************
  * The function is used for some basic initialization related to the app.
  *****************************************************************************/
-RAIL_Handle_t app_init(void)
+void app_init(void)
 {
-  uint32_t image_size;
+  sl_rail_handle_t rail_handle;
+  sl_rail_status_t status;
 
-  ota_dfu_init();
+  // Print the welcome message.
+  app_log("RAIL Proprietary OTA DFU host application\n");
 
-  image_size = ota_dfu_image_size();
+  // Get the RAIL handle used by the application.
+  rail_handle = sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  app_log("image size = %ld\r\n", ota_dfu_image_size());
+  // Print bootloader storage information.
+  sl_rail_ota_dfu_print_storage_info();
 
-  if (image_size == 0) {
-    app_log("Image not present, aborting...\r\n");
-    sl_button_disable(&sl_button_btn0);
-    blinky_start(1, SLOW_PERIOD, SLOW_DUTY_CYCLE);
-    return 0;
+  // Retrieve image information.
+  uint32_t image_size = SL_RAIL_OTA_DFU_NOT_DETERMINED_IMAGE_SIZE;
+
+  image_size = sl_rail_ota_dfu_get_image_size();
+  if (image_size == SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE) {
+    app_log_error("No image found. Aborting.\n");
+  } else {
+    app_log("Image size: %lu bytes\n", image_size);
   }
 
-  led_on(0); // Signal that we have an image
+  // Use ceiling division to determine the last segment ID.
+  last_segment_id = (image_size + SL_OTA_DFU_HOST_SEGMENT_LENGTH - 1)
+                    / SL_OTA_DFU_HOST_SEGMENT_LENGTH;
+  if (last_segment_id & SL_OTA_DFU_HOST_LAST_SEGMENT_MASK) {
+    app_log_error(
+      "Image size exceeds the maximum supported size: %d bytes. Increase the segment size from %d bytes.\n",
+      SL_OTA_DFU_HOST_SEGMENT_LENGTH * SL_OTA_DFU_HOST_SEGMENT_ID_MASK,
+      SL_OTA_DFU_HOST_SEGMENT_LENGTH);
+  }
 
-  // Get RAIL handle, used later by the application
-  RAIL_Handle_t rail_handle =
-    sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
+  // Initialize the Tx FIFO.
+  status = sl_rail_set_tx_fifo(rail_handle,
+                               tx_fifo,
+                               SL_OTA_DFU_HOST_TX_FIFO_LENGTH,
+                               0,
+                               0);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("Failed to configure the Tx FIFO.\n");
+  }
 
-  RAIL_SetTxFifo(rail_handle, rx_fifo, 0, BUFFER_LENGTH);
+  // Configure auto-ack.
+  sl_rail_auto_ack_config_t auto_ack_config = {
+    .enable = true,
+    .ack_timeout_us = SL_OTA_DFU_HOST_ACK_TIMEOUT_US,
+    .rx_transitions = {
+      .success = SL_RAIL_RF_STATE_IDLE, // The app does not use standard RX.
+      .error = SL_RAIL_RF_STATE_IDLE, // Ignored.
+    },
+    .tx_transitions = {
+      .success = SL_RAIL_RF_STATE_IDLE,
+      .error = SL_RAIL_RF_STATE_IDLE, // Ignored.
+    }
+  };
 
-  RAIL_ConfigEvents(rail_handle, RAIL_EVENTS_ALL,
-                    RAIL_EVENTS_TX_COMPLETION | RAIL_EVENTS_RX_COMPLETION);
+  status = sl_rail_config_auto_ack(rail_handle, &auto_ack_config);
+  if (status != SL_RAIL_STATUS_NO_ERROR) {
+    app_log_error("sl_rail_config_auto_ack() failed!\n");
+  }
 
-  app_log("Press button 0 to start sending DFU image.\r\n");
-
-  return rail_handle;
+  app_log("Press PB0 to start the DFU transfer.\n");
+  app_log("Transfer will complete in %lu blocks.\n", last_segment_id + 1);
 }
 
 // -----------------------------------------------------------------------------

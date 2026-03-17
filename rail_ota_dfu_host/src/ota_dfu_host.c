@@ -3,7 +3,7 @@
  * @brief ota_dfu_host.c
  *******************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -26,97 +26,117 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
+// -----------------------------------------------------------------------------
+//                                   Includes
+// -----------------------------------------------------------------------------
+#include "btl_errorcode.h"
 #include "btl_interface.h"
 #include "btl_interface_storage.h"
+#include "gbl/btl_gbl_format.h"
+
+#include "sl_rail_ota_dfu_host_config.h"
+
 #include "app_log.h"
 #include "ota_dfu_host.h"
 
-#define SLOT_ID        0
-#define GBL_TAG_ID_END 0xFC0404FC
+// -----------------------------------------------------------------------------
+//                              Macros and Typedefs
+// -----------------------------------------------------------------------------
 
-static BootloaderStorageInformation_t bootloader_storage_info;
+// -----------------------------------------------------------------------------
+//                          Static Function Declarations
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                                Global Variables
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                                Static Variables
+// -----------------------------------------------------------------------------
+
 static BootloaderStorageSlot_t slot_info;
 
-void ota_dfu_init(void)
+// -----------------------------------------------------------------------------
+//                          Public Function Definitions
+// -----------------------------------------------------------------------------
+
+void sl_rail_ota_dfu_print_storage_info(void)
 {
+  int32_t status;
+  BootloaderStorageInformation_t bootloader_storage_info;
+
   bootloader_getStorageInfo(&bootloader_storage_info);
-  app_log("numStorageSlots = %lu\r\n", bootloader_storage_info.numStorageSlots);
 
-  bootloader_getStorageSlotInfo(SLOT_ID, &slot_info);
-  app_log("address: 0x%08lx\r\n", slot_info.address);
-  app_log("length:  0x%08lx\r\n", slot_info.length);
+  status = bootloader_getStorageSlotInfo(SL_OTA_DFU_HOST_DEFAULT_SLOT_ID,
+                                         &slot_info);
+  if (status == BOOTLOADER_OK) {
+    app_log("Storage slot start address: 0x%08lx\n", slot_info.address);
+    app_log("Storage slot length: %lu bytes\n", slot_info.length);
+  } else {
+    app_log_error("Failed to read storage slot information: %ld\n",
+                  status);
+  }
 }
 
-uint32_t ota_dfu_image_size(void)
+uint32_t sl_rail_ota_dfu_get_image_size(void)
 {
-  static uint32_t image_size;
-
-  uint32_t gbl_tag[2]; // Tag ID & Tag length
+  int32_t status; // Store return values from bootloader APIs.
   uint32_t offset = 0;
+  bool last_tag_header_found = false;
+  GblTagHeader_t tag_header; // Tag ID and length used while parsing the image.
 
-  if (image_size != 0) {
-    return image_size;                   // Don't check again!
+  // Store the image size in bytes.
+  uint32_t image_size;
+
+  // Read the first tag.
+  status = bootloader_readStorage(SL_OTA_DFU_HOST_DEFAULT_SLOT_ID, offset,
+                                  (uint8_t *)&tag_header, sizeof tag_header);
+  // Detect an invalid image early.
+  if ((tag_header.tagId != GBL_TAG_ID_HEADER_V3) || (status != BOOTLOADER_OK)) {
+    image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
+    return image_size;
   }
-  for (offset = 0; offset < slot_info.length; )
+
+  // Walk the slot until the end tag is found.
+  for (offset =
+         sizeof tag_header + tag_header.length; offset < slot_info.length;)
   {
-    bootloader_readStorage(SLOT_ID, offset, (uint8_t *)gbl_tag, sizeof gbl_tag);
-    if (gbl_tag[0] == GBL_TAG_ID_END) {
-      return image_size = offset + gbl_tag[1] + sizeof gbl_tag;
-    } else {
-      if ((gbl_tag[1] & 0x3) != 0) {
-        break;                         // Basic sanity check
-      }
-      offset += sizeof gbl_tag + gbl_tag[1];
+    // Read the next tag.
+    status = bootloader_readStorage(SL_OTA_DFU_HOST_DEFAULT_SLOT_ID, offset,
+                                    (uint8_t *)&tag_header, sizeof tag_header);
+    if (status != BOOTLOADER_OK) {
+      image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
+      break;
     }
-  }
-  return 0;
-}
 
-void ota_dfu_start_packet(uint8_t *payload)
-{
-  OTA_DFU_SET_HEADER(payload, ota_dfu_start, ota_dfu_image_size());
-}
-
-uint32_t ota_dfu_process_response(uint8_t *rx_buffer, uint8_t *payload)
-{
-  static uint32_t offset, remaining;
-  uint32_t received;
-  enum ota_dfu_opcode action = ota_dfu_unknown, opcode;
-
-  uint32_t rsp_header = *(uint32_t *) rx_buffer;
-
-  opcode = OTA_DFU_HEADER_OPCODE(rsp_header);
-
-  if (opcode == ota_dfu_go_ahead) { // first response
-    offset = 0;
-    remaining = ota_dfu_image_size();
-    action = ota_dfu_data;
-  } else if (opcode == ota_dfu_data_received) {
-    received = OTA_DFU_HEADER_REST(rsp_header);
-    if (received == offset) {
-      offset += DATA_LENGTH;
-      remaining -= DATA_LENGTH;
-      action = ota_dfu_data;
-    } else {
-      action = ota_dfu_unknown;
+    // GBL_TAG_ID_END marks the end of the image.
+    if (tag_header.tagId == GBL_TAG_ID_END) {
+      image_size = offset + tag_header.length + sizeof tag_header;
+      last_tag_header_found = true;
+      break;
     }
-  } else if (opcode == ota_dfu_data_error) {
-    received = OTA_DFU_HEADER_REST(rsp_header);
-    if (received == offset) {
-      action = ota_dfu_data;
-    } else {
-      action = ota_dfu_unknown;
-    }
-  } else if (opcode == ota_dfu_finished) {
-    action = ota_dfu_finished;
+
+    // Advance to the next tag.
+    offset += (sizeof tag_header) + tag_header.length;
   }
 
-  if (action == ota_dfu_data) {
-    uint32_t data_size = remaining > DATA_LENGTH ? DATA_LENGTH : remaining;
-    bootloader_readStorage(SLOT_ID, offset, payload + HEADER_LENGTH, data_size);
+  // Report failure if the end tag was not found before the slot boundary.
+  if (!last_tag_header_found) {
+    image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
   }
-  OTA_DFU_SET_HEADER(payload, action, offset);
-  return action;
+
+  return image_size;
 }
+
+// -----------------------------------------------------------------------------
+//                          Static Function Definitions
+// -----------------------------------------------------------------------------

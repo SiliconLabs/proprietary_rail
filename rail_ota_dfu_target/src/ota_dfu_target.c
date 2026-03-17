@@ -1,10 +1,10 @@
 /***************************************************************************//**
  * @file
- * @brief ota_dfu.c
- *******************************************************************************
+ * @brief ota_dfu_target.c
+ *****************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
- *******************************************************************************
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
+ *****************************************************************************
  *
  * SPDX-License-Identifier: Zlib
  *
@@ -26,111 +26,133 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
+// -----------------------------------------------------------------------------
+//                                   Includes
+// -----------------------------------------------------------------------------
+#include "btl_errorcode.h"
 #include "btl_interface.h"
 #include "btl_interface_storage.h"
+#include "gbl/btl_gbl_format.h"
+
 #include "app_log.h"
 #include "ota_dfu_target.h"
 
-#define SLOT_ID 0
+// -----------------------------------------------------------------------------
+//                              Macros and Typedefs
+// -----------------------------------------------------------------------------
 
-static BootloaderStorageInformation_t bootloader_storage_info;
+// -----------------------------------------------------------------------------
+//                          Static Function Declarations
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                                Global Variables
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                                Static Variables
+// -----------------------------------------------------------------------------
+
 static BootloaderStorageSlot_t slot_info;
 
-void ota_dfu_init(void)
+// -----------------------------------------------------------------------------
+//                          Public Function Definitions
+// -----------------------------------------------------------------------------
+
+void sl_rail_ota_dfu_print_storage_info(void)
 {
+  int32_t status;
+  BootloaderStorageInformation_t bootloader_storage_info;
+
   bootloader_getStorageInfo(&bootloader_storage_info);
-  app_log("numStorageSlots = %lu\r\n", bootloader_storage_info.numStorageSlots);
 
-  bootloader_getStorageSlotInfo(SLOT_ID, &slot_info);
-  app_log("address: 0x%08lx\r\n", slot_info.address);
-  app_log("length:  0x%08lx\r\n", slot_info.length);
-}
-
-ota_dfu_opcode_t ota_dfu_process_command(uint8_t *command, uint8_t *response)
-{
-  static enum receiving_state { idle, started, finished } state;
-  static uint32_t image_size;
-  static uint32_t  offset; // offset of the expected data
-  enum ota_dfu_opcode cmd_opcode, rsp_opcode = ota_dfu_unknown;
-  uint32_t rsp_rest = 0; // the rest of response header (following the opcode)
-
-  uint32_t header = *(uint32_t *) command;
-  cmd_opcode = OTA_DFU_HEADER_OPCODE(header);
-
-  app_log("0x%08lx\r\n", header);
-
-  switch (state) {
-    case idle:
-      if (cmd_opcode == ota_dfu_start) { // start command
-        image_size = OTA_DFU_HEADER_REST(header);
-        if (image_size > slot_info.length) {
-          rsp_opcode = ota_dfu_no_space;
-        } else {
-          int32_t status;
-          offset = 0;
-
-          status = bootloader_eraseStorageSlot(SLOT_ID);
-
-          if (status != BOOTLOADER_OK) {
-            rsp_opcode = ota_dfu_bootloader_error | status;
-          } else {
-            state = started;
-            rsp_opcode = ota_dfu_go_ahead;
-          }
-        }
-      }
-      break;
-    case started:
-      if (cmd_opcode == ota_dfu_start) {  // start command can still be
-                                          //   re-transmitted
-        rsp_opcode = ota_dfu_go_ahead;
-      } else if (cmd_opcode == ota_dfu_data) {
-        uint32_t address = OTA_DFU_HEADER_REST(header);
-
-        if (address < offset) {
-          rsp_opcode = ota_dfu_data_received;
-          rsp_rest = offset - DATA_LENGTH;   // Send the previous
-                                             //   acknowledgement
-        } else if (address == offset) {
-          int32_t status;
-          uint32_t data_size = image_size - offset;
-          if (data_size > DATA_LENGTH) {
-            data_size = DATA_LENGTH;
-          }
-          status = bootloader_writeStorage(SLOT_ID,
-                                           offset,
-                                           command + HEADER_LENGTH,
-                                           data_size);
-          if (status != BOOTLOADER_OK) {
-            rsp_opcode = ota_dfu_bootloader_error;
-            rsp_rest = status;
-          } else {
-            if (offset + data_size == image_size) { // last packet received
-              state = finished;
-              rsp_opcode = ota_dfu_finished;
-            } else {
-              rsp_opcode = ota_dfu_data_received;
-              rsp_rest = offset;
-              offset += DATA_LENGTH;
-            }
-          }
-        }
-      }
-      break;
-    case finished:
-      rsp_opcode = ota_dfu_finished;
-      break;
-    default:
-      break;
+  status = bootloader_getStorageSlotInfo(SL_OTA_DFU_TARGET_DEFAULT_SLOT_ID,
+                                         &slot_info);
+  if (status == BOOTLOADER_OK) {
+    app_log("Storage slot start address: 0x%08lx\n", slot_info.address);
+    app_log("Storage slot length: %lu bytes\n", slot_info.length);
+  } else {
+    app_log_error("Failed to read storage slot information: %ld\n",
+                  status);
   }
-  OTA_DFU_SET_HEADER(response, rsp_opcode, rsp_rest);
-  return rsp_opcode;
 }
 
-void ota_dfu_restart(void)
+uint32_t sl_rail_ota_dfu_get_image_size(void)
 {
-  bootloader_setImageToBootload(0);
-  bootloader_rebootAndInstall();
+  int32_t status; // Store return values from bootloader APIs.
+  uint32_t offset = 0;
+  bool last_tag_header_found = false;
+  GblTagHeader_t tag_header; // Tag ID and length used while parsing the image.
+
+  // Store the image size in bytes.
+  uint32_t image_size;
+
+  // Read the first tag.
+  status = bootloader_readStorage(SL_OTA_DFU_TARGET_DEFAULT_SLOT_ID, offset,
+                                  (uint8_t *)&tag_header, sizeof tag_header);
+  // Detect an invalid image early.
+  if ((tag_header.tagId != GBL_TAG_ID_HEADER_V3) || (status != BOOTLOADER_OK)) {
+    image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
+    return image_size;
+  }
+
+  // Walk the slot until the end tag is found.
+  for (offset =
+         sizeof tag_header + tag_header.length; offset < slot_info.length;
+       )
+  {
+    // Read the next tag.
+    status = bootloader_readStorage(SL_OTA_DFU_TARGET_DEFAULT_SLOT_ID, offset,
+                                    (uint8_t *)&tag_header, sizeof tag_header);
+    if (status != BOOTLOADER_OK) {
+      image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
+      break;
+    }
+
+    // GBL_TAG_ID_END marks the end of the image.
+    if (tag_header.tagId == GBL_TAG_ID_END) {
+      image_size = offset + tag_header.length + sizeof tag_header;
+      last_tag_header_found = true;
+      break;
+    }
+
+    // Advance to the next tag.
+    offset += (sizeof tag_header) + tag_header.length;
+  }
+
+  // Report failure if the end tag was not found before the slot boundary.
+  if (!last_tag_header_found) {
+    image_size = SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE;
+  }
+
+  return image_size;
 }
+
+int32_t sl_rail_ota_dfu_target_write_segment(uint16_t segment_id,
+                                             uint8_t *payload,
+                                             uint16_t payload_length)
+{
+  uint32_t offset = (uint32_t)segment_id * SL_OTA_DFU_TARGET_SEGMENT_LENGTH;
+
+  // Reject writes that would exceed the configured slot.
+  if ((offset + payload_length) > slot_info.length) {
+    return BOOTLOADER_ERROR_STORAGE_CONTINUE;
+  }
+
+  return bootloader_writeStorage(SL_OTA_DFU_TARGET_DEFAULT_SLOT_ID,
+                                 offset,
+                                 payload,
+                                 payload_length);
+}
+
+// -----------------------------------------------------------------------------
+//                          Static Function Definitions
+// -----------------------------------------------------------------------------

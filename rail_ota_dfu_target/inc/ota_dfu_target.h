@@ -3,7 +3,7 @@
  * @brief ota_dfu_target.h
  *******************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -26,48 +26,91 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 #ifndef OTA_DFU_TARGET_H_
 #define OTA_DFU_TARGET_H_
 
-#define PAYLOAD_LENGTH 20
-#define HEADER_LENGTH  4
-#define DATA_LENGTH    (PAYLOAD_LENGTH - HEADER_LENGTH)
+// -----------------------------------------------------------------------------
+//                                   Includes
+// -----------------------------------------------------------------------------
 
-typedef enum ota_dfu_opcode { // highest 4 bits in the header. The reset of the
-  //   header is defined in comment
-  ota_dfu_start, // 28-bit image size, host to target, to initiate the OTA DFU
-  ota_dfu_go_ahead = 0x1, // target to host, ready to receive image
-  ota_dfu_data = 0x2, // 28-bit offset, followed by a 16-byte image fragment,
-                      //   host to target
-  ota_dfu_data_received = 0x3, // 28-bit offset, target to host
-  ota_dfu_no_space = 0x4, // image is larger than slot size, target to host
-  ota_dfu_data_error = 0x5, // 28-bit address of the last received fragment,
-                            //   target to host
-  ota_dfu_bootloader_error = 0x6, // 28-bit bootloader error code, target to
-                                  //   host
-  ota_dfu_finished = 0xe, // the last packet is written to the storage, target
-                          //   to host
-  ota_dfu_unknown = 0xf // target to host, undefined error
-} ota_dfu_opcode_t;
+#include <stdbool.h>
+#include <stdint.h>
 
-#define OTA_DFU_HEADER_OPCODE(header)                                     ((         \
-                                                                             header) \
-                                                                           >> 28)
-#define OTA_DFU_HEADER_REST(header)                                       ((         \
-                                                                             header) \
-                                                                           &         \
-                                                                           0x0fffffff)
-#define OTA_DFU_SET_HEADER(buffer, opcode,                                             \
-                           rest)                                          *((          \
-                                                                              uint32_t \
-                                                                              *)(      \
-                                                                              buffer)) \
-    = ((opcode) << 28) | (rest)
+#include "sl_rail_ota_dfu_target_config.h"
 
-void ota_dfu_init(void);
-ota_dfu_opcode_t ota_dfu_process_command(uint8_t *command, uint8_t *response);
-void ota_dfu_restart(void);
+// -----------------------------------------------------------------------------
+//                              Macros and Typedefs
+// -----------------------------------------------------------------------------
+
+#define SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE        0xFFFFFFFFUL
+#define SL_RAIL_OTA_DFU_NOT_DETERMINED_IMAGE_SIZE 0x0UL
+
+#define SL_OTA_DFU_TARGET_ACK_OK                  0x01U
+#define SL_OTA_DFU_TARGET_ACK_FAIL                0x00U
+
+#define SL_OTA_DFU_TARGET_LAST_SEGMENT_MASK       0x8000U
+#define SL_OTA_DFU_TARGET_SEGMENT_ID_MASK         0x7FFFU
+#define SL_OTA_DFU_TARGET_INVALID_SEGMENT_ID      0xFFFFU
+
+#define SL_OTA_DFU_TARGET_SEGMENT_PACKET_LENGTH \
+        (SL_OTA_DFU_TARGET_SEGMENT_LENGTH + 2U)
+
+typedef enum sl_rail_ota_dfu_target_state {
+  // Valid image is present; wait for install or erase.
+  sl_rail_ota_dfu_target_state_idle,
+  // Wait for segments when no valid image is present or a transfer is in
+  //   progress.
+  sl_rail_ota_dfu_target_state_wait_segment,
+  // Validate the segment ID and write the payload to storage.
+  sl_rail_ota_dfu_target_state_process_segment,
+  // Verify the image during boot and after the last segment is received.
+  sl_rail_ota_dfu_target_state_validate_image,
+  // Install the validated image after a user request.
+  sl_rail_ota_dfu_target_state_install_image,
+  // Erase the storage slot after an error or user request.
+  sl_rail_ota_dfu_target_state_erase_slot,
+} sl_rail_ota_dfu_target_state_t;
+
+// -----------------------------------------------------------------------------
+//                                Global Variables
+// -----------------------------------------------------------------------------
+
+// -----------------------------------------------------------------------------
+//                          Public Function Declarations
+// -----------------------------------------------------------------------------
+
+/***************************************************************************//**
+ * Prints slot information via app_log.
+ ******************************************************************************/
+void sl_rail_ota_dfu_print_storage_info(void);
+
+/***************************************************************************//**
+ * Scans the slot for the end tag of the received GBL and returns the exact
+ * image size.
+ *
+ * @return Size in bytes on success, otherwise
+ *         @ref SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE.
+ ******************************************************************************/
+uint32_t sl_rail_ota_dfu_get_image_size(void);
+
+/***************************************************************************//**
+ * Writes one fixed-size OTA segment into the configured bootloader slot.
+ *
+ * @param[in] segment_id Segment number without the last-segment flag.
+ * @param[in] payload Segment payload bytes.
+ * @param[in] payload_length Number of bytes to write.
+ * @return bootloader status code.
+ ******************************************************************************/
+int32_t sl_rail_ota_dfu_target_write_segment(uint16_t segment_id,
+                                             uint8_t *payload,
+                                             uint16_t payload_length);
 
 #endif /* OTA_DFU_TARGET_H_ */

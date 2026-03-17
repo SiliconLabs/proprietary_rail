@@ -3,7 +3,7 @@
  * @brief app_process.c
  *******************************************************************************
  * # License
- * <b>Copyright 2025 Silicon Laboratories Inc. www.silabs.com</b>
+ * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
  *******************************************************************************
  *
  * SPDX-License-Identifier: Zlib
@@ -26,18 +26,31 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
 #include "sl_component_catalog.h"
-#include "rail.h"
-#include "app_log.h"
+#include "sl_rail.h"
+#include "sl_rail_util_init.h"
 #include "sl_simple_button_instances.h"
-#include "sl_sleeptimer.h"
+
+#include "btl_errorcode.h"
+#include "btl_interface.h"
+
+#include "sl_rail_ota_dfu_host_config.h"
+
+#include "app_log.h"
+#include "app_process.h"
 #include "ota_dfu_host.h"
-#include "led_control.h"
+
 #if defined(SL_CATALOG_KERNEL_PRESENT)
 #include "app_task_init.h"
 #endif
@@ -45,103 +58,187 @@
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-enum ota_dfu_state {
-  idle,
-  start,
-  started,
-} state;
+// Segment payload length includes the 2-byte segment ID.
+#define SEGMENT_PAYLOAD_LENGTH  (SL_OTA_DFU_HOST_SEGMENT_LENGTH + 2)
+#define ACK_PAYLOAD_LENGTH      1
+
 // -----------------------------------------------------------------------------
 //                          Static Function Declarations
 // -----------------------------------------------------------------------------
-static void resend_packet(sl_sleeptimer_timer_handle_t *handle, void *data);
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
 // -----------------------------------------------------------------------------
-
+extern uint32_t last_segment_id;
 // -----------------------------------------------------------------------------
 //                                Static Variables
 // -----------------------------------------------------------------------------
-static bool packet_received, receive_error;
-static uint8_t rx_buffer[PAYLOAD_LENGTH];
-static uint8_t command[PAYLOAD_LENGTH];
-static sl_sleeptimer_timer_handle_t resend_timer_handle;
-static RAIL_Handle_t saved_rail_handle;
+
+static volatile sl_rail_ota_dfu_host_state_t ota_dfu_state =
+  sl_rail_ota_dfu_host_state_idle;
+
+static volatile sl_rail_ota_dfu_host_ack_state_t ack_state =
+  sl_rail_ota_dfu_ack_pending;
+
+// Set when a calibration error occurs.
+static volatile bool calibration_error_flag = false;
+
+static uint8_t rx_buffer[ACK_PAYLOAD_LENGTH];
+static uint8_t tx_payload[SEGMENT_PAYLOAD_LENGTH];
+
+static volatile bool segment_transmitted_flag = false;
+
+static uint16_t segment_id = 0;
+static uint8_t retry_counter = 0;
+
 // -----------------------------------------------------------------------------
 //                          Public Function Definitions
 // -----------------------------------------------------------------------------
 
 /******************************************************************************
- * Application state machine, called infinitely
+ * Application state machine. Called repeatedly.
  *****************************************************************************/
-void app_process_action(RAIL_Handle_t rail_handle)
+void app_process_action(void)
 {
-  RAIL_RxPacketHandle_t packet_handle;
-  RAIL_RxPacketInfo_t packet_info;
+  sl_rail_handle_t rail_handle =
+    sl_rail_util_get_handle(SL_RAIL_UTIL_HANDLE_INST0);
 
-  if (state == start) {
-    ota_dfu_start_packet(command);
-    RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
-    RAIL_WriteTxFifo(rail_handle, command, PAYLOAD_LENGTH, false);
-    RAIL_StartTx(rail_handle, 0, RAIL_TX_OPTIONS_DEFAULT, NULL);
-    state = started;
-  }
-  if (packet_received) {
-    packet_received = false;
+  switch (ota_dfu_state) {
+    case sl_rail_ota_dfu_host_state_idle:
+      // Transition out of idle is triggered by the button handler.
+      break;
 
-    packet_handle = RAIL_GetRxPacketInfo(rail_handle,
-                                         RAIL_RX_PACKET_HANDLE_OLDEST_COMPLETE,
-                                         &packet_info);
-    if (packet_handle != RAIL_RX_PACKET_HANDLE_INVALID) {
-      uint32_t action;
-      RAIL_CopyRxPacket(rx_buffer, &packet_info);
-      RAIL_ReleaseRxPacket(rail_handle, packet_handle);
-      app_log("<%08lx\r\n", *(uint32_t *)rx_buffer);
-      action = ota_dfu_process_response(rx_buffer, command);
-
-      if (action == ota_dfu_data) {
-        RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
-        RAIL_WriteTxFifo(rail_handle, command, PAYLOAD_LENGTH, false);
-        RAIL_StartTx(rail_handle, 0, RAIL_TX_OPTIONS_DEFAULT, NULL);
-        app_log(">%08lx\r\n", *(uint32_t *)command);
-      } else if (action == ota_dfu_finished) {
-        app_log("Done!\r\n");
-        blinky_stop();
-        led_on(0);
-        state = idle;
-      } else { // something wrong
-        blinky_stop();
-        led_off(0);
-        blinky_start(1, SLOW_PERIOD, SLOW_DUTY_CYCLE);
+    case sl_rail_ota_dfu_host_state_prepare_next_segment:
+      bootloader_readStorage(SL_OTA_DFU_HOST_DEFAULT_SLOT_ID,
+                             segment_id * SL_OTA_DFU_HOST_SEGMENT_LENGTH,
+                             &tx_payload[2],
+                             SL_OTA_DFU_HOST_SEGMENT_LENGTH);
+      tx_payload[0] = (segment_id >> 8) & 0xFF;
+      tx_payload[1] = segment_id & 0xFF;
+      app_log("Progress: %lu%%\n", (segment_id * 100) / last_segment_id);
+      if (segment_id == last_segment_id) {
+        // Mark the final segment in the header.
+        tx_payload[0] ^= 0x80;
       }
-    }
+      ota_dfu_state = sl_rail_ota_dfu_host_state_transmit_segment;
+      retry_counter = SL_OTA_DFU_HOST_SEGMENT_RETRY_COUNT;
+      break;
+
+    case sl_rail_ota_dfu_host_state_transmit_segment:
+      if (retry_counter == 0) {
+        app_log_warning(
+          "Connection to the target was lost. Aborting transfer.\n");
+        ota_dfu_state = sl_rail_ota_dfu_host_state_idle;
+        break;
+      }
+      retry_counter--;
+      sl_rail_set_fixed_length(rail_handle, SEGMENT_PAYLOAD_LENGTH);
+      sl_rail_write_tx_fifo(rail_handle,
+                            tx_payload,
+                            SEGMENT_PAYLOAD_LENGTH,
+                            true);
+      sl_rail_start_tx(rail_handle,
+                       SL_OTA_DFU_HOST_DEFAULT_CHANNEL,
+                       SL_RAIL_TX_OPTION_WAIT_FOR_ACK,
+                       NULL);
+      ota_dfu_state = sl_rail_ota_dfu_host_state_transmit_segment_pending;
+      break;
+
+    case sl_rail_ota_dfu_host_state_transmit_segment_pending:
+      if (segment_transmitted_flag) {
+        segment_transmitted_flag = false;
+        ota_dfu_state = sl_rail_ota_dfu_host_state_transmit_wait_ack;
+        sl_rail_set_fixed_length(rail_handle, ACK_PAYLOAD_LENGTH);
+      }
+      break;
+
+    case sl_rail_ota_dfu_host_state_transmit_wait_ack:
+
+      switch (ack_state) {
+        case sl_rail_ota_dfu_ack_pending:
+          // Wait for the ACK.
+          break;
+
+        case sl_rail_ota_dfu_ack_ok:
+          ack_state = sl_rail_ota_dfu_ack_pending;
+          if (segment_id == last_segment_id) {
+            app_log("Image transfer completed.\n");
+            ota_dfu_state = sl_rail_ota_dfu_host_state_idle;
+          } else {
+            ota_dfu_state = sl_rail_ota_dfu_host_state_prepare_next_segment;
+            segment_id++;
+          }
+          break;
+
+        case sl_rail_ota_dfu_ack_fail:
+          ack_state = sl_rail_ota_dfu_ack_pending;
+          app_log("ACK failure. Resending segment.\n");
+          ota_dfu_state = sl_rail_ota_dfu_host_state_transmit_segment;
+          break;
+
+        case sl_rail_ota_dfu_ack_timeout:
+          ack_state = sl_rail_ota_dfu_ack_pending;
+          app_log("ACK timeout. Resending segment.\n");
+          ota_dfu_state = sl_rail_ota_dfu_host_state_transmit_segment;
+          break;
+
+        default:
+          break;
+      }
+      break;
+
+    default:
+      break;
+  }
+
+  if (calibration_error_flag) {
+    calibration_error_flag = false;
+    app_log_warning("sl_rail_calibrate was unable to perform calibration!");
   }
 }
 
 /******************************************************************************
  * RAIL callback, called if a RAIL event occurs
  *****************************************************************************/
-void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
+void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
+                           sl_rail_events_t events)
 {
-  if (events & RAIL_EVENTS_RX_COMPLETION) {
-    if (events & RAIL_EVENT_RX_PACKET_RECEIVED) {
-      RAIL_HoldRxPacket(rail_handle);
-      packet_received = true;
-      sl_sleeptimer_stop_timer(&resend_timer_handle);
+  if (events & SL_RAIL_EVENTS_RX_COMPLETION) {
+    if (events & SL_RAIL_EVENT_RX_PACKET_RECEIVED) {
+      // Read the single-byte payload directly in the event handler.
+      sl_rail_rx_packet_info_t packet_info;
+      sl_rail_rx_packet_handle_t packet_handle;
+      packet_handle = sl_rail_get_rx_packet_info(rail_handle,
+                                                 SL_RAIL_RX_PACKET_HANDLE_NEWEST,
+                                                 &packet_info);
+      if (packet_handle != SL_RAIL_RX_PACKET_HANDLE_INVALID) {
+        sl_rail_copy_rx_packet(rail_handle, rx_buffer, &packet_info);
+        if (rx_buffer[0] & SL_OTA_DFU_HOST_ACK_OK) {
+          ack_state = sl_rail_ota_dfu_ack_ok;
+        } else {
+          ack_state = sl_rail_ota_dfu_ack_fail;
+        }
+      } else {
+        ack_state = sl_rail_ota_dfu_ack_fail;
+      }
     } else {
-      receive_error = true;
+      ack_state = sl_rail_ota_dfu_ack_fail;
     }
   }
-  if (events & RAIL_EVENTS_TX_COMPLETION) {
-    if (state == started) {
-      RAIL_StartRx(rail_handle, 0, NULL);
-      saved_rail_handle = rail_handle;
-      sl_sleeptimer_start_timer(&resend_timer_handle,
-                                sl_sleeptimer_ms_to_tick(100),
-                                resend_packet,
-                                &saved_rail_handle,
-                                0,
-                                0);
+
+  if (events & SL_RAIL_EVENT_RX_ACK_TIMEOUT) {
+    ack_state = sl_rail_ota_dfu_ack_timeout;
+  }
+
+  if (events & SL_RAIL_EVENTS_TX_COMPLETION) {
+    segment_transmitted_flag = true;
+  }
+
+  if (events & SL_RAIL_EVENT_CAL_NEEDED) {
+    if (SL_RAIL_STATUS_NO_ERROR != sl_rail_calibrate(rail_handle,
+                                                     NULL,
+                                                     SL_RAIL_CAL_ALL_PENDING)) {
+      calibration_error_flag = true;
     }
   }
 
@@ -151,27 +248,17 @@ void sl_rail_util_on_event(RAIL_Handle_t rail_handle, RAIL_Events_t events)
 }
 
 /******************************************************************************
- * Button callback, called if a Button event occurs
+ * Button callback. Called when a button event occurs.
  *****************************************************************************/
 void sl_button_on_change(const sl_button_t *handle)
 {
   if ((sl_button_get_state(handle) == SL_SIMPLE_BUTTON_PRESSED)
-      && (state == idle)) {
-    state = start;
-    led_off(0);
-    blinky_start(0, SLOW_PERIOD, SLOW_DUTY_CYCLE);
+      && (ota_dfu_state == sl_rail_ota_dfu_host_state_idle)) {
+    segment_id = 0;
+    ota_dfu_state = sl_rail_ota_dfu_host_state_prepare_next_segment;
   }
 }
 
 // -----------------------------------------------------------------------------
 //                          Static Function Definitions
 // -----------------------------------------------------------------------------
-static void resend_packet(sl_sleeptimer_timer_handle_t *handle, void *data)
-{
-  (void)handle;
-  RAIL_Handle_t rail_handle = *(RAIL_Handle_t *)data;
-  RAIL_Idle(rail_handle, RAIL_IDLE_ABORT, false);
-  RAIL_WriteTxFifo(rail_handle, command, PAYLOAD_LENGTH, false);
-  RAIL_StartTx(rail_handle, 0, RAIL_TX_OPTIONS_DEFAULT, NULL);
-  app_log("!%08lx", *(uint32_t *)command);
-}

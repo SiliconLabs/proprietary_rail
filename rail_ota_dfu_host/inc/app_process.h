@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief ota_dfu_host.h
+ * @brief app_process.h
  *******************************************************************************
  * # License
  * <b>Copyright 2026 Silicon Laboratories Inc. www.silabs.com</b>
@@ -26,48 +26,24 @@
  *    misrepresented as being the original software.
  * 3. This notice may not be removed or altered from any source distribution.
  *
+ *******************************************************************************
+ * # Experimental Quality
+ * This code has not been formally tested and is provided as-is. It is not
+ * suitable for production environments. In addition, this code will not be
+ * maintained and there may be no bug maintenance planned for these resources.
+ * Silicon Labs may update projects from time to time.
  ******************************************************************************/
 
-#ifndef OTA_DFU_HOST_H_
-#define OTA_DFU_HOST_H_
+#ifndef APP_PROCESS_H
+#define APP_PROCESS_H
 
 // -----------------------------------------------------------------------------
 //                                   Includes
 // -----------------------------------------------------------------------------
-#include <stdint.h>
 
 // -----------------------------------------------------------------------------
 //                              Macros and Typedefs
 // -----------------------------------------------------------------------------
-
-#define SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE        0xFFFFFFFFUL
-#define SL_RAIL_OTA_DFU_NOT_DETERMINED_IMAGE_SIZE 0x0UL
-
-#define SL_OTA_DFU_HOST_ACK_OK                    0x01U
-#define SL_OTA_DFU_HOST_ACK_FAIL                  0x00U
-
-#define SL_OTA_DFU_HOST_LAST_SEGMENT_MASK         0x8000U
-#define SL_OTA_DFU_HOST_SEGMENT_ID_MASK           0x7FFFU
-
-typedef enum sl_rail_ota_dfu_host_state {
-  // Wait for user input to start the DFU transfer.
-  sl_rail_ota_dfu_host_state_idle,
-  // Read the next segment from storage and prepare the payload.
-  sl_rail_ota_dfu_host_state_prepare_next_segment,
-  // Start transmitting the prepared segment.
-  sl_rail_ota_dfu_host_state_transmit_segment,
-  // Wait until the segment has been transmitted.
-  sl_rail_ota_dfu_host_state_transmit_segment_pending,
-  // Wait for the ACK after transmission.
-  sl_rail_ota_dfu_host_state_transmit_wait_ack,
-} sl_rail_ota_dfu_host_state_t;
-
-typedef enum sl_rail_ota_dfu_host_ack_state {
-  sl_rail_ota_dfu_ack_pending,
-  sl_rail_ota_dfu_ack_ok,
-  sl_rail_ota_dfu_ack_fail,
-  sl_rail_ota_dfu_ack_timeout,
-} sl_rail_ota_dfu_host_ack_state_t;
 
 // -----------------------------------------------------------------------------
 //                                Global Variables
@@ -77,18 +53,10 @@ typedef enum sl_rail_ota_dfu_host_ack_state {
 //                          Public Function Declarations
 // -----------------------------------------------------------------------------
 
-/***************************************************************************//**
- * Prints slot information via app_log.
- ******************************************************************************/
-void sl_rail_ota_dfu_print_storage_info(void);
+/**************************************************************************//**
+ * The function is used for Application logic.
+ * It is called infinitely.
+ *****************************************************************************/
+void app_process_action(void);
 
-/***************************************************************************//**
- * Scans the slot for the end tag of the received GBL and returns the exact
- * image size.
- *
- * @return Size in bytes on success, otherwise
- *         @ref SL_RAIL_OTA_DFU_INVALID_IMAGE_SIZE.
- ******************************************************************************/
-uint32_t sl_rail_ota_dfu_get_image_size(void);
-
-#endif /* OTA_DFU_HOST_H_ */
+#endif // APP_PROCESS_H

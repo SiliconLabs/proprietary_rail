@@ -29,6 +29,8 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 | RAIL Proprietary - Improved RF Sense Transmitter | [Click Here](./rail_improved_rfsense_transmitter)  |
 | RAIL Proprietary - RF Generator                  |         [Click Here](./rail_rf_generator)          |
 | RAIL Proprietary - State Transition Test         |     [Click Here](./rail_state_transition_test)     |
+| RAIL Proprietary - OTA DFU Host                  |         [Click Here](./rail_ota_dfu_host)          |
+| RAIL Proprietary - OTA DFU Target                |        [Click Here](./rail_ota_dfu_target)         |
 
 ## Documentation ##
 
