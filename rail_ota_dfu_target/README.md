@@ -77,7 +77,7 @@ Two startup paths are possible:
 - If a valid image is already present, the target idles the radio, logs the
   validated image size, and waits in the idle state for user action.
 - If no valid image is present, or if the slot is erased because of PB1 or a
-  fatal error, the target erases the configured slot, starts RX on the default
+  fatal error, the target erases the configured slot, starts Rx on the default
   channel, and waits for segments from the host.
 
 The on-air packet format is fixed length:
@@ -171,7 +171,7 @@ Selects the bootloader storage slot that receives the transferred GBL image.
 - Duplicate packets for the previously accepted segment are ACKed again so the
   host can recover from a missed ACK.
 - Invalid-image startup, PB1 erase requests, and fatal bootloader errors all
-  follow the same reset path: idle the radio, erase the slot, and restart RX.
+  follow the same reset path: idle the radio, erase the slot, and restart Rx.
 - The application prepares a success ACK before `bootloader_writeStorage()`
   completes. If the write fails afterward, the host may already have advanced
   to the next segment, while the target follows the reset path.
@@ -186,4 +186,4 @@ Selects the bootloader storage slot that receives the transferred GBL image.
 - Slot size mismatches between the host and target are not handled; the user
   must ensure they are compatible.
 - Host-side handling of a final-segment ACK reception failure is incomplete.
-  An RX ACK failure, as distinct from a timeout, is not retried correctly.
+  An Rx ACK failure, as distinct from a timeout, is not retried correctly.

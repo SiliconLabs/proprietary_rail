@@ -239,7 +239,7 @@ static void init_PRS(void)
 
 static void init_TIMERs(void)
 {
-  /* TIMER0: Measures RX->TX and TX->RX transitions (ACTIVE low pulse) */
+  /* TIMER0: Measures Rx->Tx and Tx->Rx transitions (ACTIVE low pulse) */
   CMU_ClockEnable(cmuClock_TIMER0, true);
 
   TIMER_Init_TypeDef timer_0_init = TIMER_INIT_DEFAULT;

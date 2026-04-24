@@ -120,7 +120,7 @@ void app_init(void)
     .enable = true,
     .ack_timeout_us = SL_OTA_DFU_HOST_ACK_TIMEOUT_US,
     .rx_transitions = {
-      .success = SL_RAIL_RF_STATE_IDLE, // The app does not use standard RX.
+      .success = SL_RAIL_RF_STATE_IDLE, // The app does not use standard Rx.
       .error = SL_RAIL_RF_STATE_IDLE, // Ignored.
     },
     .tx_transitions = {

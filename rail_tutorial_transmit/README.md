@@ -14,7 +14,7 @@ article](https://docs.silabs.com/rail/latest/rail-training-tx/).
 
 ## SDK version ##
 
-SiSDK 2024.6.0 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -89,7 +89,8 @@ settings, so you will need to modify them manually using a text editor or IDE.
 
 #### `SL_TUTORIAL_TRANSMIT_PAYLOAD_LENGTH` ####
 
-Sets Payload length in bytes.
+Sets Payload length in bytes. The minimum length is 16 as the app uses a fixed
+16 lengh payload for the data message.
 
 #### `SL_TUTORIAL_TRANSMIT_BUFFER_LENGTH` ####
 

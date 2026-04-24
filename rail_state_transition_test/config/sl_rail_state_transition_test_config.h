@@ -70,9 +70,10 @@
 // <o SL_RAIL_STATE_TRANSITION_TEST_BEST_EFFORT_TIMING> Best effort timing
 // <i> Set best effort timing by setting all state transitions to 0
 // <i> Default: 1
-#define SL_RAIL_STATE_TRANSITION_TEST_BEST_EFFORT_TIMING 1
+#define SL_RAIL_STATE_TRANSITION_TEST_BEST_EFFORT_TIMING       1
 
-// <o SL_RAIL_STATE_TRANSITION_TEST_ENABLE_SYNTH_CAL_CACHING> Enable synth cal caching
+// <o SL_RAIL_STATE_TRANSITION_TEST_ENABLE_SYNTH_CAL_CACHING> Enable synth cal
+// caching
 // <i> Enable synthesizer calibration caching
 // <i> Default: 1
 #define SL_RAIL_STATE_TRANSITION_TEST_ENABLE_SYNTH_CAL_CACHING 1
@@ -80,17 +81,17 @@
 // <o SL_RAIL_STATE_TRANSITION_TEST_BYPASS_CALIBRATIONS> Disable calibrations
 // <i> Bypass synthesizer and DC calibrations
 // <i> Default: 1
-#define SL_RAIL_STATE_TRANSITION_TEST_BYPASS_CALIBRATIONS 1
+#define SL_RAIL_STATE_TRANSITION_TEST_BYPASS_CALIBRATIONS      1
 
-// <o SL_RAIL_STATE_TRANSITION_TEST_ENABLE_FAST_RX_2_RX> Enable fast RX to RX
-// <i> Enable fast RX to RX transitions
+// <o SL_RAIL_STATE_TRANSITION_TEST_ENABLE_FAST_RX_2_RX> Enable fast Rx to Rx
+// <i> Enable fast Rx to Rx transitions
 // <i> Default: 1
-#define SL_RAIL_STATE_TRANSITION_TEST_ENABLE_FAST_RX_2_RX 1
+#define SL_RAIL_STATE_TRANSITION_TEST_ENABLE_FAST_RX_2_RX      1
 
 // <o SL_RAIL_STATE_TRANSITION_TEST_PTI_DISABLE> Disable PTI
 // <i> Disable PTI
 // <i> Default: 1
-#define SL_RAIL_STATE_TRANSITION_TEST_PTI_DISABLE 1
+#define SL_RAIL_STATE_TRANSITION_TEST_PTI_DISABLE              1
 
 // The following options are controlling the state transition measurement's
 // behavior.
@@ -98,32 +99,32 @@
 // <o SL_RAIL_STATE_TRANSITION_TEST_REPEAT_CYCLES> Repeat cycles
 // <i> Number of cycles to repeat the state transition tests
 // <i> Default: 100
-#define SL_RAIL_STATE_TRANSITION_TEST_REPEAT_CYCLES 100
+#define SL_RAIL_STATE_TRANSITION_TEST_REPEAT_CYCLES                 100
 
 // <o SL_RAIL_STATE_TRANSITION_TEST_TX_PERIOD> Tx period
-// <i> Tx period used in "TX for RX_COMPLETE" mode in symbols 
+// <i> Tx period used in "TX for RX_COMPLETE" mode in symbols
 // <i> Default: 1500
-#define SL_RAIL_STATE_TRANSITION_TEST_TX_PERIOD 1500
+#define SL_RAIL_STATE_TRANSITION_TEST_TX_PERIOD                     1500
 
 // <o SL_RAIL_STATE_TRANSITION_TEST_PRIMARY_CHANNEL> Primary channel
 // Primary channel to use for multi-channel tests, must be different from
 // secondary channel
 // <i> Default: 0
-#define SL_RAIL_STATE_TRANSITION_TEST_PRIMARY_CHANNEL 0
+#define SL_RAIL_STATE_TRANSITION_TEST_PRIMARY_CHANNEL               0
 
 // <o SL_RAIL_STATE_TRANSITION_TEST_SECONDARY_CHANNEL> Secondary channel
 // Secondary channel to use for multi-channel tests, must be different from
-// primary channel 
+// primary channel
 // <i> Default: 1
-#define SL_RAIL_STATE_TRANSITION_TEST_SECONDARY_CHANNEL 1
+#define SL_RAIL_STATE_TRANSITION_TEST_SECONDARY_CHANNEL             1
 
 // <o SL_RAIL_STATE_TRANSITION_TEST_IDLE_MODE> Idle mode
 // Idle mode to use for the state transition tests
 // <i> Default: RAIL_IDLE
-#define SL_RAIL_STATE_TRANSITION_TEST_IDLE_MODE RAIL_IDLE
+#define SL_RAIL_STATE_TRANSITION_TEST_IDLE_MODE                     SL_RAIL_IDLE
 
-// <o SL_STATE_TRANSITION_TEST_TX_FIFO_SIZE> TX FIFO size
-// <i> Set TX FIFO size in bytes
+// <o SL_STATE_TRANSITION_TEST_TX_FIFO_SIZE> Tx FIFO size
+// <i> Set Tx FIFO size in bytes
 // <i> Default: 64
 #define SL_RAIL_STATE_TRANSITION_TEST_TX_FIFO_SIZE                  64
 // <<< end of configuration section >>>

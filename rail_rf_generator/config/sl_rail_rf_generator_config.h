@@ -43,7 +43,8 @@
 
 // <o SL_RF_GENERATOR_PAYLOAD_LENGTH> Payload length
 // <i> Set the initial payload length in bytes.
-// <i> This is limited by SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH (max) and 16 (min).
+// <i> This is limited by SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH (max) and 16 (min)
+// <i> due to the initial payload length.
 // <i> Default: 16
 #define SL_RF_GENERATOR_PAYLOAD_LENGTH                    16
 

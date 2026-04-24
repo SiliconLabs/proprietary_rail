@@ -42,7 +42,8 @@
 // <h>Packet Settings
 
 // <o SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH> Payload length
-// <i> Set Payload length in bytes
+// <i> Set Payload length in bytes. The minimum length is 3 as the app uses a
+// <i> fixed 3 lengh payload for the message.
 // <i> Default: 3
 #define SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH 3
 

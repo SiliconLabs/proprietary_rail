@@ -18,7 +18,7 @@ documentation](https://docs.silabs.com/rail/latest/rail-developers-guide-direct-
 
 ## SDK version ##
 
-SiSDK 2024.6.2 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -201,13 +201,13 @@ rate at which samples are collected to the Rx FIFO and transferred to the
 ping-pong buffers. Additionally, Direct-to-PRS signals are visible in the traces
 on supported platforms.
 
-The radio PHYs (default in SiSDK 2024.06 or enforced on EFR32xG23/24/25/28)
+The radio PHYs (default in SiSDK 2025.6.0 or enforced on EFR32xG23/24/25/28)
 operate with the following sample rates based on device generations:
 
 |                                                                | EFR32xG22 | EFR32xG23 | EFR32xG24 | EFR32xG25 | EFR32xG27 | EFR32xG28 |
 |----------------------------------------------------------------|-----------|-----------|-----------|-----------|-----------|-----------|
-| **Raw Data Sampling Rate [sps]** (Actual sample frequency)     | 1 M       | 120 k     | 250 k     | 120 k     | 1 M       | 120 k     |
-| **Actual Rx Baudrate [baud]** (Desired baudrate)               | 7 M       | 1.625 M   | 1.25 M    | 1.693 M   | 7 M       | 1.625 M   |
+| **Actual Rx Baudrate [baud]** (Desired baudrate)               | 1 M       | 120 k     | 250 k     | 120 k     | 1 M       | 120 k     |
+| **Raw Data Sampling Rate [sps]** (Actual sample frequency)     | 7 M       | 1.625 M   | 1.25 M    | 1.693 M   | 7 M       | 1.625 M   |
 | **Actual Demodulator Oversampling Rate** (Target oversampling) | 7         | 13.54     | 5         | 14.105    | 7         | 13.54     |
 
 The frequency of the `PRS_BUFC_THR1` signal reflects the time required to fill
@@ -269,11 +269,6 @@ configurations.
   output, ensuring the user can interpret the data accurately. Additionally, the
   IQ sample rate may exhibit slight variations between these modes depending on
   the specific PHY configurations.
-- An issue related to `Flex - RAIL PRS Support` component has been fixed in
-  `SiSDK 2024.06.02` version. If you are using an older version, you may need to
-  resolve the building errors. For more information, see the Issue `ID# 1332679`
-  in the [Proprietary Flex SDK 3.8.2.0 GA Release
-  Notes](https://www.silabs.com/documents/public/release-notes/flex-release-notes-3.8.2.0.pdf).
 - Currently, the PHY details in the `radioconf_generation_log.json` log file for
   EFR32xG27 are not populated.
 - Configuring Direct-to-Buffer mode (i.e., selecting Rx Data Source other than

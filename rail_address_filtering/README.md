@@ -14,7 +14,7 @@ API](https://docs.silabs.com/rail/latest/rail-api/address-filtering).
 
 ## SDK version ##
 
-SiSDK 2024.6.0 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -104,7 +104,8 @@ settings, so you will need to modify them manually using a text editor or IDE.
 
 #### `SL_ADDRESS_FILTERING_PAYLOAD_LENGTH` ####
 
-Sets Payload length in bytes.
+Sets Payload length in bytes. The minimum length is 16 as the app uses a fixed
+16 lengh payload for the data message.
 
 #### `SL_ADDRESS_FILTERING_BUFFER_LENGTH` ####
 

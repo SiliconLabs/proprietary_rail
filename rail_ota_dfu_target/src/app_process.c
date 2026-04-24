@@ -66,7 +66,7 @@
 // -----------------------------------------------------------------------------
 
 /****************************************************************************//*
- * Logs the reason, resets storage and state, and restarts RX so a new image
+ * Logs the reason, resets storage and state, and restarts Rx so a new image
  * can be received.
  *
  * Call this from the state machine and follow it with a break statement.
@@ -170,7 +170,7 @@ void app_process_action(void)
 
     case sl_rail_ota_dfu_target_state_wait_segment:
 
-      // Recover from RX errors.
+      // Recover from Rx errors.
       if (receive_error_flag) {
         receive_error_flag = false;
         // Restore the expected segment packet length.
@@ -281,11 +281,11 @@ void sl_rail_util_on_event(sl_rail_handle_t rail_handle,
         if (status == SL_RAIL_STATUS_NO_ERROR) {
           packet_received_flag = true;
         } else {
-          // Treat a copy failure as an RX error.
+          // Treat a copy failure as an Rx error.
           receive_error_flag = true;
         }
       } else {
-        // This should not happen, but recover as an RX error.
+        // This should not happen, but recover as an Rx error.
         receive_error_flag = true;
       }
     } else {
@@ -374,7 +374,7 @@ static void reset_state_machine(const char *message)
     app_log("Storage slot erased.\n");
   }
 
-  // Restart RX with the expected frame length.
+  // Restart Rx with the expected frame length.
   sl_rail_set_fixed_length(rail_handle,
                            SL_OTA_DFU_TARGET_SEGMENT_PACKET_LENGTH);
   status = sl_rail_start_rx(rail_handle, SL_OTA_DFU_TARGET_DEFAULT_CHANNEL,

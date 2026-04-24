@@ -99,11 +99,11 @@ void app_init(void)
     .enable = true,
     .ack_timeout_us = 1000, // Unused by the target path.
     .rx_transitions = {
-      .success = SL_RAIL_RF_STATE_RX, // Stay in RX.
+      .success = SL_RAIL_RF_STATE_RX, // Stay in Rx.
       .error = SL_RAIL_RF_STATE_RX, // Ignored.
     },
     .tx_transitions = {
-      .success = SL_RAIL_RF_STATE_RX, // Return to RX after ACK transmission.
+      .success = SL_RAIL_RF_STATE_RX, // Return to Rx after ACK transmission.
       .error = SL_RAIL_RF_STATE_RX, // Ignored.
     }
   };

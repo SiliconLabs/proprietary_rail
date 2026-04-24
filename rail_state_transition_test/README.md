@@ -11,14 +11,14 @@ RAIL](https://www.silabs.com/documents/public/application-notes/an1392-rail-timi
 
 ## SDK Version ##
 
-SiSDK 2024.06.02 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
 EFR32 Series 2
 
 ## Connections Required ##
- 
+
 Connect two Development Kits to your PC.
 
 ### Tested Boards for This Example ###
@@ -60,7 +60,7 @@ testing in each measurement mode:
 
 > *(Tx needed)*: This transition requires a transmitter node, and the state
 > transition occurs automatically after packet reception completes. All other
-> transitions from RX are initiated by calling `RAIL_Idle()`, `RAIL_StartTx()`
+> transitions from Rx are initiated by calling `RAIL_Idle()`, `RAIL_StartTx()`
 > or `RAIL_StartRx()`.
 
 > *(M)*: This transition requires two defined channels.
@@ -96,29 +96,29 @@ configurations, is shown below:
 ```plaintext
 [D] TIMER peripherals frequency: 78000000.00 us
 [I] Current mode: MANUAL_TRANSITIONS
-[I] Request to RX active (BUSY + READY): average: 58.00 us min: 57.92 us max: 62.37 us
+[I] Request to Rx active (BUSY + READY): average: 58.00 us min: 57.92 us max: 62.37 us
 [I] Request to LNA active (BUSY): average: 43.14 us min: 43.05 us max: 47.51 us
-[I] RX active to idle (BUSY + READY): average: 22.68 us min: 22.65 us max: 22.71 us
+[I] Rx active to idle (BUSY + READY): average: 22.68 us min: 22.65 us max: 22.71 us
 [I] LNA active to idle (BUSY): average: 9.28 us min: 9.27 us max: 9.29 us
-[I] Request to TX active (BUSY + READY): average: 121.88 us min: 121.83 us max: 121.92 us
+[I] Request to Tx active (BUSY + READY): average: 121.88 us min: 121.83 us max: 121.92 us
 [I] Request to PA active (BUSY): average: 76.64 us min: 76.59 us max: 76.68 us
-[I] TX active to idle (BUSY + READY): average: 54.72 us min: 54.51 us max: 54.81 us
+[I] Tx active to idle (BUSY + READY): average: 54.72 us min: 54.51 us max: 54.81 us
 [I] PA active to idle (BUSY): average: 19.06 us min: 19.04 us max: 19.08 us
 [I] Current mode: AUTO_TRANSITIONS
 [I] LNA to PA (BUSY between): average: 70.97 us min: 70.94 us max: 71.01 us
-[I] RX to TX (READY + BUSY between): average: 136.72 us min: 136.67 us max: 136.76 us
+[I] Rx to Tx (READY + BUSY between): average: 136.72 us min: 136.67 us max: 136.76 us
 [I] PA to LNA (BUSY between): average: 35.97 us min: 35.88 us max: 36.28 us
-[I] TX to RX (READY + BUSY between): average: 85.65 us min: 84.68 us max: 86.23 us
+[I] Tx to Rx (READY + BUSY between): average: 85.65 us min: 84.68 us max: 86.23 us
 [I] Current mode: CHANNEL_SWITCH
-[I] RX to RX primary to secondary (READY + BUSY between): average: 107.63 us min: 107.53 us max: 112.73 us
-[I] RX to RX secondary to primary (READY + BUSY between): average: 107.14 us min: 107.09 us max: 107.18 us
-[I] TX to TX primary to secondary: average (READY + BUSY between): 219.48 us min: 218.92 us max: 220.40 us
-[I] TX to TX secondary to primary: average (READY + BUSY between): 219.06 us min: 218.77 us max: 219.67 us
+[I] Rx to Rx primary to secondary (READY + BUSY between): average: 107.63 us min: 107.53 us max: 112.73 us
+[I] Rx to Rx secondary to primary (READY + BUSY between): average: 107.14 us min: 107.09 us max: 107.18 us
+[I] Tx to Tx primary to secondary: average (READY + BUSY between): 219.48 us min: 218.92 us max: 220.40 us
+[I] Tx to Tx secondary to primary: average (READY + BUSY between): 219.06 us min: 218.77 us max: 219.67 us
 [I] Current mode: RX_COMPLETE
 [W] Transmitter node required!
-[I] RX active to idle (BUSY + READY): average: 42.75 us min: 41.26 us max: 42.92 us
-[I] RX to TX (BUSY + READY between): average: 130.24 us min: 128.26 us max: 129.35 us
-[I] RX to RX (READY + BUSY between): average: 11.20 us min: 9.97 us max: 10.28 us
+[I] Rx active to idle (BUSY + READY): average: 42.75 us min: 41.26 us max: 42.92 us
+[I] Rx to Tx (BUSY + READY between): average: 130.24 us min: 128.26 us max: 129.35 us
+[I] Rx to Rx (READY + BUSY between): average: 11.20 us min: 9.97 us max: 10.28 us
 ```
 
 ### Terminology of Radio States ###
@@ -173,7 +173,7 @@ configurations are not available through the UI and must be edited manually.
 
 #### `SL_RAIL_STATE_TRANSITION_TEST_TX_FIFO_SIZE` ####
 
-Defines the TX FIFO size.
+Defines the Tx FIFO size.
 
 - Must be a power of 2 between 64 and 4096.
 - [More

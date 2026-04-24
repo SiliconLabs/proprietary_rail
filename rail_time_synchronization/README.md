@@ -10,7 +10,7 @@ article](https://community.silabs.com/s/article/time-synchronization-with-rail-e
 
 ## SDK version ##
 
-SiSDK 2024.6.2 and above
+SiSDK 2025.6.2 and above
 
 ## Hardware Required ##
 
@@ -232,11 +232,3 @@ After Node #2 transmits a packet (P4), Node #3 updates its synchronization
 source to Node #2, and Node #1 also aligns its tick signal with Node #2.
 Similarly, when Node #3 transmits a packet (P5), both Node #1 and Node #2 switch
 their synchronization source to Node #3.
-
-## Notes ##
-
-- An issue related to `Flex - RAIL PRS Support` component has been fixed in
-  `SiSDK 2024.06.02` version. If you are using an older version, you may need to
-  resolve the building errors. For more information, see the Issue `ID# 1332679`
-  in the [Proprietary Flex SDK 3.8.2.0 GA Release
-  Notes](https://www.silabs.com/documents/public/release-notes/flex-release-notes-3.8.2.0.pdf).

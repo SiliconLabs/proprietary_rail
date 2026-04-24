@@ -22,7 +22,7 @@ article](https://community.silabs.com/s/article/rfsense-on-efr32xg22?language=en
 
 ## SDK version ##
 
-SiSDK 2024.6.0 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -126,7 +126,8 @@ settings, so you will need to modify them manually using a text editor or IDE.
 
 #### `SL_IMPROVED_RFSENSE_TRANSMITTER_PAYLOAD_LENGTH` ####
 
-Sets Payload length in bytes.
+Sets Payload length in bytes. The minimum length is 3 as the app uses a fixed 3
+lengh payload for the message.
 
 #### `SL_IMPROVED_RFSENSE_TRANSMITTER_FIFO_LENGTH` ####
 

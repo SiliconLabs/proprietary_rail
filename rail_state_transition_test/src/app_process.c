@@ -204,7 +204,7 @@ static statistics_t TX_to_TX_p_s_stats;
 static float *TX_to_TX_s_p;
 static statistics_t TX_to_TX_s_p_stats;
 
-// TX FIFO buffer
+// Tx FIFO buffer
 SL_RAIL_DECLARE_FIFO_BUFFER(tx_fifo, TX_FIFO_SIZE);
 
 // -----------------------------------------------------------------------------
@@ -599,7 +599,7 @@ static void handle_rx_complete(sl_rail_handle_t rail_handle)
       break;
     }
     WAIT_FOR_RADIO_STATE(SL_RAIL_RAC_STATE_RXSEARCH);
-    // reuse RX_to_RX_p_s for RX to RX time
+    // reuse RX_to_RX_p_s for Rx to Rx time
     RX_to_RX_p_s[i] = GET_ACTIVE_TO_ACTIVE_TIME();
   }
   if (exit_loop) {
@@ -973,7 +973,7 @@ static void print_statistics()
   {
     case MANUAL_TRANSITIONS:
       app_log_info(
-        "Request to RX active (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Request to Rx active (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
         request_to_RX_active_stats.average,
         request_to_RX_active_stats.min,
         request_to_RX_active_stats.max);
@@ -983,7 +983,7 @@ static void print_statistics()
         request_to_LNA_active_stats.min,
         request_to_LNA_active_stats.max);
       app_log_info(
-        "RX active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_active_to_idle_stats.average,
         RX_active_to_idle_stats.min,
         RX_active_to_idle_stats.max);
@@ -993,7 +993,7 @@ static void print_statistics()
         LNA_active_to_idle_stats.min,
         LNA_active_to_idle_stats.max);
       app_log_info(
-        "Request to TX active (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Request to Tx active (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
         request_to_TX_active_stats.average,
         request_to_TX_active_stats.min,
         request_to_TX_active_stats.max);
@@ -1003,7 +1003,7 @@ static void print_statistics()
         request_to_PA_active_stats.min,
         request_to_PA_active_stats.max);
       app_log_info(
-        "TX active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Tx active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
         TX_active_to_idle_stats.average,
         TX_active_to_idle_stats.min,
         TX_active_to_idle_stats.max);
@@ -1020,7 +1020,7 @@ static void print_statistics()
         LNA_to_PA_stats.min,
         LNA_to_PA_stats.max);
       app_log_info(
-        "RX to TX (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx to Tx (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_to_TX_stats.average,
         RX_to_TX_stats.min,
         RX_to_TX_stats.max);
@@ -1030,46 +1030,46 @@ static void print_statistics()
         PA_to_LNA_stats.min,
         PA_to_LNA_stats.max);
       app_log_info(
-        "TX to RX (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Tx to Rx (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
         TX_to_RX_stats.average,
         TX_to_RX_stats.min,
         TX_to_RX_stats.max);
       break;
     case CHANNEL_SWITCH:
       app_log_info(
-        "RX to RX primary to secondary (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx to Rx primary to secondary (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_to_RX_p_s_stats.average,
         RX_to_RX_p_s_stats.min,
         RX_to_RX_p_s_stats.max);
       app_log_info(
-        "RX to RX secondary to primary (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx to Rx secondary to primary (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_to_RX_s_p_stats.average,
         RX_to_RX_s_p_stats.min,
         RX_to_RX_s_p_stats.max);
       app_log_info(
-        "TX to TX primary to secondary: average (READY + BUSY between): %.2f us min: %.2f us max: %.2f us\n",
+        "Tx to Tx primary to secondary: average (READY + BUSY between): %.2f us min: %.2f us max: %.2f us\n",
         TX_to_TX_p_s_stats.average,
         TX_to_TX_p_s_stats.min,
         TX_to_TX_p_s_stats.max);
       app_log_info(
-        "TX to TX secondary to primary: average (READY + BUSY between): %.2f us min: %.2f us max: %.2f us\n",
+        "Tx to Tx secondary to primary: average (READY + BUSY between): %.2f us min: %.2f us max: %.2f us\n",
         TX_to_TX_s_p_stats.average,
         TX_to_TX_s_p_stats.min,
         TX_to_TX_s_p_stats.max);
       break;
     case RX_COMPLETE:
       app_log_info(
-        "RX active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx active to idle (BUSY + READY): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_active_to_idle_stats.average,
         RX_active_to_idle_stats.min,
         RX_active_to_idle_stats.max);
       app_log_info(
-        "RX to TX (BUSY + READY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx to Tx (BUSY + READY between): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_to_TX_stats.average,
         RX_to_TX_stats.min,
         RX_to_TX_stats.max);
       app_log_info(
-        "RX to RX (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
+        "Rx to Rx (READY + BUSY between): average: %.2f us min: %.2f us max: %.2f us\n",
         RX_to_RX_p_s_stats.average,
         RX_to_RX_p_s_stats.min,
         RX_to_RX_p_s_stats.max);

@@ -42,7 +42,8 @@
 // <h>Packet Settings
 
 // <o SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH> Payload length
-// <i> Set Payload length in bytes
+// <i> Set Payload length in bytes. The minimum length is 16 as the app uses a
+// <i> fixed 16 lengh payload for the data message.
 // <i> Default: 16
 #define SL_TUTORIAL_EVENT_HANDLING_PAYLOAD_LENGTH        16
 

@@ -73,7 +73,7 @@ provides:
     condition: [device_generic_family_efr32xg27]
   - name: primary_prs_group_0
     condition: [device_generic_family_efr32xg28]
-  # xG22 exception list
+  # EFR32xG22 exception list
   - name: primary_prs_group_2_ov
     condition: [brd4183b]
   - name: primary_prs_group_2_ov
@@ -86,7 +86,7 @@ provides:
     condition: [brd4403b]
   - name: primary_prs_group_2_ov
     condition: [brd4191A]
-  # xG27 exception list
+  # EFR32xG27 exception list
   - name: primary_prs_group_1_ov
     condition: [brd4194a]
   # secondary PRS
@@ -177,7 +177,7 @@ configuration:
   - name: SL_BOARD_ENABLE_VCOM
     value: "1"
   # Debug PRS and GPIO mapping logic
-  # xG22:
+  # EFR32xG22:
   - name: PRS_CHANNEL_ACTIVE
     value: "0"
     condition: [device_generic_family_efr32xg22]
@@ -214,7 +214,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "3"
     condition: [device_generic_family_efr32xg22]
-  # xG23:
+  # EFR32xG23:
   - name: PRS_CHANNEL_ACTIVE
     value: "6"
     condition: [device_generic_family_efr32xg23]
@@ -251,7 +251,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "7"
     condition: [device_generic_family_efr32xg23]
-  # xG24:
+  # EFR32xG24:
   - name: PRS_CHANNEL_ACTIVE
     value: "6"
     condition: [device_generic_family_efr32xg24]
@@ -288,7 +288,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "7"
     condition: [device_generic_family_efr32xg24]
-  # xG25:
+  # EFR32xG25:
   - name: PRS_CHANNEL_ACTIVE
     value: "0"
     condition: [device_generic_family_efr32xg25]
@@ -325,7 +325,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "7"
     condition: [device_generic_family_efr32xg25]
-  # xG26:
+  # EFR32xG26:
   - name: PRS_CHANNEL_ACTIVE
     value: "6"
     condition: [device_generic_family_efr32xg26]
@@ -362,7 +362,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "7"
     condition: [device_generic_family_efr32xg26]
-  # xG27:
+  # EFR32xG27:
   - name: PRS_CHANNEL_ACTIVE
     value: "0"
     condition: [device_generic_family_efr32xg27]
@@ -399,7 +399,7 @@ configuration:
   - name: PRS_PIN_BUSY_OR_READY
     value: "13"
     condition: [device_generic_family_efr32xg27]
-  # xG28:
+  # EFR32xG28:
   - name: PRS_CHANNEL_ACTIVE
     value: "6"
     condition: [device_generic_family_efr32xg28]

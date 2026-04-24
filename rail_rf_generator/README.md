@@ -11,7 +11,7 @@ support in this application.
 
 ## SDK version ##
 
-SiSDK 2024.6.0 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -223,7 +223,8 @@ need to modify them manually using a text editor or IDE.
 #### `SL_RF_GENERATOR_PAYLOAD_LENGTH` ####
 
 Sets initial payload length in bytes. This is limited by
-SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH.
+SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH (max) and 16 (min) due to the initial payload
+length.
 
 #### `SL_RF_GENERATOR_MAX_PAYLOAD_LENGTH` ####
 

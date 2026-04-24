@@ -10,7 +10,7 @@ page](https://docs.silabs.com/rail/latest/rail-developers-guide-direct-mode/).
 
 ## SDK Version ##
 
-SiSDK 2024.6.2 and above
+SiSDK 2025.6.0 and above
 
 ## Hardware Required ##
 
@@ -37,7 +37,7 @@ terminal connected to the VCOM port.
    v5](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-about-the-launcher/welcome-and-device-tabs#example-projects-demos-tab)
    or with [SLC
    CLI](https://docs.silabs.com/simplicity-studio-5-users-guide/latest/ss-5-users-guide-tools-slc-cli/).
-2. Adjust parameters detailed in the [Configuration](#Configuration) section
+2. Adjust parameters detailed in the [Configuration](#configuration) section
    below.
 3. Build and flash the project on two boards.
 
@@ -194,13 +194,13 @@ Sets the default Tx FIFO length.
 
 #### `SL_DIRECT_MODE_DETECTOR_PACKET_LENGTH` ####
 
-Sets the default packet length in bytes for both Tx and RX.
+Sets the default packet length in bytes for both Tx and Rx.
 
 - Set it according to the Radio Configuration. Fixed-length config only.
 
 #### `SL_DIRECT_MODE_DETECTOR_PAYLOAD_PATTERN` ####
 
-Sets the payload pattern. 
+Sets the payload pattern.
 
 - For `OOK` modulation, the payload pattern should have several `1` symbols to
 ensure the receiver can detect the packet.
@@ -290,8 +290,3 @@ algorithm.
   measurement if the TIMERs operate at their default highest frequency. To
   address this, you may need to apply prescaling to the TIMERs and adjust the
   `symbol_duration` calculation accordingly.
-- An issue related to `Flex - RAIL PRS Support` component has been fixed in
-  `SiSDK 2024.06.02` version. If you are using an older version, you may need to
-  resolve the building errors. For more information, see the Issue `ID# 1332679`
-  in the [Proprietary Flex SDK 3.8.2.0 GA Release
-  Notes](https://www.silabs.com/documents/public/release-notes/flex-release-notes-3.8.2.0.pdf).
