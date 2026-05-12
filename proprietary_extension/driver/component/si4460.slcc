@@ -1,0 +1,24 @@
+id: "si4460"
+label: "Si4460"
+package: "platform"
+description: >
+  This component provides header files for the commands and properties used to control and configure the Si4460 EZRadioPRO part.
+category: "Platform|Driver|EZRadio"
+quality: "experimental"
+source:
+  - path: "driver/ezradiodrv/common/src/si4x6x/ezradio_api_lib_add.c"
+include:
+  - path: "driver/ezradiodrv/common/inc/si4x6x"
+    file_list:
+      - path: "ezradio_api_lib_add.h"
+  - path: "driver/ezradiodrv/si4460/inc"
+    file_list:
+      - path: "ezradio_cmd.h"
+      - path: "ezradio_prop.h"
+provides:
+  - name: "si4460"
+requires:
+  - name: "ezradiodrv"
+documentation:
+    docset: gecko-platform
+    document: platform-driver/ezradiodrv

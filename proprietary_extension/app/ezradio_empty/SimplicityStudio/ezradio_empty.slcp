@@ -1,0 +1,59 @@
+# Silicon Labs Project Configuration Tools: slcp, v0, Component selection file.
+project_name: ezradio_empty
+label: Proprietary Extension - EZRadio Driver - Empty
+package: proprietary
+
+description: >
+  This example project shows a default configuration for EZRadio Driver to control an
+  Si4455 radio.
+
+category: Proprietary Extension
+quality: experimental
+
+filter:
+  - name: Device Type
+    value: [SoC]
+  - name: Project Difficulty
+    value: [Beginner]
+  - name: MCU
+    value: [32-bit MCU]
+
+readme:
+  - path: ../readme.md
+
+source:
+  - path: ../src/app_init.c
+  - path: ../src/app_process.c
+
+include:
+  - path: "../inc"
+    file_list:
+      - path: app_init.h
+      - path: app_process.h
+  - path: "../config"
+    file_list:
+      - path: radio_config.h
+
+toolchain_settings:
+  - value: debug
+    option: optimize
+
+component:
+  - id: sl_main
+  - id: device_init
+  - id: app_log
+  - id: iostream_retarget_stdio
+  - id: iostream_recommended_stream
+  - id: clock_manager
+  - id: si4455
+    from: proprietary_extension
+  - id: ezradiodrv
+    from: proprietary_extension
+
+ui_hints:
+  highlight: ../README.md
+
+sdk_extension:
+  - id: proprietary_extension 
+    version: 1.0.0
+    vendor: silabs

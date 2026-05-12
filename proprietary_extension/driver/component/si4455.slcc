@@ -1,0 +1,24 @@
+id: "si4455"
+label: "Si4455"
+package: "platform"
+description: >
+  This component provides header files for the commands and properties used to control and configure the Si4455 EZRadio part.
+category: "Platform|Driver|EZRadio"
+quality: "experimental"
+source:
+  - path: "driver/ezradiodrv/common/src/si4x55/ezradio_api_lib_add.c"
+include:
+  - path: "driver/ezradiodrv/common/inc/si4x55"
+    file_list:
+      - path: "ezradio_api_lib_add.h"
+  - path: "driver/ezradiodrv/si4455/inc"
+    file_list:
+      - path: "ezradio_cmd.h"
+      - path: "ezradio_prop.h"
+provides:
+  - name: "si4455"
+requires:
+  - name: "ezradiodrv"
+documentation:
+    docset: gecko-platform
+    document: platform-driver/ezradiodrv

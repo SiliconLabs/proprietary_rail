@@ -1,0 +1,10 @@
+﻿# Properties file for Simplicity Studio metadata
+id=uc.extension.proprietary_extension
+
+version=1.0.0
+
+label=Proprietary Extension
+description=Proprietary Extension
+
+prop.file.templatesFile=templates.xml
+prop.subLabel=Proprietary\\ Extension\\ 1.0.0

@@ -1,0 +1,11 @@
+id: proprietary_extension
+label: Proprietary Extension
+description: >
+  Proprietary Extension
+version: 1.0.0
+sdk:
+  id: simplicity_sdk
+  version: "2025.6.0"
+component_path:
+  - path: driver/component
+vendor: silabs

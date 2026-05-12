@@ -32,6 +32,12 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 | RAIL Proprietary - OTA DFU Host                  |         [Click Here](./rail_ota_dfu_host)          |
 | RAIL Proprietary - OTA DFU Target                |        [Click Here](./rail_ota_dfu_target)         |
 
+## Extensions ##
+
+| Extension name        |                Link to extension                 |
+| :-------------------- | :----------------------------------------------: |
+| Proprietary Extension | [Proprietary Extension](./proprietary_extension/README.md) |
+
 ## Documentation ##
 
 Official documentation can be found at our [Developer Documentation](https://docs.silabs.com/rail/latest/) page.
