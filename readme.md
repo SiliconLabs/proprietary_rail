@@ -31,6 +31,7 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 | RAIL Proprietary - State Transition Test         |     [Click Here](./rail_state_transition_test)     |
 | RAIL Proprietary - OTA DFU Host                  |         [Click Here](./rail_ota_dfu_host)          |
 | RAIL Proprietary - OTA DFU Target                |        [Click Here](./rail_ota_dfu_target)         |
+| RAIL Proprietary - Image Rejection Calibration   |        [Click Here](./rail_ir_calibration)         |
 
 ## Extensions ##
 
