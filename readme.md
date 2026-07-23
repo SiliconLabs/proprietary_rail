@@ -17,21 +17,23 @@ Silicon Labs RAIL provides an intuitive, easily-customizable radio interface lay
 
 ## Examples ##
 
-| Example name                                     |                  Link to example                   |
-|:-------------------------------------------------|:--------------------------------------------------:|
-| RAIL Proprietary - Time Synchronization          |     [Click Here](./rail_time_synchronization)      |
-| RAIL Proprietary - Tutorial Transmit             |       [Click Here](./rail_tutorial_transmit)       |
-| RAIL Proprietary - Tutorial Event Handling       |    [Click Here](./rail_tutorial_event_handling)    |
-| RAIL Proprietary - Tutorial Downloading Messages | [Click Here](./rail_tutorial_downloading_messages) |
-| RAIL Proprietary - Direct Mode Packet Detector   |     [Click Here](./rail_direct_mode_detector)      |
-| RAIL Proprietary - Direct to Buffer              |       [Click Here](./rail_direct_to_buffer)        |
-| RAIL Proprietary - Address Filtering             |       [Click Here](./rail_address_filtering)       |
-| RAIL Proprietary - Improved RF Sense Transmitter | [Click Here](./rail_improved_rfsense_transmitter)  |
-| RAIL Proprietary - RF Generator                  |         [Click Here](./rail_rf_generator)          |
-| RAIL Proprietary - State Transition Test         |     [Click Here](./rail_state_transition_test)     |
-| RAIL Proprietary - OTA DFU Host                  |         [Click Here](./rail_ota_dfu_host)          |
-| RAIL Proprietary - OTA DFU Target                |        [Click Here](./rail_ota_dfu_target)         |
-| RAIL Proprietary - Image Rejection Calibration   |        [Click Here](./rail_ir_calibration)         |
+| Example name                                             |                  Link to example                           |
+|:---------------------------------------------------------|:----------------------------------------------------------:|
+| RAIL Proprietary - Time Synchronization                  |     [Click Here](./rail_time_synchronization)              |
+| RAIL Proprietary - Tutorial Transmit                     |       [Click Here](./rail_tutorial_transmit)               |
+| RAIL Proprietary - Tutorial Event Handling               |    [Click Here](./rail_tutorial_event_handling)            |
+| RAIL Proprietary - Tutorial Downloading Messages         | [Click Here](./rail_tutorial_downloading_messages)         |
+| RAIL Proprietary - Direct Mode Packet Detector           |     [Click Here](./rail_direct_mode_detector)              |
+| RAIL Proprietary - Direct to Buffer                      |       [Click Here](./rail_direct_to_buffer)                |
+| RAIL Proprietary - Address Filtering                     |       [Click Here](./rail_address_filtering)               |
+| RAIL Proprietary - Improved RF Sense Transmitter         | [Click Here](./rail_improved_rfsense_transmitter)          |
+| RAIL Proprietary - RF Generator                          |         [Click Here](./rail_rf_generator)                  |
+| RAIL Proprietary - State Transition Test                 |     [Click Here](./rail_state_transition_test)             |
+| RAIL Proprietary - OTA DFU Host                          |         [Click Here](./rail_ota_dfu_host)                  |
+| RAIL Proprietary - OTA DFU Target                        |        [Click Here](./rail_ota_dfu_target)                 |
+| RAIL Proprietary - Image Rejection Calibration           |        [Click Here](./rail_ir_calibration)                 |
+| RAIL Proprietary - Advanced Burst Duty Cycle Transmitter | [Click Here](./rail_advanced_burst_duty_cycle_transmitter) |
+| RAIL Proprietary - Advanced Burst Duty Cycle Receiver    |  [Click Here](./rail_advanced_burst_duty_cycle_receiver)   |
 
 ## Extensions ##
 
