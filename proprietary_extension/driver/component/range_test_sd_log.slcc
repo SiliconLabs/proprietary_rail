@@ -1,0 +1,27 @@
+id: range_test_sd_log
+package: proprietary_extension
+label: Range Test - SD card logging
+description: >
+  Driver for SD card logging functionalities (with GPS, if enabled) for Range Test applications. It provides an interface to log measurement data to an SD card, including GPS data if the GPS driver is enabled.
+category: Services
+quality: experimental
+provides:
+  - name: range_test_sd_log
+    allow_multiple: false
+template_contribution:
+  - name: component_catalog
+    value: range_test_sd_log
+  - name: event_handler
+    value:
+      event: internal_app_process_action
+      include: range_test_sd_log.h
+      handler: app_process_action_range_test_log
+config_file:
+  - path: driver/range_test_sd_log/config/sl_range_test_sd_log_config.h
+    file_id: range_test_sd_log_config
+include:
+  - path: driver/range_test_sd_log/inc
+    file_list:
+      - path: range_test_sd_log.h
+source:
+  - path: driver/range_test_sd_log/src/range_test_sd_log.c

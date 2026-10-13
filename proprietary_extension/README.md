@@ -41,6 +41,7 @@ This extension provides the following example projects:
 | No  | Name                                           | Example                        | Documentation                                  |
 | --- | ---------------------------------------------- | ------------------------------ | ---------------------------------------------- |
 | 1   | Proprietary Extension - EZRadio Driver - Empty | [Example](./app/ezradio_empty) | [Documentation](./app/ezradio_empty/README.md) |
+| 2   | Proprietary Extension - SoC Range Test with GPS data logging | [Example](./app/rail_soc_range_test_gps_data_logging) | [Documentation](./app/rail_soc_range_test_gps_data_logging/README.md) |
 
 ## Components ##
 
@@ -54,6 +55,7 @@ This extension provides the following components.
 | 4   | Si4461     | [driver/component/si4461.slcc](./driver/component/si4461.slcc)         | EZRadioPRO part component                                                                              |
 | 5   | Si4463     | [driver/component/si4463.slcc](./driver/component/si4463.slcc)         | EZRadioPRO part component                                                                              |
 | 6   | Si4467/68  | [driver/component/si4468.slcc](./driver/component/si4468.slcc)         | EZRadioPRO part component                                                                              |
+| 7   | Range Test - SD card logging | [driver/component/range_test_sd_log.slcc](./driver/component/range_test_sd_log.slcc) | Adds SD card logging interface (with GPS, if enabled) to Range Test applications.                                                                          |
 
 ## Repository Layout ##
 
